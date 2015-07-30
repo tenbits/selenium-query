@@ -1,0 +1,105 @@
+UTest({
+	$before () {
+		Utils.start();
+	},
+	'should get/set attributes': {
+		'get attr' (done) {
+			Utils.query('/html/foo.html', $ => {
+				$
+					.find('span')
+					.attr('class')
+					.done(val => {
+						eq_(val, 'foo');
+						done();
+					})
+			});
+		},
+		'set attr' (done) {
+			Utils.query('/html/foo.html', $ => {
+				$
+					.find('.foo')
+					.attr('class', 'baz')
+					.done($ => {
+						eq_($.length, 2);
+
+						function check(node, klass, tagName, next) {
+							node.getAttribute('class').then(val => {
+								eq_(val, klass);
+
+								node.getTagName().then(val => {
+									eq_(val, tagName);
+									next();
+								});
+							});
+						}
+						check($[0], 'baz', 'span', () => {
+							check($[1], 'baz', 'section', done);
+						});
+					})
+			});
+		}
+	},
+	'should get/set value': {
+		'get value' (done) {
+			Utils.query('/html/foo.html', $ => {
+				$
+					.find('input[type=text]')
+					.val()
+					.done(val => {
+						eq_(val, 'Hello');
+						done();
+					})
+			});
+		},
+		'set value' (done) {
+			Utils.query('/html/foo.html', $ => {
+				$
+					.find('input[type=text]')
+					.val('Ciao')
+					.done($ => {
+						eq_($.length, 1);
+
+						$[0].getTagName().then(name => {
+							eq_(name, 'input');
+
+							new SQuery($)
+								.val()
+								.done(val => {
+									eq_(val, 'Ciao');
+									done();
+								})
+						});
+					})
+			});
+		}
+	},
+	'should get/set textContent': {
+		'get text' (done) {
+			Utils.query('/html/foo.html', $ => {
+				$
+					.find('.foo')
+					.text()
+					.done(val => {
+						eq_(val, 'Span1Span2');
+						done();
+					})
+			});
+		},
+		'set text' (done) {
+			Utils.query('/html/foo.html', $ => {
+				$
+					.find('.foo')
+					.text('Foo')
+					.done(val => {
+						$
+							.find('.foo')
+							.text()
+							.done(val => {
+								eq_(val, 'FooFoo');
+								done();
+							})
+					})
+			});
+		}
+	}
+});

@@ -1,0 +1,11 @@
+# ide
+
+*.komodoproject
+
+# project
+
+/src
+/builds
+build.js
+.travis.yml
+.npmignore

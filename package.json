@@ -1,0 +1,46 @@
+{
+  "name": "domtest",
+  "description": "Helps to perform unit and integration testing on documents and elements",
+  "version": "0.10.24",
+  "contributors": [],
+  "main": "./lib/domtest.js",
+  "author": "Alexander Kit <alex.kit@atmajs.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atmajs/domtest.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atmajs/domtest/issues"
+  },
+  "licenses": [
+    "MIT"
+  ],
+  "devDependencies": {
+    "atma": ">0.9.26",
+    "atma-loader-babel": "^1.0.19"
+  },
+  "scripts": {
+    "test": "atma test",
+    "build": "atma"
+  },
+  "keywords": [
+    "dom assertions"
+  ],
+  "atma": {
+    "plugins": [
+      "atma-loader-babel"
+    ],
+    "settings": {
+      "atma-loader-babel": {
+        "extensions": [
+          "test",
+          "es6"
+        ]
+      }
+    }
+  },
+  "dependencies": {
+    "atma-utils": "^0.1.6",
+    "selenium-webdriver": "^2.46.1"
+  }
+}
