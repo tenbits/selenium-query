@@ -7,6 +7,16 @@
 		<form>
 			<input type='text' value='Hello' placeholder='Greeting' />
 			<button class='btn-upload' data-my-baz='foo' >Upload</button>
+
+			<script>
+				document.querySelector('.btn-upload').addEventListener('click', function(e){
+					e.target.previousElementSibling.value = 'Gruesse';
+					e.preventDefault();
+				}, false);
+				document.querySelector('.btn-upload').addEventListener('MyCustom', function(e){
+					e.target.previousElementSibling.value = 'Guten Tag';
+				}, false);
+			</script>
 		</form>
 	</body>
 </html>

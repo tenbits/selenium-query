@@ -23,13 +23,6 @@
 					.done(() => $.add(node));
 			});
 		},
-
-		append (str) {
-			return async_each(this, ($, node) => {
-				return node_eval(node, scripts_nodeInsertAdjacentHTML, 'beforeend', str)
-					.done(() => $.add(node));
-			});
-		},
 	});
 
 	(function(){
@@ -42,9 +35,9 @@
 
 		Object.keys(map).forEach(fn => {
 			var position = map[fn];
-			SQueryProto[fn] = function (str) {
+			SQueryProto[fn] = function (html) {
 				return async_each(this, ($, node) => {
-					return node_eval(node, scripts_nodeFunctionCall, 'insertAdjacentHTML', position, str)
+					return node_eval(node, scripts_nodeFunctionCall, 'insertAdjacentHTML', position, html)
 						.done(() => $.add(node));
 				});
 			};

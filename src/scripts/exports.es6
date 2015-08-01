@@ -14,3 +14,4 @@
 // import ./class/remove.es6
 // import ./class/toggle.es6
 // import ./class/has.es6
+// import ./events/trigger.es6
