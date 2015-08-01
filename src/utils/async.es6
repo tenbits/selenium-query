@@ -1,10 +1,11 @@
 var async_traverse,
 	async_each,
 	async_at,
-	async_get,
+	async_getFirst,
 	async_mutate,
 	async_next,
-	async_aggr;
+	async_aggr,
+	async_waterfall;
 (function(){
 
 	async_each = function(self, fn){
@@ -41,7 +42,7 @@ var async_traverse,
 	async_aggr = function(accum, $, fn){
 		return dfr_run((resolve, reject) => {
 			$.done($ => {
-				_waterfall($, node => {
+				async_waterfall($, node => {
 					return fn(accum, node)
 						.then(val => {
 							accum = val;
@@ -53,14 +54,14 @@ var async_traverse,
 	};
 
 	async_traverse = function(self, fn) {
-		return async_each(self, function($, node){
+		return async_each(self, ($, node) => {
 			return _always(fn(node), mix => {
 				$.add(mix);
 			});
 		});
 	};
 
-	async_get = function(self, getter){
+	async_getFirst = function(self, getter){
 		return dfr_run(resolve => {
 			self.done(ctx => {
 				if (ctx.length === 0) {
@@ -87,7 +88,7 @@ var async_traverse,
 		return $;
 	};
 
-	function _waterfall(arr, fn) {
+	async_waterfall = function(arr, fn) {
 		return dfr_run((resolve, reject) => {
 			var i = -1,
 				imax = arr.length;
@@ -97,11 +98,11 @@ var async_traverse,
 					resolve();
 					return;
 				}
-				fn(arr[i]).then(() => next(), (error) => reject(error));
+				fn(arr[i], i).then(() => next(), (error) => reject(error));
 			}
 			next();
 		});
-	}
+	};
 
 	function _always(dfr, fn) {
 		if (dfr == null) {

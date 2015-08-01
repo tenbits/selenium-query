@@ -1,0 +1,11 @@
+function scripts_nodeCss(){
+	// import _inlineGetSetKeyValue.es6
+	// import _str.es6
+
+	function get(el, key) {
+		return getComputedStyle(el)[str_toCamelCase(key)];
+	}
+	function set(el, key, val) {
+		el.style[str_toCamelCase(key)] = val;
+	}
+}

@@ -19,7 +19,7 @@ var Utils = {
 	},
 	stop: function () {
 		if (this.driver) {
-			this.driver.quite();
+			this.driver.quit();
 			this.driver = null;
 			return
 		}

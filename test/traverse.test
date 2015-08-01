@@ -2,13 +2,17 @@ UTest({
 	$before () {
 		Utils.start();
 	},
-	'find' () {
-		return Utils.query('/html/foo.html', $ => {
-			return $
+	$after () {
+		//Utils.stop();
+	},
+	'find' (done) {
+		Utils.query('/html/foo.html', $ => {
+			$
 				.find('span')
 				.done($ => {
 					eq_($.length, 2);
-				})
+					done();
+				});
 		});
 	},
 	'filter' (done) {
@@ -61,7 +65,7 @@ UTest({
 					.find('body')
 					.children()
 					.done($ => {
-						eq_($.length, 3);
+						eq_($.length, 4);
 						done();
 					})
 			})

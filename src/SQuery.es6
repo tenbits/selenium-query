@@ -1,45 +1,4 @@
-var SQuery = _.class_create(_.class_Dfr, ProtoTraverse, ProtoManip, {
-	length: 0,
-	constructor (mix) {
-		if (this instanceof SQuery === false) {
-			return new SQuery(els);
-		}
-		if (arguments.length === 0) {
-			return;
-		}
-		this.add(mix);
-		this.resolve(this);
-	},
-	add (mix) {
-		if (mix == null)
-			return this;
-		if (_.is_Array(mix) === true)
-			return each(mix, this.add, this);
-
-		this[this.length++] = mix;
-		return this;
-	},
-	eq (num) {
-		return async_next(this, (source, $) => {
-			if (num <= source.length) {
-				$.add(source[num]);
-			}
-		});
-	},
-	slice (start = 0, end = null) {
-		return async_next(this, (source, $) => {
-			var i = start;
-			if (end > source.length) {
-				end = source.length;
-			}
-			if (i < end) {
-				for(; i < end; i++) {
-					$.add(source[i]);
-				}
-			}
-		});
-	}
-})
+var SQuery = _.class_create(_.class_Dfr, SQueryProto);
 
 var x =  {
 
