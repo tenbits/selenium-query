@@ -1,14 +1,14 @@
 (function(){
 
 	_.obj_extend(SQueryProto, {
-		attr (key, val = null) {
-			if (arguments.length === 1) {
+		attr (mix, val = null) {
+			if (arguments.length === 1 && typeof mix === 'string') {
 				return async_getValueOf(0, this, node => {
-					return node.getAttribute(key);
+					return node.getAttribute(mix);
 				});
 			}
 			return async_mutate(this, node => {
-				return node_eval(node, scripts_nodeAttribute, key, val);
+				return node_eval(node, scripts_nodeAttribute, mix, val);
 			});
 		},
 		val (val = null) {

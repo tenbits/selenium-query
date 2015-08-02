@@ -1,0 +1,32 @@
+UTest({
+	$before () {
+		Utils.start();
+	},
+	$after () {
+		//Utils.stop();
+	},
+	'should get css value' (done) {
+		Utils.query('/html/foo.html', $ => {
+			$
+				.find('form > input')
+				.css('display')
+				.done(val => {
+					eq_(val, 'inline-block');
+					done();
+				});
+		});
+	},
+	'shoudl set css value' (done) {
+		Utils.query('/html/foo.html', $ => {
+			$
+				.find('form > input')
+				.css('background-color', 'red')
+				.css('background-color')
+				.done(val => {
+					eq_(val, 'rgba(255, 0, 0, 1)');
+					done();
+				});
+		});
+	}
+
+});

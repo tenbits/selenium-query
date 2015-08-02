@@ -9,7 +9,6 @@
 // import ./nodeFunctionCall.es6
 // import ./nodeDataset.es6
 // import ./nodeDatasetRemove.es6
-// import ./nodeCss.es6
 // import ./nodeSelectTextRange.es6
 // import ./nodeSelectOption.es6
 // import ./class/add.es6
@@ -17,3 +16,4 @@
 // import ./class/toggle.es6
 // import ./class/has.es6
 // import ./events/trigger.es6
+// import ./css/nodeCss.es6
