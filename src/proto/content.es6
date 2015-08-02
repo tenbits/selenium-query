@@ -14,7 +14,7 @@
 		},
 		html (str = null) {
 			if (arguments.length === 0) {
-				return async_getFirst(this, node => {
+				return async_getValueOf(0, this, node => {
 					return node_eval(node, scripts_nodeProperty, 'innerHTML')
 				});
 			}

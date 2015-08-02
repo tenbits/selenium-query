@@ -29,7 +29,7 @@ UTest({
 				});
 		});
 	},
-	'!should press key combination' (done) {
+	'should press a key combination' (done) {
 		Utils.query('/html/foo.html', $ => {
 			var input = $.find('form > input[type=text]');
 			input

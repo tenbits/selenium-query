@@ -8,6 +8,12 @@
 			<input type='text' value='Hello' placeholder='Greeting' />
 			<button class='btn-upload' data-my-baz='foo' >Upload</button>
 
+			<select name='letters'>
+				<option>A</option>
+				<option>B</option>
+				<option>C</option>
+				<option>D</option>
+			</select>
 			<script>
 				document.querySelector('.btn-upload').addEventListener('click', function(e){
 					e.target.previousElementSibling.value = 'Gruesse';

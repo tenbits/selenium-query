@@ -1,9 +1,14 @@
 function scripts_nodeTrigger() {
 	var el = arguments[0],
 		type = arguments[1],
-		data = arguments[2],
-		event = create(type, data);
+		data = arguments[2];
 
+	if (data == null && typeof el[type] === 'function') {
+		el[type]();
+		return;
+	}
+
+	var event = create(type, data);
 	dispatch(el, event);
 
 	function createEvent (type){

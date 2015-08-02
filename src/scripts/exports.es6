@@ -10,6 +10,8 @@
 // import ./nodeDataset.es6
 // import ./nodeDatasetRemove.es6
 // import ./nodeCss.es6
+// import ./nodeSelectTextRange.es6
+// import ./nodeSelectOption.es6
 // import ./class/add.es6
 // import ./class/remove.es6
 // import ./class/toggle.es6

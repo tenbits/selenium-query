@@ -1,7 +1,7 @@
 var async_traverse,
 	async_each,
 	async_at,
-	async_getFirst,
+	async_getValueOf,
 	async_mutate,
 	async_next,
 	async_aggr,
@@ -61,14 +61,14 @@ var async_traverse,
 		});
 	};
 
-	async_getFirst = function(self, getter){
+	async_getValueOf = function(index, self, getter){
 		return dfr_run(resolve => {
 			self.done(ctx => {
-				if (ctx.length === 0) {
+				if (index >= ctx.length) {
 					resolve(null);
 					return;
 				}
-				getter(ctx[0]).then(resolve, error => {
+				getter(ctx[index]).then(resolve, error => {
 					console.error('Getter error', error);
 					resolve(null);
 				});
