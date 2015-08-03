@@ -1,4 +1,5 @@
 var node_eval,
+	node_evalGlobal,
 	node_is;
 (function(){
 	node_eval = function(node, mix, ...args) {
@@ -13,6 +14,18 @@ var node_eval,
 				});
 		});
 	};
+	node_evalGlobal = function(mix, ...args) {
+		return dfr_run(resolve => {
+			var script = toScript(mix);
+
+			_webdriver
+				.executeScript(script, ...args)
+				.then(resolve, error => {
+					console.error('Unexpected browser error', error);
+					resolve();
+				});
+		});
+	};
 
 	function getDriver(node) {
 		if (node.executeScript) {
@@ -21,7 +34,7 @@ var node_eval,
 		if (node.getDriver) {
 			return node.getDriver();
 		}
-		return node.driver_;
+		return node.driver_ || _webdriver;
 	}
 
 	function toScript(mix) {

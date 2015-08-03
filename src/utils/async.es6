@@ -18,6 +18,16 @@ var async_traverse,
 		});
 		return $;
 	};
+	async_map = function(self, fn){
+		return async_next(self, (source, $) => {
+			return async_waterfall(source, (node, i) => {
+				function add(x) {
+					$.add(x);
+				}
+				return fn(node, i).then(add, () => add(null));
+			});
+		});
+	};
 
 	async_at = function(self, index, fn) {
 		var $ = new SQuery();

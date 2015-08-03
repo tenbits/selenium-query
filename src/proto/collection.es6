@@ -35,5 +35,16 @@ obj_extend(SQueryProto, {
 				return fn(node, i);
 			})
 		});
+	},
+	map (fn) {
+		return async_map(this, fn);
+	},
+	toArray () {
+		return dfr_run(resolve => {
+			this.done($ => {
+				var arr = Array.prototype.call.slice($);
+				resolve(arr);
+			});
+		})
 	}
 })
