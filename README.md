@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/tenbits/selenium-query.png?branch=master)](https://travis-ci.org/tenbits/selenium-query)
 
-__jQuery-alike API with Selenium WebDriver__
+**jQuery-alike API for [Selenium WebDriver](http://selenium.googlecode.com/git/docs/api/javascript/index.html)**
 
 ---
 
