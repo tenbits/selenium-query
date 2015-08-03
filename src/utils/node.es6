@@ -4,13 +4,14 @@ var node_eval,
 (function(){
 	node_eval = function(node, mix, ...args) {
 		return dfr_run(resolve => {
-			var script = toScript(mix);
-			var driver = getDriver(node);
-
-			if (driver instanceof _webdriver.WebDriver) {
+			if (node instanceof _webdriver.WebDriver) {
+				// Selenium can not run scripts with WebDriver context
 				resolve();
 				return;
 			}
+
+			var script = toScript(mix);
+			var driver = getDriver(node);
 			getDriver(node)
 				.executeScript(script, node, ...args)
 				.then(resolve, error => {
