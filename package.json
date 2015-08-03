@@ -1,7 +1,7 @@
 {
   "name": "selenium-query",
   "description": "jQuery API for Selenium WebDriver",
-  "version": "0.50.24",
+  "version": "0.50.25",
   "contributors": [],
   "main": "./lib/query.js",
   "author": "Alexander Kit <alex.kit@atmajs.com>",
