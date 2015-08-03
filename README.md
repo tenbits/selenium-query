@@ -76,7 +76,7 @@ $(driver)
 
 
 
-###### `constructor(WebDriver|WebElement|Array<WebElement>|SQuery|Array<SQuery>)` <a name='constructor'></a>
+##### `constructor(WebDriver|WebElement|Array<WebElement>|SQuery|Array<SQuery>)` <a name='constructor'></a>
 
 - [WebDriver](http://selenium.googlecode.com/git/docs/api/javascript/module_selenium-webdriver_class_WebDriver.html)
 - [WebElement](http://selenium.googlecode.com/git/docs/api/javascript/class_webdriver_WebElement.html)
@@ -89,11 +89,11 @@ var $inputs = $elements.find('inputs');
 
 ## Collection
 
-###### `length:number` <a name='length'></a>
+##### `length:number` <a name='length'></a>
 Count of WebElements in a current set.
 > :exclamation: Due to asynchronous nature, sometimes you have to wait until the promise is resolved to get the correct `length` value
 
-###### `eq(index:number):SQuery` <a name='eq'></a>
+##### `eq(index:number):SQuery` <a name='eq'></a>
 Get the SQuery instance with only one element at the index.
 > :exclamation: Once again, wait until the promise is resolved, or **chain** the manipulations
 ```javascript
@@ -116,112 +116,112 @@ $(driver)
 	});
 ```
 
-###### `slice([start:number = 0, end:number = .length]):SQuery` <a name='slice'></a>
+##### `slice([start:number = 0, end:number = .length]):SQuery` <a name='slice'></a>
 Get elements range.
 
-###### `each(function<node:WebElement, index:number, Promise|void 0>):SQuery` <a name='each'></a>
+##### `each(function<node:WebElement, index:number, Promise|void 0>):SQuery` <a name='each'></a>
 Enumerate the collection. The callback function can return a promise, if an async job is performed.
 
 ## Traverse
 
-###### `find(selector:string):SQuery` <a name='find'></a>
+##### `find(selector:string):SQuery` <a name='find'></a>
 Find element(s).
 
-###### `filter(selector:string):SQuery` <a name='filter'></a>
+##### `filter(selector:string):SQuery` <a name='filter'></a>
 Filter element(s) out of the current collection.
 
-###### `children([selector:string]):SQuery` <a name='children'></a>
+##### `children([selector:string]):SQuery` <a name='children'></a>
 Get, and optionally filter, children of every element in the collection.
 
-###### `parent():SQuery` <a name='parent'></a>
+##### `parent():SQuery` <a name='parent'></a>
 Get parent elements of every element in the collection
 
-###### `closest(selector):SQuery` <a name='closest'></a>
+##### `closest(selector):SQuery` <a name='closest'></a>
 Find ancestor of every element in the collection
 
 
 ## Attributes
 
-###### `attr(key:string | key:string, val:any | attributes:Object ):SQuery|Promise<any>` <a name='attr'></a>
+##### `attr(key:string | key:string, val:any | attributes:Object ):SQuery|Promise<any>` <a name='attr'></a>
 Get attribute value of the first element in the collection, or set attribute(s) to each element.
 
-###### `removeAttr(key:string):SQuery` <a name='removeAttr'></a>
+##### `removeAttr(key:string):SQuery` <a name='removeAttr'></a>
 Remove the attribute
 
 ##### `prop(key:string | key:string, val:any | properties:Object):SQuery|Promise<any>` <a name='prop'></a>
 Get property value of the first element in the collection, or set property(ies) to each element.
 
-###### `removeProp(key:string):SQuery` <a name='removeProp'></a>
+##### `removeProp(key:string):SQuery` <a name='removeProp'></a>
 Delete property
 
-###### `val([value:string]):SQuery` <a name='val'></a>
+##### `val([value:string]):SQuery` <a name='val'></a>
 Get or set `value` property, like `input.value`
 
-###### `css(key:string | key:string, val:string | css:Object ):SQuery|Promise<any>` <a name='css'></a>
+##### `css(key:string | key:string, val:string | css:Object ):SQuery|Promise<any>` <a name='css'></a>
 Get or set style properties
 
 ## Class
 
-###### `hasClass(name:string):Promise<boolean>` <a name='hasClass'></a>
+##### `hasClass(name:string):Promise<boolean>` <a name='hasClass'></a>
 Check if the first element has the class name.
 
-###### `addClass(name:string):SQuery` <a name='addClass'></a>
+##### `addClass(name:string):SQuery` <a name='addClass'></a>
 Add the class name(s) to every element in the collection
 
-###### `removeClass(name:string):SQuery` <a name='removeClass'></a>
+##### `removeClass(name:string):SQuery` <a name='removeClass'></a>
 Remove the class name(s) of every element in the collection
 
-###### `toggleClass(name:string):SQuery` <a name='toggleClass'></a>
+##### `toggleClass(name:string):SQuery` <a name='toggleClass'></a>
 Toggle the class name(s) of every element in the collection
 
 ## Manipulate
 
-###### `remove():SQuery` <a name='remove'></a>
+##### `remove():SQuery` <a name='remove'></a>
 Remove the elements from the parent nodes
 
 ## Dimensions
 
-###### `height():Promise<number>` <a name='height'></a>
-###### `width():Promise<number>` <a name='width'></a>
-###### `innerHeight():Promise<number>` <a name='innerHeight'></a>
-###### `innerWidth():Promise<number>` <a name='innerWidth'></a>
-###### `offset():Promise<object{top,left}>` <a name='offset'></a>
-###### `position():Promise<object{top,left}>` <a name='position'></a>
-###### `scrollTop():Promise<number>` <a name='scrollTop'></a>
-###### `scrollLeft():Promise<number>` <a name='scrollLeft'></a>
+##### `height():Promise<number>` <a name='height'></a>
+##### `width():Promise<number>` <a name='width'></a>
+##### `innerHeight():Promise<number>` <a name='innerHeight'></a>
+##### `innerWidth():Promise<number>` <a name='innerWidth'></a>
+##### `offset():Promise<object{top,left}>` <a name='offset'></a>
+##### `position():Promise<object{top,left}>` <a name='position'></a>
+##### `scrollTop():Promise<number>` <a name='scrollTop'></a>
+##### `scrollLeft():Promise<number>` <a name='scrollLeft'></a>
 
 ## Content
 
-###### `html([html:string]):SQuery|Promise<string>` <a name='html'></a>
-###### `text([text:string]):SQuery|Promise<string>` <a name='text'></a>
+##### `html([html:string]):SQuery|Promise<string>` <a name='html'></a>
+##### `text([text:string]):SQuery|Promise<string>` <a name='text'></a>
 
-###### `append(html:string):SQuery` <a name='append'></a>
-###### `prepend(html:string):SQuery` <a name='prepend'></a>
-###### `before(html:string):SQuery` <a name='before'></a>
-###### `after(html:string):SQuery` <a name='after'></a>
+##### `append(html:string):SQuery` <a name='append'></a>
+##### `prepend(html:string):SQuery` <a name='prepend'></a>
+##### `before(html:string):SQuery` <a name='before'></a>
+##### `after(html:string):SQuery` <a name='after'></a>
 
 ## Events
 
-###### `trigger(type:string [, data:Object]):SQuery` <a name='trigger'></a>
+##### `trigger(type:string [, data:Object]):SQuery` <a name='trigger'></a>
 Trigger native or custom event.
 
-###### `click():SQuery` <a name='click'></a>
-###### `change():SQuery` <a name='change'></a>
+##### `click():SQuery` <a name='click'></a>
+##### `change():SQuery` <a name='change'></a>
 Trigger `change` event
-###### `focus():SQuery` <a name='click'></a>
-###### `blur():SQuery` <a name='click'></a>
+##### `focus():SQuery` <a name='click'></a>
+##### `blur():SQuery` <a name='click'></a>
 
-###### `type(text:string):SQuery` <a name='type'></a>
+##### `type(text:string):SQuery` <a name='type'></a>
 Enter the text.
 > :exclamation: Meta keys are supported in `{}`
 
-###### `press(combination:string):SQuery` <a name='press'></a>
+##### `press(combination:string):SQuery` <a name='press'></a>
 Press key combination. E.g.: `ctrl+c`, `a+b+c`, `ctrl+alt+d`, `ctrl++` _(`control` and `plus` keys)_
 
-###### `sendKeys(text:string):SQuery` <a name='sendKeys'></a>
+##### `sendKeys(text:string):SQuery` <a name='sendKeys'></a>
 Call native Selenums `sendKeys` fn on each element
 
-###### `select(text:string | start:number[, end:number]):SQuery` <a name='select'></a>
+##### `select(text:string | start:number[, end:number]):SQuery` <a name='select'></a>
 Select an option from the `select` element, or if the `input` the selects a text or range
 
 
