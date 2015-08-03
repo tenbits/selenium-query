@@ -1,5 +1,6 @@
 var async_traverse,
 	async_each,
+	async_map,
 	async_at,
 	async_getValueOf,
 	async_mutate,
