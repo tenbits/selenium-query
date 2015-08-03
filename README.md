@@ -1,5 +1,6 @@
 # Selenium Query Library
 
+[![Build Status](https://travis-ci.org/tenbits/selenium-query.png?branch=master)](https://travis-ci.org/tenbits/selenium-query)
 
 __jQuery-alike API with Selenium WebDriver__
 
