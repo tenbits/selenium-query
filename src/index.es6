@@ -11,3 +11,5 @@ var _webdriver = require('selenium-webdriver');
 
 // import proto/exports.es6
 // import SQuery.es6
+
+// import static/exports.es6

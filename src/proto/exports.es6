@@ -2,7 +2,7 @@ var SQueryProto = {
 	length: 0,
 	constructor (mix) {
 		if (this instanceof SQuery === false) {
-			return new SQuery(els);
+			return new SQuery(mix);
 		}
 		if (arguments.length === 0) {
 			return;

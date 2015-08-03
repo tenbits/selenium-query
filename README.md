@@ -74,6 +74,8 @@ $(driver)
 	- :sparkles: [`sendKeys`](#sendKeys)
 	- :sparkles: [`select`](#select)
 
+- [Document]
+	- [`load`](#load)
 
 
 ##### `constructor(WebDriver|WebElement|Array<WebElement>|SQuery|Array<SQuery>)` <a name='constructor'></a>
@@ -223,6 +225,37 @@ Call native Selenums `sendKeys` fn on each element
 
 ##### `select(text:string | start:number[, end:number]):SQuery` <a name='select'></a>
 Select an option from the `select` element, or if the `input` the selects a text or range
+
+
+## Document
+
+#### `static` `load(url:string[, config:WebDriverOptions]):SQuery` <a name='load'></a>
+Create or reuse a WebDriver, and load the page.
+
+#### `WebDriverOptions` defaults
+```javascript
+{
+	name: 'Chrome',
+	args: ['no-sandbox'],
+	binaryPath: null,
+
+	// For better control and to change the behaviour of how the options are created and applied,
+	// you can define next functions
+	applyOptions: function(builder, options) {},
+	setOptions (builder, options) {},
+	setArguments (options) {},
+	setBinaryPath (options) {},
+	setLogging (options) {}
+}
+```
+
+**Example**
+```javascript
+SQuery
+	.load('http://google.com')
+	.find('input')
+	.css('background-color', 'red');
+```
 
 
 :checkered_flag:
