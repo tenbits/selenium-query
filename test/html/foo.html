@@ -1,9 +1,28 @@
 <!doctype html>
 <html>
 	<body>
+		<style>
+			footer {
+				height: 100px;
+				width: 300px;
+				position: absolute;
+				top: 100px;
+				left: 100px;
+				background: gray;
+				opacity: .4
+			}
+			footer > div {
+				position: relative;
+				top: 5px;
+				left: 10px;
+				background: red;
+				width: 20px;
+				height: 20px;
+			}
+		</style>
 		<span class='foo'>Span1</span>
 		<section class='foo'><span>Span2</span></section>
-		<footer></footer>
+		<footer><div></div></footer>
 		<form>
 			<style>
 				input[type=text] {
@@ -11,8 +30,7 @@
 				}
 			</style>
 			<input type='text' value='Hello' placeholder='Greeting' />
-			<button class='btn-upload' data-my-baz='foo' >Upload</button>
-
+			<button class='btn-upload' data-my-baz='foo'>Upload</button>
 			<select name='letters'>
 				<option>A</option>
 				<option>B</option>

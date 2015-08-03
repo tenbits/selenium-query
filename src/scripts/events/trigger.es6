@@ -15,14 +15,18 @@ function scripts_nodeTrigger() {
 		var event = document.createEvent('Event');
 		event.initEvent(type, true, true);
 		return event;
-	};
-	function create(type, data){
-		if (data == null)
-			return createEvent(type);
+	}
+	function createCustomEvent (type, data = {}){
 		var event = document.createEvent('CustomEvent');
 		event.initCustomEvent(type, true, true, data);
 		return event;
-	};
+	}
+	function create(type, data){
+		if (data == null || ('on' + type) in el)
+			return createEvent(type);
+
+		return createCustomEvent(type, data);
+	}
 	function dispatch(node, event){
 		node.dispatchEvent(event);
 	};

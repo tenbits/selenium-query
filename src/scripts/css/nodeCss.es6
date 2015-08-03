@@ -6,6 +6,7 @@ function scripts_nodeCss(){
 		return getComputedStyle(el)[str_toCamelCase(key)];
 	}
 	function set(el, key, val) {
+		console.log(arguments);
 		el.style[str_toCamelCase(key)] = val;
 	}
 }

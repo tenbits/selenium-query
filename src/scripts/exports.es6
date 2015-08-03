@@ -3,6 +3,7 @@
 // import ./nodeClosest.es6
 // import ./nodeChildren.es6
 // import ./nodeNext.es6
+// import ./nodeRemove.es6
 // import ./nodeAttribute.es6
 // import ./nodeAttributeRemove.es6
 // import ./nodeProperty.es6

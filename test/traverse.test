@@ -65,7 +65,7 @@ UTest({
 					.find('body')
 					.children()
 					.done($ => {
-						eq_($.length, 4);
+						eq_($.length, 5);
 						done();
 					})
 			})

@@ -142,7 +142,7 @@ UTest({
 					.done($ => eq_($.length, 1))
 					.html()
 					.done(val => {
-						eq_(val, '');
+						eq_(val, '<div></div>');
 
 						$
 							.find('footer')
@@ -198,6 +198,24 @@ UTest({
 						.children('.one')
 						.done($ => {
 							eq_($.length, 3);
+							done();
+						});
+				});
+		});
+	},
+
+	'should remove element' (done) {
+		Utils.query('/html/foo.html', $ => {
+			$
+				.find('.foo')
+				.remove()
+				.done($ => {
+					eq_($.length, 2);
+
+					$
+						.find('.foo')
+						.done($ => {
+							eq_($.length, 0);
 							done();
 						});
 				});

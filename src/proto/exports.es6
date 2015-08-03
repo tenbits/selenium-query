@@ -16,6 +16,7 @@ var SQueryProto = {
 // import ./traverse.es6
 // import ./properties.es6
 // import ./content.es6
+// import ./manipulate.es6
 // import ./events.es6
 // import ./keyboard.es6
 // import ./css.es6

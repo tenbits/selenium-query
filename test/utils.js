@@ -2,7 +2,7 @@ var Utils = {
 	driver: null,
 	start: function () {
 		if (this.driver) {
-			return this.driver();
+			return this.driver;
 		}
 
 		var webdriver = require('selenium-webdriver');
