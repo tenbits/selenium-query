@@ -10,6 +10,9 @@ var Utils = {
 		var options = new chrome.Options();
 		options.addArguments('no-sandbox');
 
+		if (process.env.BROWSER_PATH) {
+			options.setChromeBinaryPath(process.env.BROWSER_PATH);
+		}
 		this.driver = new webdriver.Builder()
 		  .forBrowser('chrome')
 		  .setChromeOptions(options)

@@ -74,13 +74,13 @@
 			},
 			setLogging (options) {
 				options.setLoggingPrefs({
-					
+
 				});
 			}
 		};
 
 		if (typeof process.env.BROWSER_PATH !== 'undefined') {
-			DefaultConfig.browserPath = process.env.BROWSER_PATH;
+			DefaultConfig.binaryPath = process.env.BROWSER_PATH;
 		}
 
 	}());
