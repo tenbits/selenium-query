@@ -5,8 +5,7 @@ var node_eval,
 		return dfr_run(resolve => {
 			var script = toScript(mix);
 
-			node
-				.driver_
+			getDriver(node)
 				.executeScript(script, node, ...args)
 				.then(resolve, error => {
 					console.error('Unexpected browser error', error);
@@ -15,6 +14,15 @@ var node_eval,
 		});
 	};
 
+	function getDriver(node) {
+		if (node.executeScript) {
+			return node;
+		}
+		if (node.getDriver) {
+			return node.getDriver();
+		}
+		return node.driver_;
+	}
 
 	function toScript(mix) {
 		if (typeof mix === 'string') {
