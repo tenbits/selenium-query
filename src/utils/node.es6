@@ -5,7 +5,12 @@ var node_eval,
 	node_eval = function(node, mix, ...args) {
 		return dfr_run(resolve => {
 			var script = toScript(mix);
+			var driver = getDriver(node);
 
+			if (driver instanceof _webdriver.WebDriver) {
+				resolve();
+				return;
+			}
 			getDriver(node)
 				.executeScript(script, node, ...args)
 				.then(resolve, error => {
@@ -34,7 +39,7 @@ var node_eval,
 		if (node.getDriver) {
 			return node.getDriver();
 		}
-		return node.driver_ || _webdriver;
+		return node.driver_;
 	}
 
 	function toScript(mix) {
