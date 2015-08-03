@@ -22,11 +22,11 @@ module.exports = {
 		}
 	},
 	'jshint': {
-		files: ['lib/domtest.js'],
+		files: ['lib/query.js'],
 		jshint: JSHint()
 	},
 	'uglify': {
-		files: 'lib/domtest.js',
+		files: 'lib/query.js',
 		defines: {
 			DEBUG: false
 		}
