@@ -7,6 +7,8 @@
 
 ---
 
+### Asynchronous nature
+
 As the WebDriver methods are **async**, `Selenium Query` instance implements `Promise` and you can chain the function calls. A very basic example
 
 ```javascript
@@ -19,6 +21,22 @@ $(driver)
 	.then(value => console.log(value));
 ```
 
+### Extension methods
+
+As with jQuery you can define an extension method and call it in your tests
+
+```javascript
+var $ = require('selenium-query');
+$.fn.doBaz = function(){
+	return this.each(el => {
+		// do some usefull things with WebElement
+	});
+};
+$(driver)
+	.find('input')
+	.doBaz();
+```
+
 ## API
 
 ##### &#9776;
@@ -28,7 +46,8 @@ $(driver)
 	- [`eq`](#eq)
 	- [`slice`](#slice)
 	- [`each`](#each)
-
+	- [`map`](#map)
+	- [`toArray`](#toArray)
 - [Traverse](#traverse)
 	- [`find`](#find)
 	- [`filter`](#filter)
@@ -76,8 +95,13 @@ $(driver)
 	- :sparkles: [`sendKeys`](#sendKeys)
 	- :sparkles: [`select`](#select)
 
-- [Document]
+- [Misc](#misc)
+	- [`eval`](#eval)
+
+- [Document](#document)
 	- [`load`](#load)
+	- [`getDriver`](#getDriver)
+	- [`setDriver`](#setDriver)
 
 
 ##### `constructor(WebDriver|WebElement|Array<WebElement>|SQuery|Array<SQuery>)` <a name='constructor'></a>
@@ -125,6 +149,13 @@ Get elements range.
 
 ##### `each(function<node:WebElement, index:number, Promise|void 0>):SQuery` <a name='each'></a>
 Enumerate the collection. The callback function can return a promise, if an async job is performed.
+
+##### `map(function<node:WebElement, index:number, Promise|any>):SQuery` <a name='map'></a>
+Map the collection into the new one. Return the value from the function or a promise which resolves then with the value.
+
+##### `toArray():Promise<Array<any>>` <a name='toarray'></a>
+Returns a promise which resolves with an Array instance of current elements in collection
+
 
 ## Traverse
 
@@ -227,6 +258,21 @@ Call native Selenums `sendKeys` fn on each element
 
 ##### `select(text:string | start:number[, end:number]):SQuery` <a name='select'></a>
 Select an option from the `select` element, or if the `input` the selects a text or range
+
+
+## Misc
+
+##### `eval(fn:Function, ...args):Promise<any>` <a name='eval'></a>
+Evaluate function in Browser.
+> :exclamation: The first argument is the first element in the set
+```javascript
+$(driver)
+	.find('button')
+	.eval(function(el){
+		// browser context
+		// do smth. with the Element and return a value
+	});
+```
 
 
 ## Document
