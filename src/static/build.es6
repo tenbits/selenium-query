@@ -21,11 +21,12 @@
 	};
 
 	SQuery.load = function(url, config) {
-		if (driver == null) {
-			driver = SQuery.build(config);
-		}
 		if (url[0] === '/') {
 			url = 'file://' + process.cwd() +  url;
+		}
+
+		if (driver == null) {
+			driver = SQuery.build(config);
 		}
 
 		var query = new SQuery();
@@ -34,7 +35,20 @@
 			.then(() => {
 				query.add(driver);
 				query.resolve(query);
+			}, (error) => {
+				if (error.code !== 100) {
+					query.reject(error);
+					return;
+				}
+				driver = SQuery.build(config);
+				driver
+					.get(url)
+					.then(() => {
+						query.add(driver);
+						query.resolve(query);
+					}, error => query.reject(error));
 			});
+
 		return query;
 	};
 
