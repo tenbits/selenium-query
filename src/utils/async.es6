@@ -20,12 +20,20 @@ var async_traverse,
 		return $;
 	};
 	async_map = function(self, fn){
-		return async_next(self, (source, $) => {
+		return async_next(self, ($, source) => {
 			return async_waterfall(source, (node, i) => {
-				function add(x) {
-					$.add(x);
-				}
-				return fn(node, i).then(add, () => add(null));
+				return dfr_run(resolve => {
+					function add(x) {
+						$.add(x);
+						resolve();
+					}
+					var x = fn(node, i);
+					if (x == null || typeof x.then !== 'function') {
+						add(x);
+						return;
+					}
+					x.then(add, () => add(null))
+				});
 			});
 		});
 	};

@@ -3,7 +3,7 @@ function scripts_nodeSelectTextRange () {
 	var txt = el.value;
 
 	if (args.length === 0) {
-		select(0, txt.length - 1);
+		select(0, txt.length);
 		return;
 	}
 

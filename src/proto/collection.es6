@@ -8,15 +8,15 @@ obj_extend(SQueryProto, {
 		this[this.length++] = mix;
 		return this;
 	},
-	eq (num) {
-		return async_next(this, (source, $) => {
-			if (num <= source.length) {
-				$.add(source[num]);
+	eq (index) {
+		return async_next(this, ($, source) => {
+			if (index < source.length) {
+				$.add(source[index]);
 			}
 		});
 	},
 	slice (start = 0, end = null) {
-		return async_next(this, (source, $) => {
+		return async_next(this, ($, source) => {
 			var i = start;
 			if (end > source.length) {
 				end = source.length;
@@ -29,7 +29,7 @@ obj_extend(SQueryProto, {
 		});
 	},
 	each (fn) {
-		return async_next(this, (source, $) => {
+		return async_next(this, ($, source) => {
 			return async_waterfall(source, (node, i) => {
 				$.add(node);
 				return fn(node, i);
@@ -42,7 +42,7 @@ obj_extend(SQueryProto, {
 	toArray () {
 		return dfr_run(resolve => {
 			this.done($ => {
-				var arr = Array.prototype.call.slice($);
+				var arr = Array.prototype.slice.call($);
 				resolve(arr);
 			});
 		})
