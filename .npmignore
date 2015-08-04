@@ -6,6 +6,7 @@
 
 /src
 /builds
+/test
 build.js
 .travis.yml
 .npmignore

@@ -20,4 +20,5 @@ var SQueryProto = {
 // import ./events.es6
 // import ./keyboard.es6
 // import ./css.es6
+// import ./class.es6
 // import ./driver.es6
