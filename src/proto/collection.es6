@@ -1,4 +1,4 @@
-obj_extend(SQueryProto, {
+_.obj_extend(SQueryProto, {
 	add (mix) {
 		if (mix == null)
 			return this;

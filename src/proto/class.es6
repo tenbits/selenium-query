@@ -1,5 +1,5 @@
 (function(){
-	obj_extend(SQueryProto, {
+	_.obj_extend(SQueryProto, {
 		hasClass (name) {
 			return async_getValueOf(0, this, node => {
 				return node_eval(node, scripts_nodeClassHas, name);
