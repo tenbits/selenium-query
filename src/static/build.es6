@@ -1,7 +1,7 @@
 (function(){
 
 	SQuery.build = function(config){
-		var config = obj_extend(Object.create(DefaultConfig), config);
+		var config = _.obj_extend(Object.create(DefaultConfig), config);
 
 		var browser   = require('selenium-webdriver/' + config.name.toLowerCase());
 
