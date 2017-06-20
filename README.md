@@ -1,4 +1,4 @@
-# Selenium Query Library
+# Selenium Query and Manipulation Library
 
 [![Build Status](https://travis-ci.org/tenbits/selenium-query.png?branch=master)](https://travis-ci.org/tenbits/selenium-query)
 [![NPM version](https://badge.fury.io/js/selenium-query.svg)](http://badge.fury.io/js/selenium-query)
@@ -28,9 +28,9 @@ As with jQuery you can define an extension method and call it in your tests
 ```javascript
 var $ = require('selenium-query');
 $.fn.doBaz = function(){
-	return this.each(el => {
-		// do some usefull things with WebElement
-	});
+    return this.each(el => {
+        // do some usefull things with WebElement
+    });
 };
 $(driver)
 	.find('input')
@@ -132,16 +132,16 @@ $(driver)
     .done(() => console.log('The color has been changed.'))
 // instead of an equivalent
 $(driver)
-	.find('button')
-	.done(buttons => {
-		buttons
-			.eq(0)
-			.done(firstButton => {
-				firstButton
-					.css('background-color', 'red')
-					.done(() => console.log('The color has been changed.'))
-			})
-	});
+    .find('button')
+    .done(buttons => {
+        buttons
+            .eq(0)
+            .done(firstButton => {
+                firstButton
+                    .css('background-color', 'red')
+                    .done(() => console.log('The color has been changed.'))
+            })
+    });
 ```
 
 ##### `slice([start:number = 0, end:number = .length]):SQuery` <a name='slice'></a>
