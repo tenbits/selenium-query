@@ -15,3 +15,8 @@ script:
   - "npm test"
 
 language: node_js
+node_js:
+  - "6.6.0"
+compiler: clang-3.4
+env:
+  - CXX=clang-3.4
