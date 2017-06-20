@@ -41,6 +41,6 @@
   },
   "dependencies": {
     "atma-utils": "^0.1.6",
-    "selenium-webdriver": "^2.46.1"
+    "selenium-webdriver": "^3.4.0"
   }
 }
