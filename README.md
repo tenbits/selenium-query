@@ -14,11 +14,11 @@ As the WebDriver methods are **async**, `Selenium Query` instance implements `Pr
 ```javascript
 var $ = require('selenium-query');
 $(driver)
-	.find('.foo')
-	.filter('input')
-	.attr('placeholder', 'Baz')
-	.val()
-	.then(value => console.log(value));
+    .find('.foo')
+    .filter('input')
+    .attr('placeholder', 'Baz')
+    .val()
+    .then(value => console.log(value));
 ```
 
 ### Extension methods
@@ -111,8 +111,8 @@ $(driver)
 
 ```javascript
 var SQuery = require('selenium-query');
-var $elements = SQuery(driver);
-var $inputs = $elements.find('inputs');
+var $document = SQuery(driver);
+var $inputs = $document.find('inputs');
 ```
 
 ## Collection
@@ -126,10 +126,10 @@ Get the SQuery instance with only one element at the index.
 > :exclamation: Once again, wait until the promise is resolved, or **chain** the manipulations
 ```javascript
 $(driver)
-	.find('button')
-	.eq(0)
-	.css('background-color', 'red')
-	.done(() => console.log('The color has been changed.'))
+    .find('button')
+    .eq(0)
+    .css('background-color', 'red')
+    .done(() => console.log('The color has been changed.'))
 // instead of an equivalent
 $(driver)
 	.find('button')
