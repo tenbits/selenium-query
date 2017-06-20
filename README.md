@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/tenbits/selenium-query.png?branch=master)](https://travis-ci.org/tenbits/selenium-query)
 [![NPM version](https://badge.fury.io/js/selenium-query.svg)](http://badge.fury.io/js/selenium-query)
 
-**jQuery-alike API for [Selenium WebDriver](http://selenium.googlecode.com/git/docs/api/javascript/index.html)**
+**jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html)**
 
 ---
 
@@ -106,8 +106,8 @@ $(driver)
 
 ##### `constructor(WebDriver|WebElement|Array<WebElement>|SQuery|Array<SQuery>)` <a name='constructor'></a>
 
-- [WebDriver](http://selenium.googlecode.com/git/docs/api/javascript/module_selenium-webdriver_class_WebDriver.html)
-- [WebElement](http://selenium.googlecode.com/git/docs/api/javascript/class_webdriver_WebElement.html)
+- [WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html)
+- [WebElement](https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebElement.html)
 
 ```javascript
 var SQuery = require('selenium-query');
