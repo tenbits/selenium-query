@@ -1,7 +1,7 @@
 import { map, each } from './arr'
 import { dfr_run } from './dfr'
 import { IElement } from '../IDriver';
-import { SQuery } from '../SQueryClass'
+import { SQuery } from '../SQuery'
 
 export function async_each(self, fn: (ctx: InstanceType<typeof SQuery>, node: IElement) => any) {
 	const $ = new SQuery();

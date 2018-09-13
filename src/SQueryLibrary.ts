@@ -1,4 +1,4 @@
-import { SQuery } from './SQueryClass'
+import { SQuery } from './SQuery'
 
 
 export = SQuery

@@ -1,7 +1,7 @@
 import { obj_extend } from "atma-utils";
 import { Builder } from 'selenium-webdriver'
 import { IDriver } from "../IDriver";
-import { SQuery } from '../SQueryClass'
+import { SQuery } from '../SQuery'
 
 declare var require: any;
 declare var process: any;
