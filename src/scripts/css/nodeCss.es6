@@ -1,5 +1,5 @@
 function scripts_nodeCss(){
-	// import ../_inlineGetSetKeyValue.es6
+	// import ../_inlineGetSetKeyValue.js
 	// import ../_str.es6
 
 	function get(el, key) {

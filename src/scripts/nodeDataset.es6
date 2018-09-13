@@ -1,7 +1,7 @@
 function scripts_nodeDataset () {
 	// import ./nodeDatasetRemove.es6
 	// import ./_str.es6
-	// import ./_inlineGetSetKeyValue.es6
+	// import ./_inlineGetSetKeyValue.js
 
 	function get(el, key){
 		key = str_toCamelCase(key);

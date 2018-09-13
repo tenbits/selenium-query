@@ -1,5 +1,5 @@
 function scripts_nodeClassRemove () {
-	// import ./_inline.es6
+	// import ./_inline.js
 	// import ./has.es6
 	if (scripts_nodeClassHas(el, klass) === false) {
 		return;

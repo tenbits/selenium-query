@@ -1,5 +1,5 @@
 function scripts_nodeClassHas () {
-	// import ./_inline.es6
+	// import ./_inline.js
 	if (el.classList) {
 		return el.classList.contains(klass)
 	}

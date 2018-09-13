@@ -1,5 +1,5 @@
 function scripts_nodeProperty (){
-	// import ./_inlineGetSetKeyValue.es6
+	// import ./_inlineGetSetKeyValue.js
 	function get(el, key) {
 		return el[key];
 	}

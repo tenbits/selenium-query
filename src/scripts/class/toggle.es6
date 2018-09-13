@@ -1,6 +1,9 @@
 function scripts_nodeClassToggle () {
-	// import ./_inline.es6
+	// import ./_inline.js
 	// import ./has.es6
+	// import ./add.es6
+	// import ./remove.es6
+	
 	if (el.classList) {
 		el.classList.toggle(klass);
 		return;

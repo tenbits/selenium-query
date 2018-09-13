@@ -3,7 +3,8 @@ module.exports = {
 		selenium : {
 			exec: 'node',
 			env: [
-				'/lib/query.js::SQuery',
+				'/src/scripts/exports.es6',
+				'/lib/index.js::SQuery',
 				'/test/utils.js::Utils'
 			],
 			tests: 'test/**.test'

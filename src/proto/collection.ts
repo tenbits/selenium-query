@@ -1,8 +1,14 @@
-_.obj_extend(SQueryProto, {
+import { is_Array } from 'atma-utils'
+import { each } from '../utils/arr';
+import { async_next, async_map, async_waterfall } from '../utils/async';
+import { dfr_run } from '../utils/dfr';
+
+
+export const CollectionProto = {
 	add (mix) {
 		if (mix == null)
 			return this;
-		if (_.is_Array(mix) === true)
+		if (is_Array(mix) === true)
 			return each(mix, this.add, this);
 
 		this[this.length++] = mix;
@@ -47,4 +53,4 @@ _.obj_extend(SQueryProto, {
 			});
 		})
 	}
-})
+};

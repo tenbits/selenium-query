@@ -3,7 +3,7 @@
   "description": "jQuery API for Selenium WebDriver",
   "version": "0.50.35",
   "contributors": [],
-  "main": "./lib/query.js",
+  "main": "./lib/index.js",
   "author": "Alexander Kit <alex.kit@atmajs.com>",
   "repository": {
     "type": "git",
@@ -16,19 +16,27 @@
     "MIT"
   ],
   "devDependencies": {
+    "app-bundler": "0.0.57",
     "atma": ">0.9.26",
-    "atma-loader-babel": "^1.0.19"
+    "atma-io-middleware-importer": "^1.1.30",
+    "atma-loader-babel": "^1.0.19",
+    "atma-loader-ts": "^1.1.11",
+    "dts-bundle": "^0.7.3"
   },
   "scripts": {
     "test": "atma test",
-    "build": "atma"
+    "build": "app-bundler",
+    "watch": "app-bundler --watch",
+    "build-dts": "tsc -p . & atma custom tools/build-dts"
   },
   "keywords": [
     "dom selenium webdriver"
   ],
   "atma": {
     "plugins": [
-      "atma-loader-babel"
+      "atma-loader-babel",
+      "atma-io-middleware-importer",
+      "atma-loader-ts"
     ],
     "settings": {
       "atma-loader-babel": {
@@ -39,8 +47,36 @@
       }
     }
   },
+  "app-bundler": {
+    "file": "src/export.es6",
+    "outputMain": "lib/index.js",
+    "package": {
+      "module": "commonjs",
+      "commonjs": {
+        "output": "simplified"
+      }
+    },
+    "dynamicDependencies": [
+      "appcfg",
+      "atma-utils",
+      "^selenium"
+    ],
+    "defaultExtensions": {
+      "js": "ts"
+    },
+    "middlewares": {
+      "es6": [
+        "atma-io-middleware-importer:read",
+        "atma-loader-babel:read"
+      ],
+      "ts": [
+        "atma-io-middleware-importer:read",
+        "atma-loader-ts:read"
+      ]
+    }
+  },
   "dependencies": {
-    "atma-utils": "^0.1.6",
+    "atma-utils": "^0.1.15",
     "selenium-webdriver": "^3.4.0"
   }
 }

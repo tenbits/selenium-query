@@ -1,6 +1,6 @@
 function scripts_nodeAttribute () {
 	// import ./_str.es6
-	// import ./_inlineGetSetKeyValue.es6
+	// import ./_inlineGetSetKeyValue.js
 
 	function get(el, key) {
 		return el.getAttribute(key);

@@ -5,7 +5,7 @@ UTest({
 	$after () {
 		//Utils.stop();
 	},
-	'find' (done) {
+	'find': function (done) {
 		Utils.query('/html/foo.html', $ => {
 			$
 				.find('span')
