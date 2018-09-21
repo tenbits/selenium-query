@@ -3,8 +3,8 @@
   "description": "jQuery API for Selenium WebDriver",
   "version": "0.50.39",
   "contributors": [],
-  "main": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "main": "./lib/query.js",
+  "types": "./lib/query.d.ts",
   "author": "Alexander Kit <alex.kit@atmajs.com>",
   "repository": {
     "type": "git",
@@ -26,7 +26,7 @@
   },
   "scripts": {
     "test": "atma test",
-    "build": "app-bundler",
+    "build": "app-bundler && npm run build-dts",
     "watch": "app-bundler --watch",
     "build-dts": "tsc -p . & atma custom tools/build-dts"
   },
@@ -50,7 +50,7 @@
   },
   "app-bundler": {
     "file": "src/export.es6",
-    "outputMain": "lib/index.js",
+    "outputMain": "lib/query.js",
     "package": {
       "module": "commonjs",
       "commonjs": {
