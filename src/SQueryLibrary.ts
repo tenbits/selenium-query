@@ -1,4 +1,3 @@
 import { SQuery } from './SQuery'
 
-
-export = SQuery
+export { SQuery }

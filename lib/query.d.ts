@@ -4,7 +4,7 @@
 
 declare module 'selenium-query' {
     import { SQuery } from 'selenium-query/SQuery';
-    export = SQuery;
+    export { SQuery };
 }
 
 declare module 'selenium-query/SQuery' {
