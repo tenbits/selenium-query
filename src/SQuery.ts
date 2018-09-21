@@ -1,11 +1,11 @@
-import { async_each, async_getValueOf, async_next, async_waterfall, async_map, async_aggr, async_mutate, async_traverse } from './utils/async'
+import { async_each, async_getValueOf, async_next, async_waterfall, async_map, async_aggr, async_mutate, async_traverse, async_toThenable } from './utils/async'
 import { node_eval } from './utils/node';
-import { class_Dfr, is_Array } from 'atma-utils';
+import { class_Dfr, is_Array, class_create, obj_extendMany, is_ArrayLike } from 'atma-utils';
 import { dfr_run } from './utils/dfr';
 import { each } from './utils/arr';
 import { refs } from './global';
 import { BuildStatics, IBuildConfig } from './static/build';
-import { IDriver } from './IDriver';
+import { IDriver, IElement } from './IDriver';
 import { Classify, FnPrototypeAlias } from './utils/classify';
 
 declare var scripts_nodeClassHas: any;
@@ -41,18 +41,12 @@ export interface IArray {
 	[index: number]: any
 }
 
-@Classify
-@FnPrototypeAlias
-export class SQuery extends class_Dfr implements IArray {
-	[index: number]: any;
+export class SQueryBase implements IArray {
+	[index: number]: IElement;
 	length = 0
 
 	constructor (mix?) {
-		super();
-		if (mix != null) {
-			this.add(mix);
-			this.resolve(this);
-		}
+		this.add(mix);
 	}
 
 
@@ -75,11 +69,12 @@ export class SQuery extends class_Dfr implements IArray {
 
 	//#region Collection
 	add(mix) {
-		if (mix == null)
+		if (mix == null) {
 			return this;
-		if (is_Array(mix) === true)
+		}
+		if (is_ArrayLike(mix) === true) {
 			return each(mix, this.add, this);
-
+		}
 		this[this.length++] = mix;
 		return this;
 	}
@@ -116,7 +111,7 @@ export class SQuery extends class_Dfr implements IArray {
 	}
 	toArray() {
 		return dfr_run(resolve => {
-			this.done($ => {
+			async_toThenable(this).done($ => {
 				var arr = Array.prototype.slice.call($);
 				resolve(arr);
 			});
@@ -166,9 +161,9 @@ export class SQuery extends class_Dfr implements IArray {
 	//#endregion Content
 
 	//#region Css
-	css(cssObj: { [key: string]: any }): SQuery;
-	css(key: string, val: any): SQuery;
-	css(key: string): PromiseLike<any>;
+	css(cssObj: { [key: string]: any }): ThenableSQuery;
+	css(key: string, val: any): ThenableSQuery;
+	css(key: string): Promise<any>;
 	css(mix, val?) {
 		if (arguments.length === 1 && typeof mix === 'string') {
 			return async_getValueOf(0, this, node => {
@@ -179,8 +174,8 @@ export class SQuery extends class_Dfr implements IArray {
 			return node_eval(node, scripts_nodeCss, mix, val);
 		});
 	}
-	height(): PromiseLike<number>;
-	height(val): SQuery
+	height(): Promise<number>;
+	height(val): ThenableSQuery;
 	height(val?) {
 		if (val == null) {
 			return async_getValueOf(0, this, node => {
@@ -194,8 +189,8 @@ export class SQuery extends class_Dfr implements IArray {
 			return node_eval(node, scripts_nodeProperty, 'offsetHeight');
 		});
 	}
-	width(): PromiseLike<number>;
-	width(val): SQuery
+	width(): Promise<number>;
+	width(val): ThenableSQuery
 	width(val = null) {
 		if (val == null) {
 			return async_getValueOf(0, this, node => {
@@ -313,7 +308,9 @@ export class SQuery extends class_Dfr implements IArray {
 	}
 	//#endregion
 	//#region Properties
-	attr(mix, val = null) {
+	attr(name: string): Promise<any>
+	attr(vals: { [key: string] : any }): ThenableSQuery
+	attr(mix, val?) {
 		if (arguments.length === 1 && typeof mix === 'string') {
 			return async_getValueOf(0, this, node => {
 				return node.getAttribute(mix);
@@ -323,7 +320,9 @@ export class SQuery extends class_Dfr implements IArray {
 			return node_eval(node, scripts_nodeAttribute, mix, val);
 		});
 	}
-	val(val = null) {
+	val(): PromiseLike<any>
+	val(val: any): ThenableSQuery
+	val(val?) {
 		if (arguments.length === 0) {
 			return async_getValueOf(0, this, node => {
 				return node_eval(node, scripts_nodeProperty, 'value')
@@ -333,7 +332,9 @@ export class SQuery extends class_Dfr implements IArray {
 			return node_eval(node, scripts_nodeProperty, 'value', val);
 		});
 	}
-	data(key, val = null) {
+	data(key: string): PromiseLike<any>;
+	data(key: string, val: any): ThenableSQuery
+	data(key, val?) {
 		if (arguments.length === 1) {
 			return async_getValueOf(0, this, node => {
 				return node_eval(node, scripts_nodeDataset, key)
@@ -343,6 +344,8 @@ export class SQuery extends class_Dfr implements IArray {
 			return node_eval(node, scripts_nodeDataset, key, val);
 		});
 	}
+	prop(key: string): PromiseLike<any>;
+	prop(key: string, val: any): ThenableSQuery	
 	prop(key, val = null) {
 		if (arguments.length === 1) {
 			return async_getValueOf(0, this, node => {
@@ -355,12 +358,12 @@ export class SQuery extends class_Dfr implements IArray {
 	}
 	//#endregion
 	//#region Traverse
-	find(sel) {
-		return async_traverse(this, node => {
+	find(sel: string): ThenableSQuery {
+		return async_traverse(this, (node: IElement) => {
 			return node.findElements({ css: sel });
 		});
 	}
-	filter(sel) {
+	filter(sel: string): ThenableSQuery {
 		return async_traverse(this, node => {
 			return dfr_run(resolve => {
 				node_eval(node, scripts_nodeMatchesSelector, sel).done(match => {
@@ -373,29 +376,29 @@ export class SQuery extends class_Dfr implements IArray {
 			});
 		});
 	}
-	parent() {
+	parent(): ThenableSQuery {
 		return async_traverse(this, node => {
 			return node_eval(node, scripts_nodeParent);
 		});
 	}
-	closest(sel) {
+	closest(sel: string): ThenableSQuery {
 		return async_traverse(this, node => {
 			return node_eval(node, scripts_nodeClosest, sel);
 		});
 	}
-	children(sel) {
+	children(sel: string): ThenableSQuery {
 		return async_traverse(this, node => {
 			return node_eval(node, scripts_nodeChildren, sel);
 		});
 	}
-	next(sel) {
+	next(sel: string): ThenableSQuery {
 		return async_traverse(this, node => {
 			return node_eval(node, scripts_nodeNext, sel);
 		});
 	}
 	//#endregion
 
-	static build(config: IBuildConfig): IDriver {
+	static build(config: IBuildConfig): Promise<IDriver> {
 		return BuildStatics.build(config);
 	}
 	static load(url: string, config: IBuildConfig) {
@@ -408,7 +411,6 @@ export class SQuery extends class_Dfr implements IArray {
 		return refs.driver;
 	}
 }
-
 
 namespace CssClass {
 	export function mutate(self: SQuery, name: string, mutator: Function) {
@@ -501,3 +503,39 @@ namespace Events {
 	}
 
 }
+
+@Classify
+@FnPrototypeAlias
+export class SQuery extends SQueryBase {
+
+}
+
+@Classify
+@FnPrototypeAlias
+export class ThenableSQuery extends class_create(class_Dfr, SQueryBase, {}) {
+	
+	constructor (...args) {		
+		super(...args);
+		if (this.length > 0) {
+			this.resolve(this);
+		}
+	}
+
+	resolve (...args) {
+		if (args.length !== 0) {
+			if (args[0] instanceof ThenableSQuery) {
+				args[0] = ThenableSQuery.toSync(args[0]);
+			}
+		}			
+		return super.resolve(...args);
+	}
+
+	static toSync (x: ThenableSQuery) {
+		return new SQueryBase(x);
+	}
+	static toAsync (x: SQuery) {
+		return new ThenableSQuery(x);
+	}
+}
+
+new ThenableSQuery();

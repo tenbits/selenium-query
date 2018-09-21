@@ -1,7 +1,7 @@
 {
   "name": "selenium-query",
   "description": "jQuery API for Selenium WebDriver",
-  "version": "0.50.36",
+  "version": "0.50.38",
   "contributors": [],
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -60,7 +60,8 @@
     "dynamicDependencies": [
       "appcfg",
       "atma-utils",
-      "^selenium"
+      "^selenium",
+      "atma-class"
     ],
     "defaultExtensions": {
       "js": "ts"
@@ -77,6 +78,7 @@
     }
   },
   "dependencies": {
+    "atma-class": "^1.1.83",
     "atma-utils": "^0.1.15",
     "selenium-webdriver": "^3.4.0"
   }

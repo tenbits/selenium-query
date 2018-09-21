@@ -1,12 +1,11 @@
 import { obj_extend } from "atma-utils";
 import { Builder } from 'selenium-webdriver'
 import { IDriver } from "../IDriver";
-import { SQuery } from '../SQuery'
+import { ThenableSQuery } from '../SQuery'
+import { refs } from "../global"
 
 declare var require: any;
 declare var process: any;
-
-let driver: IDriver;
 
 export interface IBuildConfig {
 	name: string
@@ -47,14 +46,16 @@ export const BuildStatics = {
 			url = 'file://' + process.cwd() + url;
 		}
 
-		if (driver == null) {
-			driver = BuildStatics.build(config);
+		if (refs.driver == null) {
+			refs.driver = BuildStatics.build(config);
 		}
+		let { driver } = refs;
 
-		var query = new SQuery();
+		let query = new ThenableSQuery();
+		
 		driver
 			.get(url)
-			.then(() => {
+			.then((d) => {
 				query.add(driver);
 				query.resolve(query);
 			}, (error) => {
