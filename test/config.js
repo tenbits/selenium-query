@@ -4,7 +4,7 @@ module.exports = {
 			exec: 'node',
 			env: [
 				'/src/scripts/exports.es6',
-				'/lib/index.js::SQuery',
+				'/lib/query.js::Lib',
 				'/test/utils.js::Utils'
 			],
 			tests: 'test/**.test'

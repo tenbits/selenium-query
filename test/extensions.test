@@ -6,7 +6,7 @@ UTest({
 		//Utils.stop();
 	},
 	'should create custom typer' (done) {
-		SQuery.fn.enterFoo = function(){
+		Lib.SQuery.fn.enterFoo = function(){
 			return this
 				.find('input')
 				.select()

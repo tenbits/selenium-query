@@ -7,9 +7,10 @@ import { Deferred } from 'atma-class';
 export function async_each(self: ThenableSQuery | SQuery, fn: (ctx: InstanceType<typeof SQuery>, node: IElement) => any) {
 	const $ = new ThenableSQuery();
 	async_toThenable(self).done(ctx => {
+	
 		const dfrs = map(ctx as IElement[], node => {
 			return fn($, node)
-		});
+		});		
 		_when(dfrs, () => {
 			$.resolve($)
 		});
@@ -121,17 +122,15 @@ export function async_waterfall(arr, fn) {
 	});
 };
 
-export function async_toThenable (ctx) {
+export function async_toThenable (ctx: SQuery | ThenableSQuery ): ThenableSQuery {
 	if ('then' in ctx) {
-		return ctx; //.then($ => async_toThenable($));
-		// return Deferred.run(resolve => {
-
-		// 	ctx.then($ => {
-		// 		resolve(new ThenableSQuery($));
-		// 	});
-		// })
+		return ctx; 
 	} 
-	return new ThenableSQuery(ctx);
+	let thenable = new ThenableSQuery(ctx);
+	if (ctx.length === 0) {
+		thenable.resolve(thenable);
+	}
+	return thenable;
 }
 
 

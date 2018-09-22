@@ -65,7 +65,7 @@ UTest({
 						$[0].getTagName().then(name => {
 							eq_(name, 'input');
 
-							new SQuery($)
+							new Lib.SQuery($)
 								.val()
 								.done(val => {
 									eq_(val, 'Ciao');

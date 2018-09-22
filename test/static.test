@@ -1,6 +1,7 @@
 UTest({
 	'load local file' (done) {
-		SQuery
+		Lib
+			.SQuery
 			.load('/test/html/foo.html')
 			.find('.foo')
 			.done($ => {
@@ -9,7 +10,8 @@ UTest({
 			});
 	},
 	'load google' (done) {
-		SQuery
+		Lib
+			.SQuery
 			.load('http://google.com')
 			.find('input')
 			.css('background-color', 'red')
