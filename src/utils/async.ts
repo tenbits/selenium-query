@@ -35,6 +35,27 @@ export function async_map(self, fn) {
 		});
 	});
 };
+export function async_filter(self, fn) {
+	return async_next(async_toThenable(self), ($, source) => {
+		return async_waterfall(source, (node, i) => {
+			return dfr_run((resolve, reject) => {
+				var x = fn(node, i);
+				if (typeof x === 'boolean') {
+					if (x === true) {
+						$.add(node);
+					}
+					resolve();
+				}
+				x.then(result => {
+					if (result) {
+						$.add(node);
+					}
+					resolve();
+				} , reject);
+			});
+		});
+	});
+};
 
 export function async_at(self, index, fn) {
 	var $ = new ThenableSQuery();
@@ -148,7 +169,7 @@ function _always(dfr, fn) {
 		});
 }
 
-function _when(dfrs, callback) {
+export function _when(dfrs, callback) {
 	if (dfrs.length === 0) {
 		callback();
 		return;

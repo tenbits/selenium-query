@@ -3,6 +3,9 @@ import { Builder } from 'selenium-webdriver'
 import { IDriver } from "../IDriver";
 import { ThenableSQuery } from '../SQuery'
 import { refs } from "../global"
+import { loadUrl, setCookies } from '../utils/driver'
+import { driverPool, DriverWrapper } from '../class/DriverPool'
+import { SQuery } from "../SQueryLibrary";
 
 declare var require: any;
 declare var process: any;
@@ -23,56 +26,50 @@ export interface IBuildConfig {
 	[key: string]: any
 }
 
+export interface ILoadConfig extends IBuildConfig {
+	cookies?: string | {name, value, path?: string, domain?: string, secure?: boolean, httpOnly?: boolean, expiry?: number}[]
+	/* default is the domain of proveded url */
+	cookieOrigin?: string
+}
+
+export interface ISettings {
+	pool?: boolean
+	query?: SQuery
+}
+
 export const BuildStatics = {
-	build(config: IBuildConfig): IDriver {
+	build(config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
 
-		config = obj_extend(Object.create(DefaultConfig), config);
-
-		var browser = require('selenium-webdriver/' + config.name.toLowerCase());
-		var options = new browser.Options;
-
-		config.setBinaryPath(options);
-		config.setArguments(options);
-		config.setLogging(options);
-
-		var builder = new Builder().forBrowser(config.name.toLowerCase());
-		config.setOptions(builder, options);
-		config.applyOptions(builder, options);
-		return (<any>builder.build()) as IDriver;
+		return driverPool
+			.get(null, config, setts)
+			.then(wrapper => wrapper.driver);		
 	},
 
-	load(url: string, config: IBuildConfig) {
+	load(url: string, config: ILoadConfig, setts?: ISettings) {
 		if (url[0] === '/') {
 			url = 'file://' + process.cwd() + url;
 		}
-
-		if (refs.driver == null) {
-			refs.driver = BuildStatics.build(config);
-		}
-		let { driver } = refs;
-
 		let query = new ThenableSQuery();
 		
-		driver
-			.get(url)
-			.then((d) => {
-				query.add(driver);
-				query.resolve(query);
-			}, (error) => {
-				if (error.code !== 100) {
-					query.reject(error);
-					return;
-				}
-				driver = BuildStatics.build(config);
-				driver
-					.get(url)
-					.then(() => {
-						query.add(driver);
-						query.resolve(query);
-					}, error => query.reject(error));
+		driverPool
+			.get(url, config, setts)
+			.then(wrapper => {
+				
+				loadUrl(wrapper.driver, url, config).then(driver => {
+					query.add(driver);
+					query.resolve(query);
+				})
 			});
 
 		return query;
+	},
+
+	releaseDriver (mix: SQuery | IDriver) {
+		if (mix instanceof SQuery) {
+			driverPool.releaseDriver(<IDriver><any>mix[0]);
+			return;
+		}
+		driverPool.releaseDriver(mix);
 	}
 };
 

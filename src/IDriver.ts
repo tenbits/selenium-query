@@ -3,7 +3,13 @@ export interface IDriver extends Promise<IDriver> {
     executeScript<T>(script: string, ...var_args: any[]): Promise<T>;
 
     get (url: string): IDriver
+    manage (): IManagableDriver
 }
+
+export interface IManagableDriver {
+    addCookie (cookie: any): Promise<void>;
+}
+
 export interface IElement {
     getDriver(): IDriver
 
@@ -14,5 +20,5 @@ export interface IElement {
     getSize(): Promise<{ width: number, height: number }>
     getAttribute (name: string): Promise<any>
 
-    findElements({ css: string });
+    findElements({ css: string });    
 }

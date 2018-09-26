@@ -79,6 +79,7 @@ declare module 'selenium-query/SQuery' {
         prop(key: string): PromiseLike<any>;
         prop(key: string, val: any): ThenableSQuery;
         find(sel: string): ThenableSQuery;
+        filter(fn: (node: any) => boolean | Promise<boolean>): ThenableSQuery;
         filter(sel: string): ThenableSQuery;
         parent(): ThenableSQuery;
         closest(sel: string): ThenableSQuery;
@@ -104,6 +105,7 @@ declare module 'selenium-query/SQuery' {
 declare module 'selenium-query/static/build' {
     import { IDriver } from "selenium-query/IDriver";
     import { ThenableSQuery } from 'selenium-query/SQuery';
+    import { SQuery } from "selenium-query/SQueryLibrary";
     export interface IBuildConfig {
         name: string;
         args?: string[];
@@ -115,9 +117,26 @@ declare module 'selenium-query/static/build' {
         setLogging?(options: any): any;
         [key: string]: any;
     }
+    export interface ILoadConfig extends IBuildConfig {
+        cookies?: string | {
+            name: any;
+            value: any;
+            path?: string;
+            domain?: string;
+            secure?: boolean;
+            httpOnly?: boolean;
+            expiry?: number;
+        }[];
+        cookieOrigin?: string;
+    }
+    export interface ISettings {
+        pool?: boolean;
+        query?: SQuery;
+    }
     export const BuildStatics: {
-        build(config: IBuildConfig): IDriver;
-        load(url: string, config: IBuildConfig): ThenableSQuery;
+        build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+        load(url: string, config: ILoadConfig, setts?: ISettings): ThenableSQuery;
+        releaseDriver(mix: IDriver | SQuery): void;
     };
 }
 
@@ -125,6 +144,10 @@ declare module 'selenium-query/IDriver' {
     export interface IDriver extends Promise<IDriver> {
         executeScript<T>(script: string, ...var_args: any[]): Promise<T>;
         get(url: string): IDriver;
+        manage(): IManagableDriver;
+    }
+    export interface IManagableDriver {
+        addCookie(cookie: any): Promise<void>;
     }
     export interface IElement {
         getDriver(): IDriver;

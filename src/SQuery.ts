@@ -1,4 +1,4 @@
-import { async_each, async_getValueOf, async_next, async_waterfall, async_map, async_aggr, async_mutate, async_traverse, async_toThenable } from './utils/async'
+import { async_each, async_getValueOf, async_next, async_waterfall, async_map, async_aggr, async_mutate, async_traverse, async_toThenable, async_filter } from './utils/async'
 import { node_eval } from './utils/node';
 import { class_Dfr, is_Array, class_create, obj_extendMany, is_ArrayLike } from 'atma-utils';
 import { dfr_run } from './utils/dfr';
@@ -363,18 +363,24 @@ export class SQueryBase implements IArray {
 			return node.findElements({ css: sel });
 		});
 	}
-	filter(sel: string): ThenableSQuery {
-		return async_traverse(this, node => {
-			return dfr_run(resolve => {
-				node_eval(node, scripts_nodeMatchesSelector, sel).done(match => {
-					if (match) {
-						resolve(node);
-						return;
-					}
-					resolve();
+	filter(fn: (node) => boolean | Promise<boolean>): ThenableSQuery;
+	filter(sel: string): ThenableSQuery;
+	filter(mix): ThenableSQuery {
+		if (typeof mix === 'string') {
+			let sel = mix;
+			return async_traverse(this, node => {
+				return dfr_run(resolve => {
+					node_eval(node, scripts_nodeMatchesSelector, sel).done(match => {
+						if (match) {
+							resolve(node);
+							return;
+						}
+						resolve();
+					});
 				});
 			});
-		});
+		}
+		return async_filter(this, mix);
 	}
 	parent(): ThenableSQuery {
 		return async_traverse(this, node => {
