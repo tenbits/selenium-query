@@ -7,6 +7,7 @@ import { refs } from './global';
 import { BuildStatics, IBuildConfig, ISettings } from './static/build';
 import { IDriver, IElement } from './IDriver';
 import { Classify, FnPrototypeAlias } from './utils/classify';
+import { driverPool } from './class/DriverPool';
 
 declare var scripts_nodeClassHas: any;
 declare var scripts_nodeClassAdd: any;
@@ -404,23 +405,29 @@ export class SQueryBase implements IArray {
 	}
 	//#endregion
 
+	//#region driver utils
+	unlock () {
+		BuildStatics.unlockDriver(this);
+	}
+	//#endregion driver utils
+
 	static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
 		return BuildStatics.build(config, setts);
 	}
 	static load(url: string, config: IBuildConfig, setts?: ISettings) {
 		return BuildStatics.load(url, config, setts);
 	}
-	static fetch(url: string, opts, config: IBuildConfig, setts?: ISettings) {
-		return BuildStatics.fetch(url, opts, config, setts);
+	static fetch(url: string, config: IBuildConfig, setts?: ISettings) {
+		return BuildStatics.fetch(url, config, setts);
 	}
 	static setDriver (driver: IDriver ) {
-		refs.driver = driver;
+		driverPool.setGlobal(driver);
 	}
-	static getDriver (): IDriver {
-		return refs.driver;
+	static getDriver (config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
+		return <Promise<IDriver>> <any> driverPool.get('', config, setts);
 	}
-	static releaseDriver (mix) {
-		BuildStatics.releaseDriver(mix);
+	static unlockDriver (mix) {
+		BuildStatics.unlockDriver(mix);
 	}
 }
 

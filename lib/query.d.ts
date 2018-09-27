@@ -85,12 +85,13 @@ declare module 'selenium-query/SQuery' {
         closest(sel: string): ThenableSQuery;
         children(sel: string): ThenableSQuery;
         next(sel: string): ThenableSQuery;
+        unlock(): void;
         static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         static load(url: string, config: IBuildConfig, setts?: ISettings): ThenableSQuery;
-        static fetch(url: string, opts: any, config: IBuildConfig, setts?: ISettings): Promise<{}>;
+        static fetch(url: string, config: IBuildConfig, setts?: ISettings): Promise<{}>;
         static setDriver(driver: IDriver): void;
-        static getDriver(): IDriver;
-        static releaseDriver(mix: any): void;
+        static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+        static unlockDriver(mix: any): void;
     }
     export class SQuery extends SQueryBase {
     }
@@ -132,14 +133,15 @@ declare module 'selenium-query/static/build' {
         cookieOrigin?: string;
     }
     export interface ISettings {
-        pool?: boolean;
+        pool?: boolean | number;
         query?: SQuery;
+        opts?: any;
     }
     export const BuildStatics: {
         build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         load(url: string, config: ILoadConfig, setts?: ISettings): ThenableSQuery;
-        releaseDriver(mix: any): void;
-        fetch<T>(url: string, opts: any, config: ILoadConfig, setts?: ISettings): Promise<T>;
+        unlockDriver(mix: any): void;
+        fetch<T>(url: string, config: ILoadConfig, setts?: ISettings): Promise<T>;
     };
 }
 
@@ -148,6 +150,7 @@ declare module 'selenium-query/IDriver' {
         executeScript<T>(script: string, ...var_args: any[]): Promise<T>;
         executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
         get(url: string): Promise<any>;
+        getCurrentUrl(): Promise<string>;
         manage(): IManagableDriver;
     }
     export interface IManagableDriver {

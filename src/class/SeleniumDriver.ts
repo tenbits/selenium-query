@@ -1,5 +1,5 @@
 import { IBuildConfig } from "../static/build";
-import { IDriver, IThenableDriver } from "../IDriver";
+import { IThenableDriver } from "../IDriver";
 import { obj_extend } from "atma-utils";
 import { Builder } from 'selenium-webdriver'
 
@@ -18,8 +18,6 @@ export function buildDriver (config: IBuildConfig): IThenableDriver {
     config.applyOptions(builder, options);
     return (<any>builder.build());
 }
-
-
 
 const DefaultConfig: IBuildConfig = {
 	name: 'Chrome',

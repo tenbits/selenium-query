@@ -4,6 +4,7 @@ export interface IDriver {
     executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
 
     get (url: string): Promise<any>
+    getCurrentUrl (): Promise<string>
     manage (): IManagableDriver
 }
 

@@ -31,8 +31,10 @@ export interface ILoadConfig extends IBuildConfig {
 }
 
 export interface ISettings {
-	pool?: boolean
+	pool?: boolean | number
 	query?: SQuery
+	// fetch options
+	opts?: any
 }
 
 export const BuildStatics = {
@@ -61,24 +63,20 @@ export const BuildStatics = {
 
 		return query;
 	},
-	releaseDriver (mix) {
-		driverPool.releaseDriver(mix);
+	unlockDriver (mix) {
+		driverPool.unlockDriver(mix);
 	},
 
-	fetch <T> (url: string, opts, config: ILoadConfig, setts?: ISettings): Promise<T> {
+	fetch <T> (url: string, config: ILoadConfig, setts?: ISettings): Promise<T> {
 		let dfr = new class_Dfr;
 		driverPool
 			.getWithDomain(url, config, setts)
 			.then(wrapper => {
 				wrapper
 					.driver
-					.executeAsyncScript(scripts_fetchAsync, url, opts && JSON.stringify(opts) || null)
+					.executeAsyncScript(scripts_fetchAsync, url, setts && setts.opts && JSON.stringify(setts.opts) || null)
 					.then((result: any) => {
 
-						if (setts && Boolean(setts.pool)) {
-							driverPool.releaseDriver(wrapper.driver);
-						}
-						
 						let error = result && result.name === 'Error';						
 						if (error) {
 							dfr.reject(error);

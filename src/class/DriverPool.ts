@@ -4,13 +4,17 @@ import { class_Dfr } from "atma-utils";
 import { buildDriver } from "./SeleniumDriver";
 import { setCookies } from "../utils/driver";
 import { SQuery } from "../SQuery";
+import { singleton } from '../utils/deco'
 
-
-const COUNT = 5;
+let POOL_DEFAULT = 5;
+let POOL_CUSTOM: number;
 
 export class DriverPool {
+	
     
     singleton: DriverWrapper
+    singletonPromise: Promise<DriverWrapper>
+
     pool: DriverWrapper[] = [];
     queue: {url: string, config: ILoadConfig, dfr: class_Dfr}[] = []
 
@@ -36,31 +40,36 @@ export class DriverPool {
                 return wrapper;
             }
             if (setts.pool) {
-                return this.requestDriver(url, config);
+                return await this.requestDriver(url, config);
             }
         }
-        return this.getGlobal(url, config);
+        return await this.getGlobal(url, config);
     }
 
     async getWithDomain (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {
         let wrapper = await this.get(url, config, setts);
         let match = /[^/]\/[^/]/.exec(url);
         let domain = match == null ? url : url.substring(0, match.index + 1);
-
-        await wrapper.driver.get(domain);
+        
+        let currentUrl = await wrapper.driver.getCurrentUrl();
+        if (!currentUrl || !currentUrl.includes(domain.replace(/https?:\/\//, ''))) {
+            await wrapper.driver.get(domain);
+        }
         return wrapper;
     }
 
-    async releaseDriver(mix: IDriver | DriverWrapper | SQuery) {
+    async unlockDriver(mix: IDriver | DriverWrapper | SQuery) {
+        
         let driver = this.extractDriver(mix)
         let wrapper = this.pool.find(x => x.driver === driver);
         if (wrapper == null) {
-            debugger;
-            throw Error('Wrapper not found');
+            console.warn('Unlocking: Wrapper not found');
+            return;
         }
 
         wrapper.busy = false;
 
+        // Tick next awaiter
         let dfrData = this.queue.shift();
         if (dfrData) {
             wrapper.busy = true;
@@ -69,15 +78,15 @@ export class DriverPool {
         }
     }
 
+    @singleton
     private async getGlobal(url: string = null, config: ILoadConfig):Promise<DriverWrapper> {
         this.memCookies(url, config);
+        
+        let singleton = new DriverWrapper();
 
-        if (this.singleton == null) {
-            this.singleton = new DriverWrapper();
-            await this.singleton.build(config);
-        }
-        await this.singleton.ensureCookies(url, this.cookies, config);
-        return this.singleton;
+        await singleton.build(config);
+        await singleton.ensureCookies(url, this.cookies, config);
+        return (this.singleton = singleton);
     }
 
     private async requestDriver(url: string = null, config: ILoadConfig):Promise<DriverWrapper> {
@@ -91,15 +100,13 @@ export class DriverPool {
             return free;
         }
 
-        if (this.pool.length < COUNT) {
+        if (this.pool.length < getPoolCount()) {
             let wrapper = new DriverWrapper();
-            await wrapper.build(config);
-
             wrapper.busy = true;
             wrapper.requestedAt = new Date;
             this.pool.push(wrapper);
             
-            
+            await wrapper.build(config);
             await wrapper.ensureCookies(url, this.cookies, config);
             return wrapper;
         }
@@ -126,6 +133,11 @@ export class DriverPool {
         }
     }
 
+    setGlobal(driver: IDriver): any {
+        this.singleton = new DriverWrapper();
+        this.singleton.busy = false;
+        this.singleton.driver = driver;
+	}
     
 
     private extractDriver(mix: IDriver | SQuery | DriverWrapper): IDriver {
@@ -163,10 +175,6 @@ export class DriverWrapper {
     driver: IDriver
     cookies: { [key: string]: any }
 
-    constructor() {
-        
-    }
-
     async build (config: IBuildConfig) {
         this.driver = await buildDriver(config);        
     }
@@ -186,5 +194,8 @@ export class DriverWrapper {
     }
 }
 
+function getPoolCount () {
+    return POOL_CUSTOM == null ? POOL_DEFAULT : POOL_CUSTOM;
+}
 
 export const driverPool = new DriverPool();
