@@ -40,6 +40,9 @@ export class DriverPool {
                 return wrapper;
             }
             if (setts.pool) {
+                if (typeof setts.pool === 'number') {
+                    POOL_CUSTOM = Math.max(setts.pool, this.pool.length);
+                }
                 return await this.requestDriver(url, config);
             }
         }
