@@ -9,7 +9,7 @@ declare module 'selenium-query' {
 
 declare module 'selenium-query/SQuery' {
     import { class_Dfr } from 'atma-utils';
-    import { IBuildConfig } from 'selenium-query/static/build';
+    import { IBuildConfig, ISettings } from 'selenium-query/static/build';
     import { IDriver, IElement } from 'selenium-query/IDriver';
     export interface IArray {
         length: number;
@@ -85,10 +85,12 @@ declare module 'selenium-query/SQuery' {
         closest(sel: string): ThenableSQuery;
         children(sel: string): ThenableSQuery;
         next(sel: string): ThenableSQuery;
-        static build(config: IBuildConfig): Promise<IDriver>;
-        static load(url: string, config: IBuildConfig): ThenableSQuery;
+        static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+        static load(url: string, config: IBuildConfig, setts?: ISettings): ThenableSQuery;
+        static fetch(url: string, opts: any, config: IBuildConfig, setts?: ISettings): Promise<{}>;
         static setDriver(driver: IDriver): void;
         static getDriver(): IDriver;
+        static releaseDriver(mix: any): void;
     }
     export class SQuery extends SQueryBase {
     }
@@ -136,18 +138,22 @@ declare module 'selenium-query/static/build' {
     export const BuildStatics: {
         build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         load(url: string, config: ILoadConfig, setts?: ISettings): ThenableSQuery;
-        releaseDriver(mix: IDriver | SQuery): void;
+        releaseDriver(mix: any): void;
+        fetch<T>(url: string, opts: any, config: ILoadConfig, setts?: ISettings): Promise<T>;
     };
 }
 
 declare module 'selenium-query/IDriver' {
-    export interface IDriver extends Promise<IDriver> {
+    export interface IDriver {
         executeScript<T>(script: string, ...var_args: any[]): Promise<T>;
-        get(url: string): IDriver;
+        executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
+        get(url: string): Promise<any>;
         manage(): IManagableDriver;
     }
     export interface IManagableDriver {
         addCookie(cookie: any): Promise<void>;
+    }
+    export interface IThenableDriver extends Promise<any>, IDriver {
     }
     export interface IElement {
         getDriver(): IDriver;

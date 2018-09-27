@@ -1,4 +1,7 @@
 UTest({
+	$config: {
+		timeout: 30000
+	},
 	'load local file' (done) {
 		Lib
 			.SQuery
@@ -19,6 +22,18 @@ UTest({
 				notEq_($.length, 0)
 				done();
 			});
+	},
+	async '!fetch github terms' () {
+		let $ = await Lib
+			.SQuery
+			.fetch('https://help.github.com/articles/github-terms-of-service/');
+
+		
+		let h2 = await $.find('.article > h2');
+		eq_(h2.length, 1);
+
+		let str = await h2.text();
+		eq_(str, 'GitHub Terms of Service');
 	}
 })
 

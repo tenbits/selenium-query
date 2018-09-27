@@ -1,12 +1,12 @@
-import { IDriver } from "../IDriver";
+import { IDriver, IThenableDriver } from "../IDriver";
 import { IBuildConfig, ILoadConfig, ISettings } from "../static/build";
-import { obj_extend, class_Dfr } from "atma-utils";
+import { class_Dfr } from "atma-utils";
 import { buildDriver } from "./SeleniumDriver";
 import { setCookies } from "../utils/driver";
 import { SQuery } from "../SQuery";
 
 
-const COUNT = 40;
+const COUNT = 5;
 
 export class DriverPool {
     
@@ -16,7 +16,7 @@ export class DriverPool {
 
     cookies: { [domain: string]: any }
 
-    async get (url: string = null, config: ILoadConfig, setts: ISettings) {
+    async get (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {        
         if (setts) {
             let driver = this.extractDriver(setts.query);
             if (driver) {
@@ -26,7 +26,7 @@ export class DriverPool {
                 }
                 let wrapper = this.pool.find(x => x.driver === driver);
                 if (wrapper == null) {
-                    wrapper = new DriverWrapper(config);
+                    wrapper = new DriverWrapper();
                     wrapper.driver = driver;
                     wrapper.busy = true;
                     wrapper.requestedAt = new Date();
@@ -35,16 +35,27 @@ export class DriverPool {
                 }
                 return wrapper;
             }
-        }
-        if (setts && setts.pool) {
-            return this.requestDriver(url, config);
+            if (setts.pool) {
+                return this.requestDriver(url, config);
+            }
         }
         return this.getGlobal(url, config);
     }
 
-    async releaseDriver(mix: IDriver | DriverWrapper) {
-        let wrapper = this.pool.find(x => x === mix || x.driver === mix);
+    async getWithDomain (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {
+        let wrapper = await this.get(url, config, setts);
+        let match = /[^/]\/[^/]/.exec(url);
+        let domain = match == null ? url : url.substring(0, match.index + 1);
+
+        await wrapper.driver.get(domain);
+        return wrapper;
+    }
+
+    async releaseDriver(mix: IDriver | DriverWrapper | SQuery) {
+        let driver = this.extractDriver(mix)
+        let wrapper = this.pool.find(x => x.driver === driver);
         if (wrapper == null) {
+            debugger;
             throw Error('Wrapper not found');
         }
 
@@ -62,7 +73,8 @@ export class DriverPool {
         this.memCookies(url, config);
 
         if (this.singleton == null) {
-            this.singleton = new DriverWrapper(config);            
+            this.singleton = new DriverWrapper();
+            await this.singleton.build(config);
         }
         await this.singleton.ensureCookies(url, this.cookies, config);
         return this.singleton;
@@ -72,22 +84,24 @@ export class DriverPool {
         
         this.memCookies(url, config);
 
-        if (this.pool.length < COUNT) {
-            let wrapper = new DriverWrapper(config);
-
-            wrapper.busy = true;
-            wrapper.requestedAt = new Date;
-            this.pool.push(wrapper);
-            
-            await wrapper.ensureCookies(url, this.cookies, config);
-            return wrapper;
-        }
-
         let free = this.pool.find(x => x.busy !== true);
         if (free) {
             free.busy = true;
             await free.ensureCookies(url, this.cookies, config);
             return free;
+        }
+
+        if (this.pool.length < COUNT) {
+            let wrapper = new DriverWrapper();
+            await wrapper.build(config);
+
+            wrapper.busy = true;
+            wrapper.requestedAt = new Date;
+            this.pool.push(wrapper);
+            
+            
+            await wrapper.ensureCookies(url, this.cookies, config);
+            return wrapper;
         }
 
         let dfr = new class_Dfr();
@@ -114,7 +128,7 @@ export class DriverPool {
 
     
 
-    private extractDriver(mix: IDriver | SQuery): IDriver {
+    private extractDriver(mix: IDriver | SQuery | DriverWrapper): IDriver {
         if (mix == null) {
             return null;
         }
@@ -123,17 +137,20 @@ export class DriverPool {
             if (el == null) {
                 return null;
             }
-            if ('getDriver' in el) {
-                return el.getDriver();
-            }
             if ('get' in el && 'manage' in el) {
                 // is driver itself
                 return el;
             }
+            if ('getDriver' in el) {
+                return el.getDriver();
+            }            
             return null;
         }
         if ('get' in mix && 'manage' in mix) {
             return mix;
+        }
+        if ('driver' in mix && 'busy' in mix) {
+            return mix.driver;
         }
         return null;
     }
@@ -144,11 +161,14 @@ export class DriverWrapper {
     requestedAt: Date
     busy = false
     driver: IDriver
-
     cookies: { [key: string]: any }
 
-    constructor(config: IBuildConfig) {
-        this.driver = buildDriver(config);
+    constructor() {
+        
+    }
+
+    async build (config: IBuildConfig) {
+        this.driver = await buildDriver(config);        
     }
 
     async ensureCookies (url: string, cookies, config: ILoadConfig) {

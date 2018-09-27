@@ -1,14 +1,21 @@
 
-export interface IDriver extends Promise<IDriver> {
+export interface IDriver {
     executeScript<T>(script: string, ...var_args: any[]): Promise<T>;
+    executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
 
-    get (url: string): IDriver
+    get (url: string): Promise<any>
     manage (): IManagableDriver
 }
 
 export interface IManagableDriver {
     addCookie (cookie: any): Promise<void>;
 }
+
+export interface IThenableDriver extends Promise<any>, IDriver {
+    
+}
+
+
 
 export interface IElement {
     getDriver(): IDriver

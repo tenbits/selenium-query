@@ -1,14 +1,12 @@
-import { obj_extend } from "atma-utils";
-import { Builder } from 'selenium-webdriver'
-import { IDriver } from "../IDriver";
-import { ThenableSQuery } from '../SQuery'
-import { refs } from "../global"
-import { loadUrl, setCookies } from '../utils/driver'
-import { driverPool, DriverWrapper } from '../class/DriverPool'
+import { IDriver, IElement } from "../IDriver";
+import { ThenableSQuery, SQueryBase } from '../SQuery'
+import { loadUrl } from '../utils/driver'
+import { driverPool } from '../class/DriverPool'
 import { SQuery } from "../SQueryLibrary";
+import { class_Dfr } from "atma-utils";
 
-declare var require: any;
 declare var process: any;
+declare var scripts_fetchAsync: any;
 
 export interface IBuildConfig {
 	name: string
@@ -59,59 +57,43 @@ export const BuildStatics = {
 					query.add(driver);
 					query.resolve(query);
 				})
-			});
+			}, error => query.reject(error));
 
 		return query;
 	},
-
-	releaseDriver (mix: SQuery | IDriver) {
-		if (mix instanceof SQuery) {
-			driverPool.releaseDriver(<IDriver><any>mix[0]);
-			return;
-		}
+	releaseDriver (mix) {
 		driverPool.releaseDriver(mix);
+	},
+
+	fetch <T> (url: string, opts, config: ILoadConfig, setts?: ISettings): Promise<T> {
+		let dfr = new class_Dfr;
+		driverPool
+			.getWithDomain(url, config, setts)
+			.then(wrapper => {
+				wrapper
+					.driver
+					.executeAsyncScript(scripts_fetchAsync, url, opts && JSON.stringify(opts) || null)
+					.then((result: any) => {
+
+						if (setts && Boolean(setts.pool)) {
+							driverPool.releaseDriver(wrapper.driver);
+						}
+						
+						let error = result && result.name === 'Error';						
+						if (error) {
+							dfr.reject(error);
+							return;
+						}
+						if ('findElements' in result) {
+							dfr.resolve(new SQueryBase(result));
+							return;
+						}
+						dfr.resolve(result);
+					}, error => console.error(error, '<'));
+				}
+			);
+
+		return <Promise<T>> <any> dfr;
 	}
 };
 
-
-
-const DefaultConfig: IBuildConfig = {
-	name: 'Chrome',
-	args: ['no-sandbox'],
-	binaryPath: null,
-
-	applyOptions(builder, options) {
-		var fn = `set${this.name}Options`;
-		if (typeof builder[fn] !== 'function') {
-			throw Error(`Default function not found, please override 'applyOptions(builder, options)' to set it yourself. Was looking for : ${fn}`);
-		}
-		builder[fn](options);
-	},
-
-	setOptions(builder, options) {
-
-	},
-
-	setArguments(options) {
-		options.addArguments(this.args);
-	},
-	setBinaryPath(options) {
-		var fn = `set${this.name}BinaryPath`;
-		if (typeof options[fn] !== 'function') {
-			throw Error(`Default function not found, please override 'setBinaryPath' to set it yourself. Was looking for: ${fn}`);
-		}
-
-		if (this.binaryPath) {
-			options[fn](this.binaryPath);
-		}
-	},
-	setLogging(options) {
-		options.setLoggingPrefs({
-
-		});
-	}
-};
-
-if (typeof process.env.BROWSER_PATH !== 'undefined') {
-	DefaultConfig.binaryPath = process.env.BROWSER_PATH;
-}

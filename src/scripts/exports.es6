@@ -18,3 +18,5 @@
 // import ./class/has.es6
 // import ./events/trigger.es6
 // import ./css/nodeCss.es6
+
+// import ./http/fetch.es6

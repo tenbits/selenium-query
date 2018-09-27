@@ -4,7 +4,7 @@ import { class_Dfr, is_Array, class_create, obj_extendMany, is_ArrayLike } from 
 import { dfr_run } from './utils/dfr';
 import { each } from './utils/arr';
 import { refs } from './global';
-import { BuildStatics, IBuildConfig } from './static/build';
+import { BuildStatics, IBuildConfig, ISettings } from './static/build';
 import { IDriver, IElement } from './IDriver';
 import { Classify, FnPrototypeAlias } from './utils/classify';
 
@@ -404,17 +404,23 @@ export class SQueryBase implements IArray {
 	}
 	//#endregion
 
-	static build(config: IBuildConfig): Promise<IDriver> {
-		return BuildStatics.build(config);
+	static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
+		return BuildStatics.build(config, setts);
 	}
-	static load(url: string, config: IBuildConfig) {
-		return BuildStatics.load(url, config);
+	static load(url: string, config: IBuildConfig, setts?: ISettings) {
+		return BuildStatics.load(url, config, setts);
+	}
+	static fetch(url: string, opts, config: IBuildConfig, setts?: ISettings) {
+		return BuildStatics.fetch(url, opts, config, setts);
 	}
 	static setDriver (driver: IDriver ) {
 		refs.driver = driver;
 	}
 	static getDriver (): IDriver {
 		return refs.driver;
+	}
+	static releaseDriver (mix) {
+		BuildStatics.releaseDriver(mix);
 	}
 }
 
