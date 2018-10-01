@@ -15,7 +15,10 @@ function scripts_fetchAsync() {
 	fetch(url, opts).then(response => {
         console.log('done', response.status);
         if (!response.ok) {
-            callback(new Error("Status code: " + response.status));
+            callback({
+                name: 'Error',
+                message: url + " has the status code " + response.status
+            });
             return;
         }
         var contentType = response.headers.get('content-type');

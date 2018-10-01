@@ -44,7 +44,7 @@ UTest({
 				.find('footer > div')
 				.offset()
 				.done(val => {
-					deepEq_(val, { left: 110, top: 105 });
+					has_(val, { left: 110, top: 105 });
 					done();
 				});
 		});

@@ -3,7 +3,7 @@ module.exports = {
 		selenium : {
 			exec: 'node',
 			env: [
-				'/src/scripts/exports.es6',
+				'/src/webdriver/scripts/exports.es6',
 				'/lib/query.js::Lib',
 				'/test/utils.js::Utils'
 			],

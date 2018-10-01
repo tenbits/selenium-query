@@ -1,5 +1,5 @@
-import { IBuildConfig } from "../static/build";
-import { IThenableDriver } from "../IDriver";
+import { IBuildConfig } from "../common/IConfig";
+import { IThenableDriver } from "../common/IDriver";
 import { obj_extend } from "atma-utils";
 import { Builder } from 'selenium-webdriver'
 

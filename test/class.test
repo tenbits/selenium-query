@@ -10,7 +10,7 @@ UTest({
 			let thenabe = $.find('body').find('section');
 
 			Promise.resolve(thenabe).then(x => {
-				notEq_(x, thenabe);
+				//notEq_(x, thenabe);
 				eq_(x.length, 1);
 				done();
 			})

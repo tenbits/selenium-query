@@ -1,23 +1,22 @@
 import { map, each } from './arr'
 import { dfr_run } from './dfr'
-import { IElement } from '../IDriver';
-import { SQuery, ThenableSQuery } from '../SQuery'
-import { Deferred } from 'atma-class';
+import { IQuery } from '../common/IQuery'
 
-export function async_each(self: ThenableSQuery | SQuery, fn: (ctx: InstanceType<typeof SQuery>, node: IElement) => any) {
-	const $ = new ThenableSQuery();
-	async_toThenable(self).done(ctx => {
+
+export function async_each<TElement>(query: IQuery<TElement>, fn: (ctx: IQuery<TElement>, node: TElement) => any) {
+	const $ = query.ctx.newAsync(null, query);
+	query.ensureAsync().done($base => {
 	
-		const dfrs = map(ctx as IElement[], node => {
+		const dfrs = map($base as TElement[], node => {
 			return fn($, node)
 		});		
 		_when(dfrs, () => {
 			$.resolve($)
 		});
-	});
+	});	
 	return $;
 };
-export function async_map(self, fn) {
+export function async_map<TResult, TElement>(self: IQuery<TElement>, fn: (x: TElement, i: number) => TResult) {
 	return async_next(async_toThenable(self), ($, source) => {
 		return async_waterfall(source, (node, i) => {
 			return dfr_run(resolve => {
@@ -26,11 +25,11 @@ export function async_map(self, fn) {
 					resolve();
 				}
 				var x = fn(node, i);
-				if (x == null || typeof x.then !== 'function') {
+				if (x == null || typeof (<any>x).then !== 'function') {
 					add(x);
 					return;
 				}
-				x.then(add, add);
+				(<any>x).then(add, add);
 			});
 		});
 	});
@@ -57,9 +56,9 @@ export function async_filter(self, fn) {
 	});
 };
 
-export function async_at(self, index, fn) {
-	var $ = new ThenableSQuery();
-	self.done(ctx => {
+export function async_at<T>(self: IQuery<T>, index, fn) {
+	const $ = self.ctx.newAsync(null, self);
+	async_toThenable(self).done(ctx => {
 		if (index >= ctx.length) {
 			$.resolve($);
 			return;
@@ -69,16 +68,16 @@ export function async_at(self, index, fn) {
 	return $;
 };
 
-export function async_next(self, fn) {
-	var $ = new ThenableSQuery();
-	self.done(ctx => {
+export function async_next(self: IQuery<any>, fn) {
+	const $ = self.ctx.newAsync(null, self);
+	async_toThenable(self).done(ctx => {
 		_always(fn($, ctx), () => $.resolve($));
 	});
 	return $;
 };
 
-export function async_aggr(accum, $, fn) {
-	return dfr_run((resolve, reject) => {
+export function async_aggr<TElement, TResult>(accum: TResult, $: IQuery<TElement>, fn) {
+	return dfr_run<TResult>((resolve, reject) => {
 		async_toThenable($).done($ => {
 
 			async_waterfall($, node => {
@@ -92,7 +91,7 @@ export function async_aggr(accum, $, fn) {
 	});
 };
 
-export function async_traverse(self, fn) {
+export function async_traverse<TElement>(self: IQuery<TElement>, fn: (node: TElement) => Promise<any> | any): IQuery<TElement> {
 	return async_each(self, ($, node) => {
 		return _always(fn(node), mix => {
 			$.add(mix);
@@ -100,7 +99,7 @@ export function async_traverse(self, fn) {
 	});
 };
 
-export function async_getValueOf(index, self, getter: (x: IElement) => any): Promise<any> {
+export function async_getValueOf<TElement>(index: number, self: IQuery<TElement>, getter: (x: TElement) => any): Promise<any> {
 	return <Promise<any>><any> dfr_run(resolve => {
 		async_toThenable(self).done(ctx => {
 			if (index >= ctx.length) {
@@ -115,9 +114,10 @@ export function async_getValueOf(index, self, getter: (x: IElement) => any): Pro
 	})
 };
 
-export function async_mutate(self, fn) {
-	const $ = new ThenableSQuery();
-	async_toThenable(self).done(ctx => {
+export function async_mutate(self: IQuery<any>, fn) {
+	const $ = self.ctx.newAsync(null, self);
+	
+	self.ensureAsync().done(ctx => {
 		let dfrs = map(ctx, node => {
 			$.add(node);
 			return fn(node);
@@ -143,15 +143,17 @@ export function async_waterfall(arr, fn) {
 	});
 };
 
-export function async_toThenable (ctx: SQuery | ThenableSQuery ): ThenableSQuery {
-	if ('then' in ctx) {
-		return ctx; 
-	} 
-	let thenable = new ThenableSQuery(ctx);
-	if (ctx.length === 0) {
-		thenable.resolve(thenable);
-	}
-	return thenable;
+export function async_toThenable <T> (ctx: IQuery<T>): IQuery<T> {
+	return ctx.ensureAsync();
+	// if ('then' in ctx) {
+	// 	return ctx; 
+	// } 
+	// const $thenable = new ThenableSQuery(ctx);
+	// $thenable.owner = ctx;
+	// if (ctx.length === 0) {
+	// 	$thenable.resolve($thenable);
+	// }
+	// return $thenable;
 }
 
 

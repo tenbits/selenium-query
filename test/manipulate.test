@@ -163,7 +163,7 @@ UTest({
 					.find('.foo')
 					.html()
 					.done(val => {
-						eq_(val, 'Span1', 'Should get html of the first element only. (See jQuery sepc)');
+						eq_(val, 'Span1', 'Should get html of the first element only. (See jQuery spec)');
 						done();
 					});
 			});

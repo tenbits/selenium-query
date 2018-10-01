@@ -1,10 +1,10 @@
-import { IDriver, IThenableDriver } from "../IDriver";
-import { IBuildConfig, ILoadConfig, ISettings } from "../static/build";
+import { IDriver } from "../common/IDriver";
+import { IBuildConfig, ILoadConfig, ISettings } from "../common/IConfig";
 import { class_Dfr } from "atma-utils";
 import { buildDriver } from "./SeleniumDriver";
-import { setCookies } from "../utils/driver";
-import { SQuery } from "../SQuery";
+import { setCookies } from "./utils/driver";
 import { singleton } from '../utils/deco'
+import { IQuery } from "../common/IQuery";
 
 let POOL_DEFAULT = 5;
 let POOL_CUSTOM: number;
@@ -22,7 +22,7 @@ export class DriverPool {
 
     async get (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {        
         if (setts) {
-            let driver = this.extractDriver(setts.query);
+            let driver = DriverExtractor.extractDriver(setts.query);
             if (driver) {
                 if (this.singleton && this.singleton.driver === driver) {
                     this.singleton.busy = true;
@@ -61,9 +61,9 @@ export class DriverPool {
         return wrapper;
     }
 
-    async unlockDriver(mix: IDriver | DriverWrapper | SQuery) {
+    async unlockDriver(mix: IQuery<any> | IDriver | DriverWrapper) {
         
-        let driver = this.extractDriver(mix)
+        let driver = DriverExtractor.extractDriver(mix)
         let wrapper = this.pool.find(x => x.driver === driver);
         if (wrapper == null) {
             console.warn('Unlocking: Wrapper not found');
@@ -142,33 +142,7 @@ export class DriverPool {
         this.singleton.driver = driver;
 	}
     
-
-    private extractDriver(mix: IDriver | SQuery | DriverWrapper): IDriver {
-        if (mix == null) {
-            return null;
-        }
-        if ('length' in mix) {
-            let el = mix[0];
-            if (el == null) {
-                return null;
-            }
-            if ('get' in el && 'manage' in el) {
-                // is driver itself
-                return el;
-            }
-            if ('getDriver' in el) {
-                return el.getDriver();
-            }            
-            return null;
-        }
-        if ('get' in mix && 'manage' in mix) {
-            return mix;
-        }
-        if ('driver' in mix && 'busy' in mix) {
-            return mix.driver;
-        }
-        return null;
-    }
+ 
 }
 
 export class DriverWrapper {
@@ -202,3 +176,67 @@ function getPoolCount () {
 }
 
 export const driverPool = new DriverPool();
+
+
+namespace DriverExtractor {
+    
+    function isElement (mix) {
+        return mix != null && 'getDriver' in mix;
+    }
+    function isDriver (mix) {
+        return mix != null && 'get' in mix && 'manage' in mix;
+    }
+    function fromQuery(mix) {
+        let el = mix[0];
+        if (isDriver(el)) {
+            // is driver itself
+            return el;
+        }
+        if (isElement(el)) {
+            return el.getDriver();
+        }
+        return null;
+    }
+    function fromOwner(mix: IQuery<any>) {
+        let owner = mix.ctx && mix.ctx.owner;
+        let stack = [];
+        while(owner != null) {
+            let driver = fromQuery(owner);
+            if (driver) {
+                return driver;
+            }
+            stack.push(owner);
+            owner = owner.ctx && owner.ctx.owner;
+            if (stack.indexOf(owner) !== -1) {
+                return null;
+            }
+        }        
+    }
+    function fromWrapper (mix) {
+        if (isDriver(mix)) {
+            return mix;
+        }
+        if ('driver' in mix && 'busy' in mix) {
+            return mix.driver;
+        }
+        return null;
+    }
+    
+
+    export  function extractDriver(mix: IDriver | IQuery<any> | DriverWrapper): IDriver {
+        if (mix == null) {
+            return null;
+        }
+
+        var driver = fromQuery(mix);
+        if (driver) return driver;
+
+        var driver = fromOwner(<any> mix);
+        if (driver) return driver;
+
+        var driver = fromWrapper(mix);
+        if (driver) return driver;
+
+        return null;
+    }
+}

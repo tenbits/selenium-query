@@ -1,7 +1,9 @@
-import { IDriver, IElement } from "../IDriver";
-import { dfr_run } from "./dfr";
+import { IDriver, IElement } from "../../common/IDriver";
+import { dfr_run } from "../../utils/dfr";
+import { class_Dfr } from "atma-utils";
+import { Deferred } from "../../types/Deferred";
 
-export function node_eval(node: IElement | IDriver, mix: string | Function, ...args: any[]) {
+export function node_eval(node: IElement | IDriver, mix: string | Function, ...args: any[]): Deferred<any> {
 	return dfr_run((resolve, reject) => {
 		
 		var script = toScript(mix);

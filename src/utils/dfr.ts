@@ -1,5 +1,13 @@
-import { class_Dfr, DeferredLike } from 'atma-utils'
+import { class_Dfr } from 'atma-utils'
+import { Deferred } from '../types/Deferred';
 
-export function dfr_run (fn) : class_Dfr {
-	return class_Dfr.run(fn) as class_Dfr;
+export function dfr_run <T> (fn: (resolve: (result?: T) => void | any, reject: (error: any) => void | any) => void | any) : Deferred<T> {
+	return class_Dfr.run(fn) as Deferred<T>;
+};
+
+export function dfr_resolve <T> (x?: T) : Deferred<T> {
+	let dfr = new class_Dfr;
+	let args = arguments.length === 0 ? [] : [ x ];
+	dfr.resolve(...args);
+	return <any> dfr;
 };

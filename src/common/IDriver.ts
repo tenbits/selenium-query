@@ -24,8 +24,7 @@ export interface IElement {
     sendKeys (str: string)
     click(): Promise<void>
 
-    getCssValue (name: string): Promise<any>
-    getSize(): Promise<{ width: number, height: number }>
+    getCssValue (name: string): Promise<any>    
     getAttribute (name: string): Promise<any>
 
     findElements({ css: string });    

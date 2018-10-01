@@ -10,10 +10,8 @@
 		"outDir": "ts-temp",
 		"diagnostics": true,
 		"typeRoots": [
-		  
-		],
-		"types": [
-		  "node"
+			"node/@types",
+			"types",
 		],
 		"declaration": true,
 		"target":"ES2015",

@@ -1,5 +1,5 @@
 import * as seleniumDriver from 'selenium-webdriver'
-import { IDriver } from './IDriver';
+import { IDriver } from './common/IDriver';
 
 let _driver: IDriver;
 

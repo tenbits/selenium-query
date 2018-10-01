@@ -61,6 +61,8 @@
       "appcfg",
       "atma-utils",
       "^selenium",
+      "^jsdom$",
+      "^fetch$",
       "atma-class"
     ],
     "defaultExtensions": {
@@ -78,8 +80,11 @@
     }
   },
   "dependencies": {
+    "@types/jsdom": "^11.12.0",
     "atma-class": "^1.1.83",
     "atma-utils": "^0.1.15",
+    "fetch": "^1.1.0",
+    "jsdom": "^12.0.0",
     "selenium-webdriver": "^3.4.0"
   }
 }

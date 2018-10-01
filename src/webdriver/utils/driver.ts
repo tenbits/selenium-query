@@ -1,7 +1,7 @@
-import { IDriver } from '../IDriver'
-import { ILoadConfig, BuildStatics } from '../static/build'
-import { dfr_run } from './dfr';
-import { _when } from './async'
+import { IDriver } from '../../common/IDriver'
+import { ILoadConfig } from '../../common/IConfig'
+import { dfr_run } from '../../utils/dfr'
+import { _when } from '../../utils/async'
 
 export function loadUrl (driver: IDriver, url: string, config: ILoadConfig): Promise<IDriver> {
     return driver

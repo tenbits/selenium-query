@@ -23,7 +23,7 @@ UTest({
 				done();
 			});
 	},
-	async '!fetch github terms' () {
+	async 'fetch github terms' () {
 		let $ = await Lib
 			.SQuery
 			.fetch('https://help.github.com/articles/github-terms-of-service/');

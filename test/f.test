@@ -1,0 +1,11 @@
+const fetch = require('fetch');
+
+
+UTest({
+    'load' (done) {
+        fetch.fetchUrl('https://help.github.com/articles/github-terms-of-service/', {}, function (error, meta, body) {
+            console.log(error, meta, body);
+            done();
+        })
+    }
+})
