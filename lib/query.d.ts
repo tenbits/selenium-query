@@ -10,7 +10,7 @@ declare module 'selenium-query' {
 }
 
 declare module 'selenium-query/webdriver/WebdriverQuery' {
-    import { IElement, IDriver } from 'selenium-query/common/IDriver';
+    import { IElement, IDriver, IDriverManager } from 'selenium-query/common/IDriver';
     import { Deferred } from 'selenium-query/types/Deferred';
     import { IQuery } from 'selenium-query/common/IQuery';
     import { IBuildConfig, ISettings } from 'selenium-query/common/IConfig';
@@ -79,15 +79,20 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
         protected setField(node: IElement, obj: any): Deferred<void>;
         protected setField(node: IElement, field: string, val: any): Deferred<void>;
         protected callField<T>(node: IElement, field: string, ...args: any[]): Deferred<T>;
+        manage(): IDriverManager;
+        waitForPageLoad(): IQuery<any>;
         unlock(): void;
         static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
-        static load(url: string, config: IBuildConfig, setts?: ISettings): IQuery<any>;
-        static fetch(url: string, config: IBuildConfig, setts?: ISettings): Promise<{}>;
+        static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any>;
+        static fetch(url: string, config?: IBuildConfig, setts?: ISettings): Promise<{}>;
         static setDriver(driver: IDriver): void;
         static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         static unlockDriver(mix: any): void;
         static newAsync(mix?: any, parent?: IQuery<IElement>): WebdriverQuery;
         static jsdom: import("../common/IQueryStatics").IQueryStatics;
+        static network: {
+            load(url: string, config?: import("../common/IConfig").ILoadConfig): Promise<import("../fetch/NetworkDriver").NetworkResponse>;
+        };
     }
 }
 
@@ -97,9 +102,9 @@ declare module 'selenium-query/common/IDriver' {
         executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
         get(url: string): Promise<any>;
         getCurrentUrl(): Promise<string>;
-        manage(): IManagableDriver;
+        manage(): IDriverManager;
     }
-    export interface IManagableDriver {
+    export interface IDriverManager {
         addCookie(cookie: any): Promise<void>;
     }
     export interface IThenableDriver extends Promise<any>, IDriver {
@@ -287,7 +292,7 @@ declare module 'selenium-query/common/IQuery' {
 declare module 'selenium-query/common/IConfig' {
     import { IQuery } from "selenium-query/common/IQuery";
     export interface IBuildConfig {
-        name: string;
+        name?: string;
         args?: string[];
         binaryPath?: string;
         applyOptions?(builder: any, options: any): any;
@@ -295,19 +300,17 @@ declare module 'selenium-query/common/IConfig' {
         setArguments?(options: any): any;
         setBinaryPath?(options: any): any;
         setLogging?(options: any): any;
+        headers?: {
+            [name: string]: string;
+        };
+        method?: any;
+        payload?: any;
+        cookies?: any;
+        /** Webdriver will load this url, or requested url, to set the cookies first */
+        cookieOrigin?: string;
         [key: string]: any;
     }
     export interface ILoadConfig extends IBuildConfig {
-        cookies?: string | {
-            name: any;
-            value: any;
-            path?: string;
-            domain?: string;
-            secure?: boolean;
-            httpOnly?: boolean;
-            expiry?: number;
-        }[];
-        cookieOrigin?: string;
     }
     export interface ISettings {
         pool?: boolean | number;

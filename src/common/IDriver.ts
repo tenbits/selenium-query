@@ -5,10 +5,10 @@ export interface IDriver {
 
     get (url: string): Promise<any>
     getCurrentUrl (): Promise<string>
-    manage (): IManagableDriver
+    manage (): IDriverManager
 }
 
-export interface IManagableDriver {
+export interface IDriverManager {
     addCookie (cookie: any): Promise<void>;
 }
 

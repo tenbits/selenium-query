@@ -1,12 +1,17 @@
 import { node_eval } from './utils/node'
 import { refs } from '../global'
-import { IElement, IDriver } from '../common/IDriver'
+import { IElement, IDriver, IDriverManager } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
 import { IQuery } from '../common/IQuery'
 import { Webdriver } from './Webdriver'
 import { IBuildConfig, ISettings } from '../common/IConfig'
 import { driverPool } from './DriverPool'
 import { JsdomDriver } from '../jsdom/JsdomDriver'
+import { NetworkDriver } from '../fetch/NetworkDriver'
+import { class_Dfr } from 'atma-utils';
+import { dfr_run } from '../utils/dfr';
+import { waitForPageLoad } from './utils/driver';
+import { DefaultConfig } from './SeleniumDriver';
 
 declare var scripts_nodeClassHas: any;
 declare var scripts_nodeClassAdd: any;
@@ -262,7 +267,18 @@ export class WebdriverQuery extends IQuery<IElement> {
     }
 
     
-	//#region driver utils
+    //#region driver utils
+    manage (): IDriverManager {
+        let driver = driverPool.extractDriver(this);
+        if (driver == null) {
+            console.log(this);
+            throw new Error(`Driver not found in set`)
+        }
+        return driver.manage();
+    }
+    waitForPageLoad (): IQuery<any> {
+        return waitForPageLoad(this);
+    }
 	unlock () {
 		Webdriver.unlockDriver(this);
 	}
@@ -272,14 +288,14 @@ export class WebdriverQuery extends IQuery<IElement> {
 		
 		return Webdriver.build(config, setts);
 	}
-	static load(url: string, config: IBuildConfig, setts?: ISettings) {
+	static load(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
         if (config.name.toLowerCase() === 'jsdom') {
             return JsdomDriver.load(url, config, setts);
         }
 
 		return Webdriver.load(url, config, setts);
 	}
-	static fetch(url: string, config: IBuildConfig, setts?: ISettings) {
+	static fetch(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
         if (config.name.toLowerCase() === 'jsdom') {
             return JsdomDriver.fetch(url, config, setts);
         }
@@ -304,6 +320,7 @@ export class WebdriverQuery extends IQuery<IElement> {
     }
 
     static jsdom = JsdomDriver
+    static network = NetworkDriver
 }
 
 

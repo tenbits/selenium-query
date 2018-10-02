@@ -1,7 +1,7 @@
 import { IQuery } from "../common/IQuery";
 
 export interface IBuildConfig {
-	name: string
+	name?: string
 	args?: string[]
 	binaryPath?: string
 
@@ -13,13 +13,20 @@ export interface IBuildConfig {
 	setBinaryPath? (options: any)
 	setLogging? (options: any) 
 
+	/* HTTP, webdriver supports only cookies */
+	headers?: {[name: string] : string }
+    method?
+    payload?
+    cookies?
+	
+	/** Webdriver will load this url, or requested url, to set the cookies first */
+	cookieOrigin?: string
+
 	[key: string]: any
 }
 
 export interface ILoadConfig extends IBuildConfig {
-	cookies?: string | {name, value, path?: string, domain?: string, secure?: boolean, httpOnly?: boolean, expiry?: number}[]
-	/* default is the domain of proveded url */
-	cookieOrigin?: string
+	
 }
 
 export interface ISettings {

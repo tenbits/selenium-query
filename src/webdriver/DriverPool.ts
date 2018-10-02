@@ -2,9 +2,11 @@ import { IDriver } from "../common/IDriver";
 import { IBuildConfig, ILoadConfig, ISettings } from "../common/IConfig";
 import { class_Dfr } from "atma-utils";
 import { buildDriver } from "./SeleniumDriver";
-import { setCookies } from "./utils/driver";
+import { ensureCookies } from "./utils/driver";
 import { singleton } from '../utils/deco'
 import { IQuery } from "../common/IQuery";
+import { cookieContainer } from '../common/CookieContainer'
+import { WebdriverQuery } from "./WebdriverQuery";
 
 let POOL_DEFAULT = 5;
 let POOL_CUSTOM: number;
@@ -17,8 +19,6 @@ export class DriverPool {
 
     pool: DriverWrapper[] = [];
     queue: {url: string, config: ILoadConfig, dfr: class_Dfr}[] = []
-
-    cookies: { [domain: string]: any }
 
     async get (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {        
         if (setts) {
@@ -76,7 +76,7 @@ export class DriverPool {
         let dfrData = this.queue.shift();
         if (dfrData) {
             wrapper.busy = true;
-            await wrapper.ensureCookies(dfrData.url, this.cookies, dfrData.config);
+            await wrapper.ensureCookies(dfrData.url, dfrData.config);
             dfrData.dfr.resolve(wrapper);
         }
     }
@@ -88,8 +88,12 @@ export class DriverPool {
         let singleton = new DriverWrapper();
 
         await singleton.build(config);
-        await singleton.ensureCookies(url, this.cookies, config);
+        await singleton.ensureCookies(url, config);
         return (this.singleton = singleton);
+    }
+
+    public extractDriver(query: WebdriverQuery) {
+        return DriverExtractor.extractDriver(query);
     }
 
     private async requestDriver(url: string = null, config: ILoadConfig):Promise<DriverWrapper> {
@@ -99,7 +103,7 @@ export class DriverPool {
         let free = this.pool.find(x => x.busy !== true);
         if (free) {
             free.busy = true;
-            await free.ensureCookies(url, this.cookies, config);
+            await free.ensureCookies(url, config);
             return free;
         }
 
@@ -110,7 +114,7 @@ export class DriverPool {
             this.pool.push(wrapper);
             
             await wrapper.build(config);
-            await wrapper.ensureCookies(url, this.cookies, config);
+            await wrapper.ensureCookies(url, config);
             return wrapper;
         }
 
@@ -121,18 +125,7 @@ export class DriverPool {
 
     private memCookies (url: string, config: ILoadConfig) {
         if (config && config.cookies) {
-            let domain = config.cookieOrigin;
-            if (domain == null) {
-                domain = url;
-                if (domain == null) {
-                    return;
-                }
-                let match = /[^/]\/[^/]/.exec(url);
-                if (match) {
-                    domain = url.substring(0, match.index + 1);
-                }
-            }
-            this.cookies[domain] = config.cookies;
+            cookieContainer.addCookies(url, config.cookies as any);            
         }
     }
 
@@ -150,24 +143,21 @@ export class DriverWrapper {
     requestedAt: Date
     busy = false
     driver: IDriver
-    cookies: { [key: string]: any }
+    cookies: string
 
     async build (config: IBuildConfig) {
         this.driver = await buildDriver(config);        
     }
 
-    async ensureCookies (url: string, cookies, config: ILoadConfig) {
-        config = Object.assign({}, config);
-        
-        for (let domain in cookies) {
-            if (domain in this.cookies) {
-                continue;
-            }
-            this.cookies[domain] = cookies[domain]
-            config.cookies = this.cookies[domain] as any;
+    async ensureCookies (url: string, config: ILoadConfig) {
 
-            await setCookies(this.driver, domain, config);
+        let cookies = cookieContainer.getCookies(url);
+        if (!cookies || cookies === this.cookies) {
+            return;
         }
+        
+        this.cookies = cookies;
+        await ensureCookies(this.driver, url, cookies, config); 
     }
 }
 

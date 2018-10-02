@@ -1,6 +1,7 @@
 import { map, each } from './arr'
 import { dfr_run } from './dfr'
 import { IQuery } from '../common/IQuery'
+import { class_Dfr } from 'atma-utils';
 
 
 export function async_each<TElement>(query: IQuery<TElement>, fn: (ctx: IQuery<TElement>, node: TElement) => any) {
@@ -143,17 +144,44 @@ export function async_waterfall(arr, fn) {
 	});
 };
 
+export function async_waterfallFn(...args: (() => PromiseLike<any>)[]): PromiseLike<undefined> {
+	return dfr_run((resolve, reject) => {
+		let i = -1,
+			imax = args.length;
+
+		function next() {
+			if (++i >= imax) {
+				resolve();
+				return;
+			}
+			args[i]().then(() => next(), (error) => reject(error));
+		}
+		next();
+	});
+}
+
+export function async_all(dfrs: PromiseLike<any>[]) {
+	let wait = dfrs.length;
+	let error = null;
+	let result = new Array(dfrs.length);
+	let self = new class_Dfr;
+	dfrs.forEach((dfr, i) => {
+		dfr.then(x => {
+			if (error) return;
+			result[i] = x;
+			if (--wait > 0) {
+				self.resolve(result);
+			}
+		}, err => {
+			if (error) return;
+			error = err;
+			self.reject(error);
+		})
+	})
+	return self;
+}
 export function async_toThenable <T> (ctx: IQuery<T>): IQuery<T> {
 	return ctx.ensureAsync();
-	// if ('then' in ctx) {
-	// 	return ctx; 
-	// } 
-	// const $thenable = new ThenableSQuery(ctx);
-	// $thenable.owner = ctx;
-	// if (ctx.length === 0) {
-	// 	$thenable.resolve($thenable);
-	// }
-	// return $thenable;
 }
 
 

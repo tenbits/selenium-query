@@ -2,7 +2,7 @@ import { IQueryStatics } from '../common/IQueryStatics';
 import { IBuildConfig, ISettings, ILoadConfig } from "../common/IConfig";
 import { IDriver } from '../common/IDriver';
 import { JsdomQuery } from './JsdomQuery';
-import { Network } from './Network';
+import { NetworkDriver } from '../fetch/NetworkDriver';
 import { JSDOM } from 'jsdom'
 import { IQuery } from '../common/IQuery';
 
@@ -12,7 +12,7 @@ export interface IJsdomBuildConfig extends IBuildConfig {
 }
 
 export const JsdomDriver: IQueryStatics = {
-	build(config: IJsdomBuildConfig, setts?: ISettings): IQuery<Element> {
+	build(config: IJsdomBuildConfig): IQuery<Element> {
 		let html = config.html;
 		let jsdom = new JSDOM(html);
 		let el: any = jsdom.window.document;
@@ -31,11 +31,11 @@ export const JsdomDriver: IQueryStatics = {
 		let query = new JsdomQuery(el);
 		return query;
 	},
-	load(url: string, config: IBuildConfig, setts?: ISettings): IQuery<Element> {
+	load(url: string, config: IJsdomBuildConfig): IQuery<Element> {
 		let query = JsdomQuery.newAsync();
 		
-		Network
-			.fetch(url, setts && setts.opts)
+		NetworkDriver
+			.load(url, config)
 			.then(
 				resp => {
 					let jsdom = new JSDOM(resp.body.toString());

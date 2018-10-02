@@ -24,7 +24,6 @@ export const Webdriver: IQueryStatics = {
 		}
         let query = WebdriverQuery.newAsync();
         
-		
 		driverPool
 			.get(url, config, setts)
 			.then(wrapper => {

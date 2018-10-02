@@ -19,7 +19,7 @@ export function buildDriver (config: IBuildConfig): IThenableDriver {
     return (<any>builder.build());
 }
 
-const DefaultConfig: IBuildConfig = {
+export const DefaultConfig: IBuildConfig = {
 	name: 'Chrome',
 	args: ['no-sandbox'],
 	binaryPath: null,

@@ -1,7 +1,6 @@
 function scripts_fetchAsync() {
     var url = arguments[0];
     var opts = null;
-    console.log('FETCH', url);
     if (arguments.length > 2) {
         opts = arguments[1]
         if (typeof opts === 'strings') {
@@ -13,7 +12,6 @@ function scripts_fetchAsync() {
 
 	
 	fetch(url, opts).then(response => {
-        console.log('done', response.status);
         if (!response.ok) {
             callback({
                 name: 'Error',
