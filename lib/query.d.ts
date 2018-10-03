@@ -81,6 +81,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
         protected callField<T>(node: IElement, field: string, ...args: any[]): Deferred<T>;
         manage(): IDriverManager;
         waitForPageLoad(): IQuery<any>;
+        waitForElement(selector: string): IQuery<any>;
         unlock(): void;
         static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any>;
@@ -304,6 +305,9 @@ declare module 'selenium-query/common/IConfig' {
             [name: string]: string;
         };
         method?: any;
+        query?: {
+            [name: string]: string;
+        };
         payload?: any;
         cookies?: any;
         /** Webdriver will load this url, or requested url, to set the cookies first */

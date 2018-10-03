@@ -15,7 +15,8 @@ export interface IBuildConfig {
 
 	/* HTTP, webdriver supports only cookies */
 	headers?: {[name: string] : string }
-    method?
+	method?
+	query?: {[name: string] : string }
     payload?
     cookies?
 	

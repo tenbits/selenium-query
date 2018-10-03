@@ -54,6 +54,26 @@ export function ensureCookies(driver: IDriver, url: string, cookies: string, con
     });
 } 
 
+export function waitForElement (query: IQuery<IElement>, selector: string): IQuery<IElement> {
+    let driver = driverPool.extractDriver(query as any);
+    let set = WebdriverQuery.newAsync(null, query);
+    if (driver == null) {
+        set.reject(new Error(`Driver not found in set`));
+        return;
+    }
+
+    waitForTrue(() => {
+        return query.find(selector).then(x => x.length !== 0);
+    }, 10_000).then(
+        () => {
+            query.find(selector).then(x => set.resolve(x), err => set.reject(err));
+        },
+        (err) => set.reject(err)
+    );
+    return query;
+
+}
+
 export function waitForPageLoad (query: IQuery<IElement>): IQuery<IElement> {
     let driver = driverPool.extractDriver(query as any);
     let set = WebdriverQuery.newAsync(null, query);
@@ -130,27 +150,27 @@ namespace WaitForPageLoad {
                 });
             })
         }
-    }
+    }    
+}
 
-    function waitForTrue(check: () => Promise<boolean>, timeout: number) {
-        let dfr = new class_Dfr;
-        let time = Date.now();
-        function tick () {
-            check().then(function (state) {
-                if (state === true) {
-                    dfr.resolve();
-                    return;
-                }
+function waitForTrue(check: () => Promise<boolean>, timeout: number) {
+    let dfr = new class_Dfr;
+    let time = Date.now();
+    function tick () {
+        check().then(function (state) {
+            if (state === true) {
+                dfr.resolve();
+                return;
+            }
 
-                if (Date.now() - time > timeout) {
-                    dfr.reject(new Error('Timeout error'));
-                    return;
-                }
-                setTimeout(check, 400);
-            }, error => dfr.reject(error))
-        }
-        
-        tick();
-        return dfr;
+            if (Date.now() - time > timeout) {
+                dfr.reject(new Error('Timeout error'));
+                return;
+            }
+            setTimeout(check, 400);
+        }, error => dfr.reject(error))
     }
+    
+    tick();
+    return dfr;
 }

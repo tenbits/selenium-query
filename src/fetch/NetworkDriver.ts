@@ -37,6 +37,16 @@ export const NetworkDriver  = {
         options.cookies = cookieContainer
             .getCookies(url)
             .split(';');
+
+        if (config.query) {
+            let q = '';
+            for (let key in config.query) {
+                let  p = `${key}=${ encodeURIComponent(config.query[key]) }`;
+                
+                q += (q ? '&' : '') + p;
+            }
+            url += (url.includes('?') ? '&' : '?') + q;
+        }
         
         return new Promise((resolve, reject) => {
             

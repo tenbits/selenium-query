@@ -10,7 +10,7 @@ import { JsdomDriver } from '../jsdom/JsdomDriver'
 import { NetworkDriver } from '../fetch/NetworkDriver'
 import { class_Dfr } from 'atma-utils';
 import { dfr_run } from '../utils/dfr';
-import { waitForPageLoad } from './utils/driver';
+import { waitForPageLoad, waitForElement } from './utils/driver';
 import { DefaultConfig } from './SeleniumDriver';
 
 declare var scripts_nodeClassHas: any;
@@ -278,6 +278,9 @@ export class WebdriverQuery extends IQuery<IElement> {
     }
     waitForPageLoad (): IQuery<any> {
         return waitForPageLoad(this);
+    }
+    waitForElement (selector: string): IQuery<any> {
+        return waitForElement(this, selector);
     }
 	unlock () {
 		Webdriver.unlockDriver(this);
