@@ -1,0 +1,10 @@
+{
+    "status": 200,
+    "headers": {
+        "date": "Thu, 11 Oct 2018 23:50:27 GMT",
+        "connection": "close",
+        "content-length": "43"
+    },
+    "url": "http://localhost:5772",
+    "body": "<!DOCTYPE><html><body>Yes FOO</body></html>"
+}

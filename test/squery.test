@@ -1,6 +1,6 @@
 UTest({
     'should find nothing in empty ' (done) {
-        let q = new Lib.SQuery();
+        let q = new SQuery();
         let result = q.find('.foo');
         
         result.then(x => {

@@ -63,6 +63,7 @@
       "^selenium",
       "^jsdom$",
       "^fetch$",
+      "^crypto$",
       "atma-class"
     ],
     "defaultExtensions": {

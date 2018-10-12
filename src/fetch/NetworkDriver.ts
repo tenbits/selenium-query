@@ -1,6 +1,6 @@
 import { IQueryStatics } from '../common/IQueryStatics';
 import { IBuildConfig, ISettings, ILoadConfig } from "../common/IConfig";
-
+import { cache } from './Cache'
 import * as fetch from 'fetch'
 import { cookieContainer } from '../common/CookieContainer'
 import { DefaultConfig } from '../webdriver/SeleniumDriver';
@@ -19,6 +19,10 @@ const DefaultOptions = {
 
 
 export const NetworkDriver  = {
+    isCached (url: string, config: ILoadConfig = {}): boolean {        
+        url = serializeUrl(url, config);
+        return cache.get(url, config) != null;
+    },
     load (url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
         let options:FetchOptions = {
             headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),
@@ -38,18 +42,21 @@ export const NetworkDriver  = {
             .getCookies(url)
             .split(';');
 
-        if (config.query) {
-            let q = '';
-            for (let key in config.query) {
-                let  p = `${key}=${ encodeURIComponent(config.query[key]) }`;
-                
-                q += (q ? '&' : '') + p;
-            }
-            url += (url.includes('?') ? '&' : '?') + q;
-        }
-        
+        url = serializeUrl(url, config);        
         return new Promise((resolve, reject) => {
             
+            let cached: Partial<NetworkResponse> = cache.get(url, config);
+            if (cached) {
+                resolve({
+                    status: cached.status,
+                    url: cached.url,
+                    headers: cached.headers,
+                    body: cached.body,
+                    cookieJar: null
+                });
+                return
+            }
+
             fetch.fetchUrl(url, options, function (error, meta: FetchResponseMeta, body: Buffer) {
                 if (error) {
                     reject(error);
@@ -72,6 +79,13 @@ export const NetworkDriver  = {
                 if (type && type.includes('json')) {
                     resp.body = JSON.parse(resp.body);
                 }
+                cache.save(url, config, {
+                    status: resp.status,
+                    headers: resp.headers,
+                    url: resp.url,
+                    body: resp.body
+                });
+
                 resolve(resp);
             })
         })
@@ -113,4 +127,18 @@ interface FetchOptions {
     overrideCharset? 
     asyncDnsLoookup? 
     timeout?
+}
+
+
+function serializeUrl (url: string, config: ILoadConfig = {}) {    
+    if (config.query) {
+        let q = '';
+        for (let key in config.query) {
+            let  p = `${key}=${ encodeURIComponent(config.query[key]) }`;
+            
+            q += (q ? '&' : '') + p;
+        }
+        url += (url.includes('?') ? '&' : '?') + q;
+    }
+    return url;
 }

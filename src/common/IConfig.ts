@@ -18,8 +18,13 @@ export interface IBuildConfig {
 	method?
 	query?: {[name: string] : string }
     payload?
-    cookies?
+	cookies?
+	cache?: {
+		folder?: string
+		maxAge?: number
+	}
 	
+
 	/** Webdriver will load this url, or requested url, to set the cookies first */
 	cookieOrigin?: string
 

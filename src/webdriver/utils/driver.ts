@@ -63,15 +63,16 @@ export function waitForElement (query: IQuery<IElement>, selector: string): IQue
     }
 
     waitForTrue(() => {
-        return query.find(selector).then(x => x.length !== 0);
+        return query.find(selector).then(x => {
+            return x.length > 0
+        });
     }, 10_000).then(
         () => {
             query.find(selector).then(x => set.resolve(x), err => set.reject(err));
         },
         (err) => set.reject(err)
     );
-    return query;
-
+    return set;
 }
 
 export function waitForPageLoad (query: IQuery<IElement>): IQuery<IElement> {
@@ -167,7 +168,7 @@ function waitForTrue(check: () => Promise<boolean>, timeout: number) {
                 dfr.reject(new Error('Timeout error'));
                 return;
             }
-            setTimeout(check, 400);
+            setTimeout(tick, 400);
         }, error => dfr.reject(error))
     }
     

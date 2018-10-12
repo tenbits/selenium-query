@@ -6,4 +6,4 @@ import { Classify, FnPrototypeAlias } from './utils/classify';
 class SQuery extends WebdriverQuery {
 
 }
-export { SQuery }
+export = SQuery;

@@ -6,7 +6,7 @@ declare module 'selenium-query' {
     import { WebdriverQuery } from 'selenium-query/webdriver/WebdriverQuery';
     class SQuery extends WebdriverQuery {
     }
-    export { SQuery };
+    export = SQuery;
 }
 
 declare module 'selenium-query/webdriver/WebdriverQuery' {
@@ -92,6 +92,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
         static newAsync(mix?: any, parent?: IQuery<IElement>): WebdriverQuery;
         static jsdom: import("../common/IQueryStatics").IQueryStatics;
         static network: {
+            isCached(url: string, config?: import("../common/IConfig").ILoadConfig): boolean;
             load(url: string, config?: import("../common/IConfig").ILoadConfig): Promise<import("../fetch/NetworkDriver").NetworkResponse>;
         };
     }
@@ -310,6 +311,10 @@ declare module 'selenium-query/common/IConfig' {
         };
         payload?: any;
         cookies?: any;
+        cache?: {
+            folder?: string;
+            maxAge?: number;
+        };
         /** Webdriver will load this url, or requested url, to set the cookies first */
         cookieOrigin?: string;
         [key: string]: any;

@@ -3,8 +3,7 @@ UTest({
 		timeout: 30000
 	},
 	'load local file' (done) {
-		Lib
-			.SQuery
+		SQuery
 			.load('/test/html/foo.html')
 			.find('.foo')
 			.done($ => {
@@ -13,8 +12,7 @@ UTest({
 			});
 	},
 	'load google' (done) {
-		Lib
-			.SQuery
+		SQuery
 			.load('http://google.com')
 			.find('input')
 			.css('background-color', 'red')
@@ -24,8 +22,7 @@ UTest({
 			});
 	},
 	async 'fetch github terms' () {
-		let $ = await Lib
-			.SQuery
+		let $ = await SQuery
 			.fetch('https://help.github.com/articles/github-terms-of-service/');
 
 		

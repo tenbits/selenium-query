@@ -32,7 +32,7 @@ var Utils = {
 			.driver
 			.get('file://' + __dirname + path)
 			.then(function () {
-				return fn(new Lib.SQuery(this.driver))
+				return fn(new SQuery(this.driver))
 			}.bind(this));
 	}
 };

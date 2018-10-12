@@ -34,10 +34,13 @@ export class CookieContainer {
 
     addCookies(cookies: string | string[]);
     addCookies(url: string, cookies: string | string[])
-    addCookies(url: string, cookies?: string | string[]) {
+    addCookies(mix: any, cookies?: string | string[]) {
         let domain = 'global';
         if (arguments.length === 2) {
+            let url = mix;
             domain = this.getDomain(url);
+        } else {
+            cookies = mix;
         }
         let container = this.domains[domain];
         if (container == null) {

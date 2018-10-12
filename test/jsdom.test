@@ -5,8 +5,7 @@ UTest({
         timeout: 50000
     },
     async 'build jsdom and test children, text methods' () {
-        let query = await Lib
-            .SQuery
+        let query = await SQuery
             .jsdom
             .build({
                 html: '<div><span>Foo</span></div>'
@@ -20,8 +19,7 @@ UTest({
         eq_(text, 'Foo');
     },
     async 'fetch' () {
-        let $ = await Lib
-            .SQuery
+        let $ = await SQuery
             .jsdom
 			.fetch('http://help.github.com/articles/github-terms-of-service/');
 
@@ -43,7 +41,7 @@ UTest({
             .listen(5772, (error) => {
                 if (error) return done(error);
 
-                Lib.SQuery.jsdom.fetch('http://localhost:5772').then(query => {
+                SQuery.jsdom.fetch('http://localhost:5772').then(query => {
                     
                     console.log(headers);
                     has_(headers['user-agent'], 'Chrome');
