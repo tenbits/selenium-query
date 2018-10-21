@@ -25,7 +25,7 @@ export function async_map<TResult, TElement>(self: IQuery<TElement>, fn: (x: TEl
 					$.add(x);
 					resolve();
 				}
-				var x = fn(node, i);
+				var x = fn($.ctx.newSync(node), i);
 				if (x == null || typeof (<any>x).then !== 'function') {
 					add(x);
 					return;
@@ -39,7 +39,7 @@ export function async_filter(self, fn) {
 	return async_next(async_toThenable(self), ($, source) => {
 		return async_waterfall(source, (node, i) => {
 			return dfr_run((resolve, reject) => {
-				var x = fn(node, i);
+				var x = fn($.ctx.newSync(node), i);
 				if (typeof x === 'boolean') {
 					if (x === true) {
 						$.add(node);

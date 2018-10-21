@@ -412,7 +412,7 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
 	filter(mix): IQuery<TElement>{
 		if (typeof mix === 'string') {
             let selector = mix;
-            return async_filter(this, node => this.matchesFn(node, selector));
+            return async_filter(this, $single => this.matchesFn($single[0], selector));
         }
         let fn = mix;
 		return async_filter(this, fn);
