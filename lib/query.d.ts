@@ -5,6 +5,7 @@
 declare module 'selenium-query' {
     import { WebdriverQuery } from 'selenium-query/webdriver/WebdriverQuery';
     class SQuery extends WebdriverQuery {
+        static default: typeof SQuery;
     }
     export = SQuery;
 }

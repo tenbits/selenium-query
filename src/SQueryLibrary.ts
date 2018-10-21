@@ -5,5 +5,6 @@ import { Classify, FnPrototypeAlias } from './utils/classify';
 @FnPrototypeAlias
 class SQuery extends WebdriverQuery {
 
+    static default = SQuery
 }
 export = SQuery;
