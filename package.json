@@ -18,7 +18,7 @@
   ],
   "devDependencies": {
     "app-bundler": "0.0.57",
-    "atma": "^0.11.7",
+    "atma": "^0.11.10",
     "atma-io-middleware-importer": "^1.1.30",
     "atma-loader-babel": "^1.0.19",
     "atma-loader-ts": "^1.1.11",
