@@ -1,2 +1,5 @@
-node_modules
-ts-temp
+/node_modules
+/ts-temp
+/tools
+/cache
+debug.log

@@ -1,9 +1,15 @@
-# Selenium Query and Manipulation Library
+# Query and Manipulation Library
 
 [![Build Status](https://travis-ci.org/tenbits/selenium-query.png?branch=master)](https://travis-ci.org/tenbits/selenium-query)
 [![NPM version](https://badge.fury.io/js/selenium-query.svg)](http://badge.fury.io/js/selenium-query)
+[![TypeScript](https://badges.frapsoft.com/typescript/code/typescript.svg?v=101)](https://github.com/ellerbrock/typescript-badges/)
 
-**jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html)**
+#### jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html)/[jsdom](https://github.com/jsdom/jsdom)
+
+
+Single API to query web-pages or html blocks with supported providers: `Selenium WebDriver`, `JSDom` _(Plans for `puppeteer` and `cheerio`)_. 
+
+> Use for tests or crawlers. 
 
 ---
 
@@ -12,13 +18,17 @@
 As the WebDriver methods are **async**, `Selenium Query` instance implements `Promise` and you can chain the function calls. A very basic example
 
 ```javascript
-var $ = require('selenium-query');
+let $ = require('selenium-query');
 $(driver)
     .find('.foo')
     .filter('input')
     .attr('placeholder', 'Baz')
     .val()
     .then(value => console.log(value));
+
+// or via await
+let value = await $(driver).find('input.foo').val();
+console.log(value);
 ```
 
 ### Extension methods
@@ -26,7 +36,7 @@ $(driver)
 As with jQuery you can define an extension method and call it in your tests
 
 ```javascript
-var $ = require('selenium-query');
+let $ = require('selenium-query');
 $.fn.doBaz = function(){
     return this.each(el => {
         // do some usefull things with WebElement
@@ -111,8 +121,8 @@ $(driver)
 
 ```javascript
 var SQuery = require('selenium-query');
-var $document = SQuery(driver);
-var $inputs = $document.find('inputs');
+let $document = SQuery(driver);
+let $inputs = $document.find('inputs');
 ```
 
 ## Collection
@@ -299,7 +309,7 @@ Create or reuse a WebDriver, and load the page.
 
 **Example**
 ```javascript
-SQuery
+$
 	.load('http://google.com')
 	.find('input')
 	.css('background-color', 'red');
