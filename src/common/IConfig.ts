@@ -22,7 +22,8 @@ export interface IBuildConfig {
 	cache?: {
 		folder?: string
 		maxAge?: number
-	}
+    }
+    cacheQueryIgnore?: string[]
 	
 
 	/** Webdriver will load this url, or requested url, to set the cookies first */

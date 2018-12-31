@@ -11,6 +11,8 @@ export class Cache {
             return null;
         }
         this.ensureMeta();
+        url = this.normalizeUrl(url, config);
+
         let meta = this.meta[url];
         if (meta == null) {
             return null;
@@ -25,6 +27,7 @@ export class Cache {
     }
     save (url: string, config: ILoadConfig, json) {
         this.ensureMeta();
+        url = this.normalizeUrl(url, config);
 
         let md5 = crypto.createHash('md5').update(url).digest('hex');
         let file = `${md5}.json`;
@@ -37,6 +40,18 @@ export class Cache {
 
         io.File.write('./cache/squery/meta.json', this.meta);
         io.File.write(`./cache/squery/${file}`, json);
+    }
+
+    private normalizeUrl (url: string, config: ILoadConfig) {
+        url = url.toLowerCase();
+        let ignore = config.cacheQueryIgnore;
+        if (ignore) {
+            ignore.forEach(x => {
+                url = url.replace(new RegExp(`&${x}=[\\w\\d]+`), '');
+                url = url.replace(new RegExp(`\\?${x}=[\\w\\d]+`), '?');
+            });
+        }
+        return url;
     }
 
     private ensureMeta () {
