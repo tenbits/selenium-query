@@ -8,6 +8,7 @@
 /builds
 /test
 /ts-temp
+/cache
 build.js
 .travis.yml
 .npmignore
