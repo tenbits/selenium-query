@@ -1,9 +1,7 @@
-import { IQueryStatics } from '../common/IQueryStatics';
-import { IBuildConfig, ISettings, ILoadConfig } from "../common/IConfig";
-import { cache } from './Cache'
 import * as fetch from 'fetch'
+import { ILoadConfig } from "../common/IConfig";
 import { cookieContainer } from '../common/CookieContainer'
-import { DefaultConfig } from '../webdriver/SeleniumDriver';
+import { cache } from './Cache'
 
 const DefaultOptions = {
     headers: {
@@ -17,7 +15,6 @@ const DefaultOptions = {
     }
 }
 
-
 export const NetworkDriver  = {
     isCached (url: string, config: ILoadConfig = {}): boolean {        
         url = serializeUrl(url, config);
@@ -30,6 +27,9 @@ export const NetworkDriver  = {
             payload: config.payload,
             cookies: config.cookies
         };
+
+        let retryCount = 'retryCount' in config ? config.retryCount : 3;
+        let retryTimeout = 'retryTimeout' in config ? config.retryTimeout : 1000;
 
         if (options.cookies) {
             cookieContainer.addCookies(options.cookies);
@@ -45,7 +45,7 @@ export const NetworkDriver  = {
         url = serializeUrl(url, config);        
         return new Promise((resolve, reject) => {
             
-            let cached: Partial<NetworkResponse> = cache.get(url, config);
+            let cached: Partial<NetworkResponse> = <any> cache.get(url, config);
             if (cached) {
                 resolve({
                     status: cached.status,
@@ -57,37 +57,53 @@ export const NetworkDriver  = {
                 return
             }
 
-            fetch.fetchUrl(url, options, function (error, meta: FetchResponseMeta, body: Buffer) {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                if (meta.status >= 400) {
-                    reject(new Error(`Request failed ${meta.status}`));
-                    return;
-                }
-                
-                let resp: NetworkResponse = {
-                    status: meta.status,
-                    headers: meta.responseHeaders,
-                    url: meta.finalUrl,
-                    cookieJar: meta.cookieJar,
-                    body: body.toString()
-                };
+            doFetch ();
 
-                let type = resp.headers['content-type'];
-                if (type && type.includes('json')) {
-                    resp.body = JSON.parse(resp.body);
-                }
-                cache.save(url, config, {
-                    status: resp.status,
-                    headers: resp.headers,
-                    url: resp.url,
-                    body: resp.body
-                });
+            function doFetch () {
+                fetch.fetchUrl(url, options, function (error, meta: FetchResponseMeta, body: Buffer) {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    let setCookie = meta.responseHeaders['set-cookie'];
+                    if (setCookie) {
+                        cookieContainer.addCookies(url, setCookie);
+                    }
+    
+                    if (meta.status >= 400) {
+                        if (meta.status !== 404 && --retryCount > 0) {
+                            console.log(`Retry ${retryCount} for ${url} as got ${meta.status}`)
+                            setTimeout(doFetch, retryTimeout);
+                            return;
+                        }
+                        reject(new Error(`Request failed ${meta.status} for ${url}`));
+                        return;
+                    }
+    
+                    let resp: NetworkResponse = {
+                        status: meta.status,
+                        headers: meta.responseHeaders,
+                        url: meta.finalUrl,
+                        cookieJar: meta.cookieJar,
+                        body: body.toString()
+                    };
+    
+                    let type = resp.headers['content-type'];
+                    if (type && type.includes('json')) {
+                        resp.body = JSON.parse(resp.body);
+                    }
+                    cache.save(url, config, {
+                        status: resp.status,
+                        headers: resp.headers,
+                        url: resp.url,
+                        body: resp.body
+                    });
+    
+                    resolve(resp);
+                })
+            }
 
-                resolve(resp);
-            })
+            
         })
         
     }

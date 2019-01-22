@@ -1,10 +1,14 @@
 import * as crypto from 'crypto';
 import { ILoadConfig } from '../common/IConfig'
-declare var io: any;
+import { File } from 'atma-io'
 
-
+interface ICacheItem {
+    time: number
+    file: string
+    maxAge: number
+}
 export class Cache {
-    meta: {[url: string]: {time: number, file: string, maxAge: number} } = null;
+    meta: {[url: string]: ICacheItem } = null;
 
     get (url: string, config: ILoadConfig ) {
         if (config.cache == null || config.cache === false) {
@@ -22,7 +26,7 @@ export class Cache {
         if (meta.maxAge && seconds > meta.maxAge) {
             return null;
         }
-        let response = io.File.read(`./cache/squery/${meta.file}`);
+        let response = new File(`./cache/squery/${meta.file}`, { cached: false }).read();
         return response;
     }
     save (url: string, config: ILoadConfig, json) {
@@ -38,8 +42,8 @@ export class Cache {
         };
 
 
-        io.File.write('./cache/squery/meta.json', this.meta);
-        io.File.write(`./cache/squery/${file}`, json);
+        new File('./cache/squery/meta.json', { cached: false }).write(<any> this.meta);
+        new File(`./cache/squery/${file}`,   { cached: false }).writeAsync(json);
     }
 
     private normalizeUrl (url: string, config: ILoadConfig) {
@@ -59,8 +63,8 @@ export class Cache {
             return;
         }
         let file = './cache/squery/meta.json';
-        if (io.File.exists(file)) {
-            this.meta = io.File.read(file);
+        if (File.exists(file)) {
+            this.meta = <any> File.read(file);
         } else {
             this.meta = {};
         }

@@ -91,6 +91,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
         static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         static unlockDriver(mix: any): void;
         static newAsync(mix?: any, parent?: IQuery<IElement>): WebdriverQuery;
+        static cheerio: import("../common/IQueryStatics").IQueryStatics;
         static jsdom: import("../common/IQueryStatics").IQueryStatics;
         static network: {
             isCached(url: string, config?: import("../common/IConfig").ILoadConfig): boolean;
@@ -322,6 +323,8 @@ declare module 'selenium-query/common/IConfig' {
         [key: string]: any;
     }
     export interface ILoadConfig extends IBuildConfig {
+        retryCount?: number;
+        retryTimeout?: number;
     }
     export interface ISettings {
         pool?: boolean | number;
