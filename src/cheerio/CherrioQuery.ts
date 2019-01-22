@@ -191,7 +191,7 @@ export class CherrioQuery extends IQuery<CheerioElement> {
         return dfr_resolve(el);
     }
     childrenFn (node: CheerioElement, sel?: string): Promise<CheerioElement[]> {
-        let arr = $(node).children().toArray();
+        let arr = $(node).children(sel).toArray();
         return dfr_resolve(arr);
     }
     nextFn (node: CheerioElement, sel?: string): Promise<CheerioElement> {
