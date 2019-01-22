@@ -27,7 +27,9 @@ export class CherrioQuery extends IQuery<CheerioElement> {
     }
 
     textGetFn (node: CheerioElement): Deferred<string>  {
-        return dfr_resolve($(node).text());
+        // Cheerio returns empty string on `text` for script elements
+        const method = node.tagName === 'script' ? 'html' : 'text';        
+        return dfr_resolve($(node)[method]());
     }
     textSetFn (node: CheerioElement, text: string): Deferred<void>  {
         $(node).text(text);
