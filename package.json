@@ -17,6 +17,8 @@
     "MIT"
   ],
   "devDependencies": {
+    "@types/cheerio": "^0.22.10",
+    "@types/jsdom": "^11.12.0",    
     "app-bundler": "0.0.57",
     "atma": "^0.11.10",
     "atma-io-middleware-importer": "^1.1.30",
@@ -62,6 +64,7 @@
       "atma-utils",
       "^selenium",
       "^jsdom$",
+      "^cheerio$",
       "^fetch$",
       "^crypto$",
       "atma-class"
@@ -81,9 +84,9 @@
     }
   },
   "dependencies": {
-    "@types/jsdom": "^11.12.0",
     "atma-class": "^1.1.83",
     "atma-utils": "^0.1.15",
+    "cheerio": "^1.0.0-rc.2",
     "fetch": "^1.1.0",
     "jsdom": "^12.0.0",
     "selenium-webdriver": "^3.4.0"

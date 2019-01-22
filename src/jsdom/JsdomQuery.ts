@@ -4,7 +4,7 @@ import { IDriver } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
 import { JSDOM } from 'jsdom';
 import { dfr_resolve } from '../utils/dfr';
-import { Network } from './Network'
+import { Network } from '../utils/Network'
 
 
 export class JsdomQuery extends IQuery<Element> {

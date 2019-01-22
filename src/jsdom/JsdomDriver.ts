@@ -58,7 +58,7 @@ export const JsdomDriver: IQueryStatics = {
 		throw new Error('JSDOM does not support driver');
 	},
 	unlockDriver(mix) {
-
+        throw new Error('JSDOM does not support driver');
 	}
 };
 

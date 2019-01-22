@@ -7,9 +7,8 @@ import { Webdriver } from './Webdriver'
 import { IBuildConfig, ISettings } from '../common/IConfig'
 import { driverPool } from './DriverPool'
 import { JsdomDriver } from '../jsdom/JsdomDriver'
+import { CheerioDriver } from '../cheerio/CheerioDriver'
 import { NetworkDriver } from '../fetch/NetworkDriver'
-import { class_Dfr } from 'atma-utils';
-import { dfr_run } from '../utils/dfr';
 import { waitForPageLoad, waitForElement } from './utils/driver';
 import { DefaultConfig } from './SeleniumDriver';
 
@@ -292,18 +291,24 @@ export class WebdriverQuery extends IQuery<IElement> {
 		return Webdriver.build(config, setts);
 	}
 	static load(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
-        if (config.name.toLowerCase() === 'jsdom') {
-            return JsdomDriver.load(url, config, setts);
-        }
-
-		return Webdriver.load(url, config, setts);
+        switch (config.name.toLowerCase()) {
+            case 'jsdom':
+                return JsdomDriver.load(url, config, setts);
+            case 'cheerio':
+                return CheerioDriver.load(url, config, setts);
+            default:
+                return Webdriver.load(url, config, setts);
+        }        
 	}
 	static fetch(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
-        if (config.name.toLowerCase() === 'jsdom') {
-            return JsdomDriver.fetch(url, config, setts);
+        switch (config.name.toLowerCase()) {
+            case 'jsdom':
+                return  JsdomDriver.fetch(url, config, setts);
+            case 'cheerio':
+                return  CheerioDriver.fetch(url, config, setts);
+            default:
+                return Webdriver.fetch(url, config, setts);
         }
-
-		return Webdriver.fetch(url, config, setts);
 	}
 	static setDriver (driver: IDriver ) {
 		driverPool.setGlobal(driver);
@@ -322,6 +327,7 @@ export class WebdriverQuery extends IQuery<IElement> {
         return query;
     }
 
+    static cheerio = CheerioDriver
     static jsdom = JsdomDriver
     static network = NetworkDriver
 }
@@ -349,9 +355,7 @@ namespace Events {
 			}
 			return delimiter + key + delimiter;
 		});
-		var parts = str.split(delimiter),
-			i = 1,
-			imax = parts.length;
+		var parts = str.split(delimiter);
 
 		return parts.map((str, i) => {
 			if (i % 2 === 0) {
