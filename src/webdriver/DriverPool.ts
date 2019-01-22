@@ -63,10 +63,13 @@ export class DriverPool {
 
     async unlockDriver(mix: IQuery<any> | IDriver | DriverWrapper) {
         
-        let driver = DriverExtractor.extractDriver(mix)
+        let driver = DriverExtractor.extractDriver(mix);
+        if (driver == null) {
+            return;
+        }
         let wrapper = this.pool.find(x => x.driver === driver);
         if (wrapper == null) {
-            console.warn('Unlocking: Wrapper not found');
+            console.warn('SeleniumQuery. Unlock driver. Wrapper not found');
             return;
         }
 

@@ -4,18 +4,18 @@
 [![NPM version](https://badge.fury.io/js/selenium-query.svg)](http://badge.fury.io/js/selenium-query)
 [![TypeScript](https://badges.frapsoft.com/typescript/code/typescript.svg?v=101)](https://github.com/ellerbrock/typescript-badges/)
 
-#### jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html)/[jsdom](https://github.com/jsdom/jsdom)
+#### jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html)/[jsdom](https://github.com/jsdom/jsdom)/[cheerio](https://github.com/cheeriojs/cheerio)
 
 
-Single API to query web-pages or html blocks with supported providers: `Selenium WebDriver`, `JSDom` _(Plans for `puppeteer` and `cheerio`)_. 
+Single API to query web-pages or html blocks with supported providers: `Selenium WebDriver`, `JSDom`, `Cheerio` _(`puppeteer` on roadmap)_. 
 
-> Use for tests or crawlers. 
+> Use for Tests or Crawlers. 
 
 ---
 
 ### Asynchronous nature
 
-As the WebDriver methods are **async**, `Selenium Query` instance implements `Promise` and you can chain the function calls. A very basic example
+As the WebDriver methods are **async**, `Selenium Query` instance implements `Promise` and you can chain the function calls or use `async/await`. A very basic example
 
 ```javascript
 let $ = require('selenium-query');
@@ -39,7 +39,7 @@ As with jQuery you can define an extension method and call it in your tests
 let $ = require('selenium-query');
 $.fn.doBaz = function(){
     return this.each(el => {
-        // do some usefull things with WebElement
+        // do some usefull things with WebElement/JsDomElement/CherioElement
     });
 };
 $(driver)
@@ -112,6 +112,14 @@ $(driver)
 	- [`load`](#load)
 	- [`getDriver`](#getDriver)
 	- [`setDriver`](#setDriver)
+
+- :zap: [JsDom](#jsdom)
+    - [`build`](#jsdom-build)
+    - [`load`](#jsdom-load)
+
+- :zap: [Cheerio](#cheerio)
+    - [`build`](#cheerio-build)
+    - [`load`](#cheerio-load)
 
 
 ##### `constructor(WebDriver|WebElement|Array<WebElement>|SQuery|Array<SQuery>)` <a name='constructor'></a>
@@ -306,6 +314,71 @@ Create or reuse a WebDriver, and load the page.
 	setLogging (options) {}
 }
 ```
+
+## JsDom
+
+#### `static` `SQuery.jsdom.build(config: IJsdomParams):SQuery` <a name='jsdom-build'></a>
+
+```typescript
+interface IJsdomParams {
+    html: string
+}
+```
+
+Create SQuery collection with JsDom driver
+
+#### `static` `SQuery.jsdom.load(url: string, config: IJsdomLoadParams):SQuery` <a name='jsdom-load'></a>
+
+```typescript
+interface IJsdomLoadParams {
+    headers?: {[name: string] : string }
+	method?
+	query?: {[name: string] : string }
+    payload?
+	cookies?: string | string[]
+	cache?: {
+		folder?: string
+		maxAge?: number
+    }
+    cacheQueryIgnore?: string[]	
+	/** Webdriver will load this url, or requested url, to set the cookies first */
+	cookieOrigin?: string
+}
+```
+
+
+
+## Cheerio
+
+#### `static` `SQuery.cheerio.build(config: ICheerioParams):SQuery` <a name='cheerio-build'></a>
+
+```typescript
+interface ICheerioParams {
+    html: string
+}
+```
+
+Create SQuery collection with Cheerio driver (_Only query and manipulation methods are implemented_)
+
+#### `static` `SQuery.cheerio.load(url: string, config: ICheerioLoadParams):SQuery` <a name='cheerio-load'></a>
+
+```typescript
+interface ICheerioLoadParams {
+    headers?: {[name: string] : string }
+	method?
+	query?: {[name: string] : string }
+    payload?
+	cookies?: string | string[]
+	cache?: {
+		folder?: string
+		maxAge?: number
+    }
+    cacheQueryIgnore?: string[]	
+	/** Webdriver will load this url, or requested url, to set the cookies first */
+	cookieOrigin?: string
+}
+```
+
 
 **Example**
 ```javascript

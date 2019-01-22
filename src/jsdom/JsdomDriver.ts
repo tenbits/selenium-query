@@ -7,8 +7,8 @@ import { JSDOM } from 'jsdom'
 import { IQuery } from '../common/IQuery';
 
 export interface IJsdomBuildConfig extends IBuildConfig {
-	html: string,
-	fragment: boolean
+	html?: string,
+	fragment?: boolean
 }
 
 export const JsdomDriver: IQueryStatics = {
