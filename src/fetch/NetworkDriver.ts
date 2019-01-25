@@ -1,7 +1,11 @@
-import * as fetch from 'fetch'
+import * as fetch from 'node-fetch'
+import * as https from 'https'
+import * as http from 'http'
+
 import { ILoadConfig } from "../common/IConfig";
 import { cookieContainer } from '../common/CookieContainer'
 import { cache } from './Cache'
+
 
 const DefaultOptions = {
     headers: {
@@ -14,45 +18,64 @@ const DefaultOptions = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
     }
 }
+const agents = {
+    http: new http.Agent({ keepAlive: true }),
+    https: new https.Agent({ keepAlive: true }),
+};
 
 export const NetworkDriver  = {
     isCached (url: string, config: ILoadConfig = {}): boolean {        
         url = serializeUrl(url, config);
-        return cache.get(url, config) != null;
+        return cache.has(url, config);
+    },
+    isCachedAsync (url: string, config: ILoadConfig = {}): Promise<boolean> {        
+        url = serializeUrl(url, config);
+        return cache.hasAsync(url, config);
     },
     load (url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
         let options:FetchOptions = {
             headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),
             method: config.method,
-            payload: config.payload,
-            cookies: config.cookies
+            body: config.body,
+            onRedirect (data) {
+                if (data.prev.startsWith('http:') && data.url.includes('https:')) {
+                    data.opts.agent = agents.https;
+                }
+            }
         };
 
         let retryCount = 'retryCount' in config ? config.retryCount : 3;
         let retryTimeout = 'retryTimeout' in config ? config.retryTimeout : 1000;
 
-        if (options.cookies) {
-            cookieContainer.addCookies(options.cookies);
+        if (config.cookies) {
+            cookieContainer.addCookies(config.cookies);
         }
         if (options.headers['Cookies']) {
             cookieContainer.addCookies(options.headers['Cookies']);
         }
 
-        options.cookies = cookieContainer
-            .getCookies(url)
-            .split(';');
+        let cookies = cookieContainer.getCookies(url);
+        if (cookies) {
+            options.headers['Cookies'] = cookies;
+        }
+        url = serializeUrl(url, config);
 
-        url = serializeUrl(url, config);        
-        return new Promise((resolve, reject) => {
+        if (url.startsWith('http:')) {
+            options.agent = agents.http;
+        }
+        if (url.startsWith('https:')) {
+            options.agent = agents.https;
+        }
+
+        return new Promise(async (resolve, reject) => {
             
-            let cached: Partial<NetworkResponse> = <any> cache.get(url, config);
+            let cached: Partial<NetworkResponse> = await <any> cache.get(url, config);
             if (cached) {
                 resolve({
                     status: cached.status,
                     url: cached.url,
                     headers: cached.headers,
-                    body: cached.body,
-                    cookieJar: null
+                    body: cached.body
                 });
                 return
             }
@@ -60,47 +83,62 @@ export const NetworkDriver  = {
             doFetch ();
 
             function doFetch () {
-                fetch.fetchUrl(url, options, function (error, meta: FetchResponseMeta, body: Buffer) {
-                    if (error) {
-                        reject(error);
-                        return;
-                    }
-                    let setCookie = meta.responseHeaders['set-cookie'];
-                    if (setCookie) {
-                        cookieContainer.addCookies(url, setCookie);
-                    }
-    
-                    if (meta.status >= 400) {
-                        if (meta.status !== 404 && --retryCount > 0) {
-                            console.log(`Retry ${retryCount} for ${url} as got ${meta.status}`)
-                            setTimeout(doFetch, retryTimeout);
+                console.log('FETCH', url);
+                fetch(url, options)
+                    .then(async (res) => {
+                        if (res.status >= 400) {
+                            if (res.status !== 404 && --retryCount > 0) {
+                                console.log(`Retry ${retryCount} for ${url} as got ${res.status}`)
+                                setTimeout(doFetch, retryTimeout);
+                                return;
+                            }
+                            reject(new Error(`Request failed ${res.status} for ${url}`));
                             return;
                         }
-                        reject(new Error(`Request failed ${meta.status} for ${url}`));
-                        return;
-                    }
-    
-                    let resp: NetworkResponse = {
-                        status: meta.status,
-                        headers: meta.responseHeaders,
-                        url: meta.finalUrl,
-                        cookieJar: meta.cookieJar,
-                        body: body.toString()
-                    };
-    
-                    let type = resp.headers['content-type'];
-                    if (type && type.includes('json')) {
-                        resp.body = JSON.parse(resp.body);
-                    }
-                    cache.save(url, config, {
-                        status: resp.status,
-                        headers: resp.headers,
-                        url: resp.url,
-                        body: resp.body
-                    });
-    
-                    resolve(resp);
-                })
+
+                        let setCookie = res.headers.get('set-cookie');
+                        if (setCookie) {
+                            cookieContainer.addCookies(url, setCookie);
+                        }
+                        
+                        let typeEnum = 'text';
+                        let contentType = res.headers.get('content-type');
+                        if (contentType && contentType.includes('json')) {
+                            typeEnum = 'json';
+                        }
+                        if (contentType && contentType.includes('octet')) {
+                            typeEnum = 'buffer';
+                        }
+                        let body: any = null;
+                        switch (typeEnum) {
+                            case 'text':
+                                body = await res.text();
+                                break;
+                            case 'json':
+                                body = await res.json();
+                                break;
+                            case 'buffer':
+                                body = await res.arrayBuffer();
+                                break;
+                        }
+
+                        let resp: NetworkResponse = {
+                            status: res.status,
+                            headers: readAllHeaders(res.headers),
+                            url: res.url,
+                            body
+                        };
+        
+                        cache.save(url, config, {
+                            status: resp.status,
+                            headers: resp.headers,
+                            url: resp.url,
+                            body: resp.body
+                        });
+        
+                        resolve(resp);
+                    })
+                    .catch(reject)
             }
 
             
@@ -112,37 +150,18 @@ export const NetworkDriver  = {
 export interface NetworkResponse {
     status: number
     headers: {[name: string] : string }
-    url: string
-    cookieJar: FetchCookieJar
+    url: string    
     body: any
 }
 
-interface FetchCookieJar {
-    setCookie(line: string)
-}
-
-interface FetchResponseMeta {
-    status: number
-    responseHeaders: {[name: string] : string }
-    finalUrl: string
-    redirectCount: number
-    cookieJar: FetchCookieJar
-}
 
 interface FetchOptions {
-    maxRedirects?: number
-    disableRedirects?
+    follow?: number
     headers?: {[name: string] : string }
-    maxResponseLength?
     method?
-    payload?
-    cookies?: string[]
-    cookieJar?: FetchCookieJar
-    outputEncoding?
-    disableDecoding?
-    overrideCharset? 
-    asyncDnsLoookup? 
-    timeout?
+    body?  
+    agent?
+    onRedirect?: Function
 }
 
 
@@ -157,4 +176,12 @@ function serializeUrl (url: string, config: ILoadConfig = {}) {
         url += (url.includes('?') ? '&' : '?') + q;
     }
     return url;
+}
+function readAllHeaders (headers) {
+    let obj = {};
+    for (let entry of headers.entries()) {
+        let [key, value] = entry;
+        obj[key] = value;
+    }
+    return obj;
 }

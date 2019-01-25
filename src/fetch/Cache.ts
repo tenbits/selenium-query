@@ -10,7 +10,27 @@ interface ICacheItem {
 export class Cache {
     meta: {[url: string]: ICacheItem } = null;
 
-    get (url: string, config: ILoadConfig ) {
+    private hasInner (url: string, config: ILoadConfig, { isAsync = false } = {}) {
+        if (config.cache == null || config.cache === false) {
+            return false;
+        }
+        this.ensureMeta();
+        url = this.normalizeUrl(url, config);
+
+        let meta = this.meta[url];
+        if (meta == null) {
+            return false;
+        }
+        return File[ isAsync ? 'exists' : 'existsAsync' ](meta.file);
+    }
+    public has (url: string, config?: ILoadConfig) {
+        return <boolean> this.hasInner(url, config, { isAsync: false });
+    }
+    public hasAsync (url: string, config?: ILoadConfig) {
+        return <Promise<boolean>> <any> this.hasInner(url, config, { isAsync: true });
+    }
+
+    async get (url: string, config: ILoadConfig ) {
         if (config.cache == null || config.cache === false) {
             return null;
         }
@@ -26,8 +46,7 @@ export class Cache {
         if (meta.maxAge && seconds > meta.maxAge) {
             return null;
         }
-        let response = new File(`./cache/squery/${meta.file}`, { cached: false }).read();
-        return response;
+        return await new File(`./cache/squery/${meta.file}`, { cached: false }).readAsync();
     }
     save (url: string, config: ILoadConfig, json) {
         this.ensureMeta();
@@ -42,7 +61,7 @@ export class Cache {
         };
 
 
-        new File('./cache/squery/meta.json', { cached: false }).write(<any> this.meta);
+        this.flushMeta();
         new File(`./cache/squery/${file}`,   { cached: false }).writeAsync(json);
     }
 
@@ -68,6 +87,22 @@ export class Cache {
         } else {
             this.meta = {};
         }
+    }
+
+    isFlushDeferred = false  
+
+    private flushMeta () {
+        if (this.isFlushDeferred) {
+            return;
+        }
+        this.isFlushDeferred = true;
+        setTimeout(() => {
+            File
+                .writeAsync('./cache/squery/meta.json', <any> this.meta)
+                .always(x => {
+                    this.isFlushDeferred = false;
+                });
+        }, 1000);
     }
 }
 

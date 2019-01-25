@@ -1,96 +1,120 @@
 {
-  "name": "selenium-query",
-  "description": "jQuery API for Selenium WebDriver/JSDom",
-  "version": "0.51.66",
-  "contributors": [],
-  "main": "./lib/query.js",
-  "types": "./lib/query.d.ts",
-  "author": "Alexander Kit <alex.kit@atmajs.com>",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tenbits/selenium-query.git"
-  },
-  "bugs": {
-    "url": "https://github.com/atmajs/selenium-query/issues"
-  },
-  "licenses": [
-    "MIT"
-  ],
-  "devDependencies": {
-    "@types/cheerio": "^0.22.10",
-    "@types/jsdom": "^11.12.0",
-    "app-bundler": "0.0.57",
-    "atma": "^0.11.10",
-    "atma-io-middleware-importer": "^1.1.30",
-    "atma-loader-babel": "^1.0.19",
-    "atma-loader-ts": "^1.1.11",
-    "dts-bundle": "^0.7.3"
-  },
-  "scripts": {
-    "test": "atma test",
-    "build": "app-bundler && npm run build-dts",
-    "watch": "app-bundler --watch",
-    "build-dts": "tsc -p . & atma custom tools/build-dts"
-  },
-  "keywords": [
-    "dom selenium webdriver"
-  ],
-  "atma": {
-    "plugins": [
-      "atma-loader-babel",
-      "atma-io-middleware-importer",
-      "atma-loader-ts"
-    ],
-    "settings": {
-      "atma-loader-babel": {
-        "extensions": [
-          "test",
-          "es6"
-        ]
-      }
-    }
-  },
-  "app-bundler": {
-    "file": "src/export.es6",
-    "outputMain": "lib/query.js",
-    "package": {
-      "module": "commonjs",
-      "commonjs": {
-        "output": "simplified"
-      }
+    "name": "selenium-query",
+    "description": "jQuery API for Selenium WebDriver/JSDom",
+    "version": "0.51.68",
+    "contributors": [],
+    "main": "./lib/query.js",
+    "types": "./lib/query.d.ts",
+    "author": "Alexander Kit <alex.kit@atmajs.com>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/tenbits/selenium-query.git"
     },
-    "dynamicDependencies": [
-      "appcfg",
-      "atma-utils",
-      "atma-io",
-      "^selenium",
-      "^jsdom$",
-      "^cheerio$",
-      "^fetch$",
-      "^crypto$",
-      "atma-class"
-    ],
-    "defaultExtensions": {
-      "js": "ts"
+    "bugs": {
+        "url": "https://github.com/atmajs/selenium-query/issues"
     },
-    "middlewares": {
-      "es6": [
-        "atma-io-middleware-importer:read",
-        "atma-loader-babel:read"
-      ],
-      "ts": [
-        "atma-io-middleware-importer:read",
-        "atma-loader-ts:read"
-      ]
+    "licenses": [
+        "MIT"
+    ],
+    "devDependencies": {
+        "@types/cheerio": "^0.22.10",
+        "@types/jsdom": "^11.12.0",
+        "app-bundler": "0.0.57",
+        "atma": "^0.11.10",
+        "atma-io-middleware-importer": "^1.1.30",
+        "atma-loader-babel": "^1.0.19",
+        "atma-loader-ts": "^1.1.11",
+        "dts-bundle": "^0.7.3"
+    },
+    "scripts": {
+        "test": "atma test",
+        "build": "app-bundler && npm run build-dts",
+        "watch": "app-bundler --watch",
+        "build-dts": "tsc -p . & atma custom tools/build-dts",
+        "release": "atma bump && npm run build && git add -A && git commit -am \"bump\" && git push && npm publish"
+    },
+    "keywords": [
+        "dom selenium webdriver"
+    ],
+    "atma": {
+        "plugins": [
+            "atma-loader-babel",
+            "atma-io-middleware-importer",
+            "atma-loader-ts"
+        ],
+        "settings": {
+            "include": {
+                "amd": true,
+                "extentionDefault": {
+                    "js": "ts"
+                }
+            },
+            "atma-loader-babel": {
+                "extensions": [
+                    "es6"
+                ]
+            },
+            "atma-loader-ts": {
+                "extensions": [
+                    "test",
+                    "ts"
+                ],
+                "typescript": {
+                    "compilerOptions": {
+                        "target": "es2017",
+                        "#if TEST": {
+                            "module": "AMD"
+                        },
+                        "#if !TEST": {
+                            "module": "CommonJS"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "app-bundler": {
+        "file": "src/export.es6",
+        "outputMain": "lib/query.js",
+        "package": {
+            "module": "commonjs",
+            "commonjs": {
+                "output": "simplified"
+            }
+        },
+        "dynamicDependencies": [
+            "appcfg",
+            "atma-utils",
+            "atma-io",
+            "^selenium",
+            "^jsdom$",
+            "^cheerio$",
+            "^node-fetch$",
+            "^crypto$",
+            "^https?$",
+            "atma-class"
+        ],
+        "defaultExtensions": {
+            "js": "ts"
+        },
+        "middlewares": {
+            "es6": [
+                "atma-io-middleware-importer:read",
+                "atma-loader-babel:read"
+            ],
+            "ts": [
+                "atma-io-middleware-importer:read",
+                "atma-loader-ts:read"
+            ]
+        }
+    },
+    "dependencies": {
+        "atma-class": "^1.1.83",
+        "atma-io": "^1.2.6",
+        "atma-utils": "^0.1.15",
+        "cheerio": "^1.0.0-rc.2",
+        "jsdom": "^12.0.0",
+        "node-fetch": "^2.3.0",
+        "selenium-webdriver": "^3.4.0"
     }
-  },
-  "dependencies": {
-    "atma-class": "^1.1.83",
-    "atma-io": "^1.2.6",
-    "atma-utils": "^0.1.15",
-    "cheerio": "^1.0.0-rc.2",
-    "fetch": "^1.1.0",
-    "jsdom": "^12.0.0",
-    "selenium-webdriver": "^3.4.0"
-  }
 }

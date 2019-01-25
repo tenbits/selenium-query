@@ -95,6 +95,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
         static jsdom: import("../common/IQueryStatics").IQueryStatics;
         static network: {
             isCached(url: string, config?: import("../common/IConfig").ILoadConfig): boolean;
+            isCachedAsync(url: string, config?: import("../common/IConfig").ILoadConfig): Promise<boolean>;
             load(url: string, config?: import("../common/IConfig").ILoadConfig): Promise<import("../fetch/NetworkDriver").NetworkResponse>;
         };
     }

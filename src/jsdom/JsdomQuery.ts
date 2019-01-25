@@ -4,7 +4,7 @@ import { IDriver } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
 import { JSDOM } from 'jsdom';
 import { dfr_resolve } from '../utils/dfr';
-import { Network } from '../utils/Network'
+import { NetworkDriver } from '../fetch/NetworkDriver'
 
 
 export class JsdomQuery extends IQuery<Element> {
@@ -258,7 +258,7 @@ export class JsdomQuery extends IQuery<Element> {
 	}
 	static load(url: string, config: IBuildConfig, setts?: ISettings) {
         let query = new JsdomQuery();
-        Network.fetch(url, setts.opts).then(content => {
+        NetworkDriver.load(url, setts.opts).then(content => {
             let jsdom = new JSDOM(content.toString());
             query.add(jsdom.window.document);
             query.resolve(query);
