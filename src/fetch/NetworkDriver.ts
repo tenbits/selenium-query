@@ -50,13 +50,13 @@ export const NetworkDriver  = {
         if (config.cookies) {
             cookieContainer.addCookies(config.cookies);
         }
-        if (options.headers['Cookies']) {
-            cookieContainer.addCookies(options.headers['Cookies']);
+        if (options.headers['Cookie']) {
+            cookieContainer.addCookies(options.headers['Cookie']);
         }
 
         let cookies = cookieContainer.getCookies(url);
         if (cookies) {
-            options.headers['Cookies'] = cookies;
+            options.headers['Cookie'] = cookies;
         }
         url = serializeUrl(url, config);
 

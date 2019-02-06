@@ -27,7 +27,7 @@ class DomainCookies {
         }
     }
     stringify () {
-        return this.arr.map(x => `${x.key}=${x.value}`).join(',');
+        return this.arr.map(x => `${x.key}=${x.value}`).join('; ');
     }
     private push (str: string) {
         let arr = DomainCookies.parse(str);
@@ -111,7 +111,7 @@ export class CookieContainer {
             }
             cookies.push(this.domains[key].stringify());
         }
-        return cookies.join(',');
+        return cookies.join('; ');
     }
 
 
