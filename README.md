@@ -4,12 +4,12 @@
 [![NPM version](https://badge.fury.io/js/selenium-query.svg)](http://badge.fury.io/js/selenium-query)
 [![TypeScript](https://badges.frapsoft.com/typescript/code/typescript.svg?v=101)](https://github.com/ellerbrock/typescript-badges/)
 
-#### jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html)/[jsdom](https://github.com/jsdom/jsdom)/[cheerio](https://github.com/cheeriojs/cheerio)
+#### jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html), [JSDom](https://github.com/jsdom/jsdom) and [Cheerio](https://github.com/cheeriojs/cheerio)
 
 
 Single API to query web-pages or html blocks with supported providers: `Selenium WebDriver`, `JSDom`, `Cheerio` _(`puppeteer` on roadmap)_. 
 
-> Use for Tests or Crawlers. 
+> Use for tests or crawlers. 
 
 ---
 
@@ -128,7 +128,7 @@ $(driver)
 - [WebElement](https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebElement.html)
 
 ```javascript
-var SQuery = require('selenium-query');
+let SQuery = require('selenium-query');
 let $document = SQuery(driver);
 let $inputs = $document.find('inputs');
 ```

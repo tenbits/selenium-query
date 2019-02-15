@@ -1,3 +1,4 @@
+import Utils from './utils'
 UTest({
 	$before () {
 		Utils.start();
@@ -6,7 +7,7 @@ UTest({
 		//Utils.stop();
 	},
 	'should create custom typer' (done) {
-		SQuery.fn.enterFoo = function(){
+		Utils.SQuery.fn.enterFoo = function(){
 			return this
 				.find('input')
 				.select()
@@ -25,5 +26,3 @@ UTest({
 		});
 	}
 });
-
-// vim: set ft=js:

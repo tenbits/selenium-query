@@ -1,4 +1,9 @@
+import Utils from './utils'
+
 UTest({
+    $config: {
+        timeout: 10000
+    },
 	$before () {
 		Utils.start();
 	},
@@ -7,10 +12,10 @@ UTest({
 	},
 	'should be resolved with native Promise' (done) {
 		Utils.query('/html/foo.html', $ => {
-			let thenabe = $.find('body').find('section');
+            let thenabe = $.find('body').find('section');
 
 			Promise.resolve(thenabe).then(x => {
-				//notEq_(x, thenabe);
+				
 				eq_(x.length, 1);
 				done();
 			})
@@ -65,4 +70,6 @@ UTest({
 	},
 });
 
-// vim: set ft=js:
+
+export {};
+

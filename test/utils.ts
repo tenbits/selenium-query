@@ -1,4 +1,10 @@
-var Utils = {
+let Lib = require('../lib/query.js')
+let SQuery = Lib;
+
+debugger;
+
+export default {
+    SQuery: SQuery,
 	driver: null,
 	start: function () {
 		if (this.driver) {

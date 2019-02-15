@@ -1,3 +1,5 @@
+import Utils from './utils'
+
 UTest({
 	$config: {
 		timeout: 30000
@@ -15,6 +17,4 @@ UTest({
         done();
 	}
 })
-
-// vim: set ft=js:
 

@@ -30,7 +30,7 @@
         "test": "atma test",
         "build": "app-bundler && npm run build-dts",
         "watch": "app-bundler --watch",
-        "build-dts": "tsc -p . & atma custom tools/build-dts",
+        "build-dts": "tsc -p ts-types && atma custom ts-types/build-dts",
         "release": "atma bump && npm run build && git add -A && git commit -am \"bump\" && git push && npm publish"
     },
     "keywords": [

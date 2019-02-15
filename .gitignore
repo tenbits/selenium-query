@@ -1,5 +1,6 @@
 /node_modules
 /ts-temp
+/ts-types/ts-temp
 /tools
 /cache
 debug.log

@@ -1,3 +1,5 @@
+import Utils from './utils'
+
 UTest({
 	$before () {
 		Utils.start();
@@ -65,7 +67,7 @@ UTest({
 						$[0].getTagName().then(name => {
 							eq_(name, 'input');
 
-							new SQuery($)
+							new Utils.SQuery($)
 								.val()
 								.done(val => {
 									eq_(val, 'Ciao');
@@ -224,4 +226,3 @@ UTest({
 
 });
 
-// vim: set ft=js:

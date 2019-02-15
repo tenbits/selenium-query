@@ -1,3 +1,5 @@
+import Utils from './utils'
+
 UTest({
 	$before () {
 		Utils.start();
@@ -10,7 +12,7 @@ UTest({
 			console.log('IN');
 			$
 				.find('body > *')
-				.map(node => SQuery(node).prop('tagName'))
+				.map(node => Utils.SQuery(node).prop('tagName'))
 				.toArray()
 				.done(arr => {
 					deepEq_(arr, ['STYLE', 'SPAN', 'SECTION', 'FOOTER', 'FORM']);
@@ -23,7 +25,7 @@ UTest({
 			$
 				.find('body > *')
 				.slice(1, 3)
-				.map(node => SQuery(node).prop('tagName'))
+				.map(node => Utils.SQuery(node).prop('tagName'))
 				.toArray()
 				.done(arr => {
 					deepEq_(arr, ['SPAN', 'SECTION']);
@@ -36,7 +38,7 @@ UTest({
 			$
 				.find('body > *')
 				.eq(2)
-				.map(node => SQuery(node).prop('tagName'))
+				.map(node => Utils.SQuery(node).prop('tagName'))
 				.toArray()
 				.done(arr => {
 					deepEq_(arr, ['SECTION']);
@@ -46,4 +48,3 @@ UTest({
 	},
 });
 
-// vim: set ft=js:

@@ -1,4 +1,4 @@
-
+import Utils from './utils'
 UTest({
 	$before () {
 		Utils.start();

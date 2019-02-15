@@ -1,9 +1,12 @@
+import Utils from './utils'
+
+
 UTest({
 	$config: {
 		timeout: 30000
 	},
 	'load local file' (done) {
-		SQuery
+		Utils.SQuery
 			.load('/test/html/foo.html')
 			.find('.foo')
 			.done($ => {
@@ -12,7 +15,7 @@ UTest({
 			});
 	},
 	'load google' (done) {
-		SQuery
+		Utils.SQuery
 			.load('http://google.com')
 			.find('input')
 			.css('background-color', 'red')
@@ -22,7 +25,7 @@ UTest({
 			});
 	},
 	async 'fetch github terms' () {
-		let $ = await SQuery
+		let $ = await Utils.SQuery
 			.fetch('https://help.github.com/articles/github-terms-of-service/');
 
 		
@@ -33,6 +36,3 @@ UTest({
 		eq_(str, 'GitHub Terms of Service');
 	}
 })
-
-// vim: set ft=js:
-

@@ -1,3 +1,4 @@
+import Utils from './utils'
 UTest({
 	$before () {
 		Utils.start();
@@ -52,4 +53,3 @@ UTest({
 
 });
 
-// vim: set ft=js:

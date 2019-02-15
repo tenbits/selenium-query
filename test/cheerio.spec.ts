@@ -1,11 +1,14 @@
+import Utils from './utils'
+
 let http = require('http');
+
 
 UTest({
     $config: {
         timeout: 50000
     },
     async 'build cheerio and test children, text methods' () {
-        let query = await SQuery
+        let query = await Utils.SQuery
             .cheerio
             .build({
                 html: '<div><span>Foo</span></div>'
@@ -19,9 +22,9 @@ UTest({
         eq_(text, 'Foo');
     },
     async 'fetch' () {
-        let $ = await SQuery
+        let $ = await Utils.SQuery
             .cheerio
-			.fetch('http://help.github.com/articles/github-terms-of-service/');
+			.fetch('https://help.github.com/articles/github-terms-of-service/');
 
 		
 		let h2 = await $.find('.article > h2');
@@ -41,7 +44,7 @@ UTest({
             .listen(5772, (error) => {
                 if (error) return done(error);
 
-                SQuery.cheerio.fetch('http://localhost:5772').then(query => {
+                Utils.SQuery.cheerio.fetch('http://localhost:5772').then(query => {
                                         
                     has_(headers['user-agent'], 'Chrome');
                     has_(headers['host'], 'localhost:5772');

@@ -1,6 +1,8 @@
+import Utils from './utils'
+
 UTest({
     'should find nothing in empty ' (done) {
-        let q = new SQuery();
+        let q = new Utils.SQuery();
         let result = q.find('.foo');
         
         result.then(x => {

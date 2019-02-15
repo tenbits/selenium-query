@@ -1,3 +1,4 @@
+import Utils from './utils'
 let http = require('http');
 
 UTest({
@@ -5,7 +6,7 @@ UTest({
         timeout: 50000
     },
     async 'build jsdom and test children, text methods' () {
-        let query = await SQuery
+        let query = await Utils.SQuery
             .jsdom
             .build({
                 html: '<div><span>Foo</span></div>'
@@ -19,7 +20,7 @@ UTest({
         eq_(text, 'Foo');
     },
     async 'fetch' () {
-        let $ = await SQuery
+        let $ = await Utils.SQuery
             .jsdom
 			.fetch('http://help.github.com/articles/github-terms-of-service/');
 
@@ -41,7 +42,7 @@ UTest({
             .listen(5772, (error) => {
                 if (error) return done(error);
 
-                SQuery.jsdom.fetch('http://localhost:5772').then(query => {
+                Utils.SQuery.jsdom.fetch('http://localhost:5772').then(query => {
                     
                     console.log(headers);
                     has_(headers['user-agent'], 'Chrome');
