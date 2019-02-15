@@ -22,7 +22,7 @@ UTest({
     async 'fetch' () {
         let $ = await Utils.SQuery
             .jsdom
-			.fetch('http://help.github.com/articles/github-terms-of-service/');
+			.fetch('https://help.github.com/articles/github-terms-of-service/');
 
 		
 		let h2 = await $.find('.article > h2');

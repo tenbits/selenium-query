@@ -5,6 +5,6 @@ UTest({
         cookieContainer.addCookies('http://foo.de/baz', 'A=B; Path=/, D=C');
 
         let str = cookieContainer.getCookies('http://foo.de/qux');
-        eq_(str, 'A=B,D=C');
+        eq_(str, 'A=B; D=C');
     }
 })
