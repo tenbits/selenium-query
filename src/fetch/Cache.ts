@@ -7,6 +7,7 @@ interface ICacheItem {
     file: string
     maxAge: number
 }
+const CACHE_BASE = './cache/squery';
 export class Cache {
     meta: {[url: string]: ICacheItem } = null;
 
@@ -21,7 +22,7 @@ export class Cache {
         if (meta == null) {
             return false;
         }
-        return File[ isAsync ? 'exists' : 'existsAsync' ](meta.file);
+        return File[ isAsync ? 'exists' : 'existsAsync' ](`${CACHE_BASE}/${meta.file}`);
     }
     public has (url: string, config?: ILoadConfig) {
         return <boolean> this.hasInner(url, config, { isAsync: false });
@@ -46,7 +47,7 @@ export class Cache {
         if (meta.maxAge && seconds > meta.maxAge) {
             return null;
         }
-        return await new File(`./cache/squery/${meta.file}`, { cached: false }).readAsync();
+        return await new File(`${CACHE_BASE}/${meta.file}`, { cached: false }).readAsync();
     }
     save (url: string, config: ILoadConfig, json) {
         this.ensureMeta();
@@ -62,7 +63,7 @@ export class Cache {
 
 
         this.flushMeta();
-        new File(`./cache/squery/${file}`,   { cached: false }).writeAsync(json);
+        new File(`${CACHE_BASE}/${file}`,   { cached: false }).writeAsync(json);
     }
 
     private normalizeUrl (url: string, config: ILoadConfig) {
@@ -81,7 +82,7 @@ export class Cache {
         if (this.meta != null) {
             return;
         }
-        let file = './cache/squery/meta.json';
+        let file = `${CACHE_BASE}/meta.json`;
         if (File.exists(file)) {
             this.meta = <any> File.read(file);
         } else {
@@ -98,7 +99,7 @@ export class Cache {
         this.isFlushDeferred = true;
         setTimeout(() => {
             File
-                .writeAsync('./cache/squery/meta.json', <any> this.meta)
+                .writeAsync(`${CACHE_BASE}/meta.json`, <any> this.meta)
                 .always(x => {
                     this.isFlushDeferred = false;
                 });
