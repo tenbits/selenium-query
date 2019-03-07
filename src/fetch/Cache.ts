@@ -57,13 +57,13 @@ export class Cache {
         let str = await Compression.decompress(<Buffer> result);
         return JSON.parse(str);
     }
-    save (url: string, config: ILoadConfig, json) {
+    save (url: string, config: ILoadConfig, json) {        
         this.ensureMeta();
         url = this.normalizeUrl(url, config);
 
         let md5 = crypto.createHash('md5').update(url).digest('hex');
         let file = `${md5}.json`;
-        let withCompression = config.cache.compress;
+        let withCompression = config.cache == null ? false : config.cache.compress;
         if (withCompression) {
             file += '.gz';
         }

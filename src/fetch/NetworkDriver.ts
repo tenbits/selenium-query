@@ -32,6 +32,9 @@ export const NetworkDriver  = {
         url = serializeUrl(url, config);
         return cache.hasAsync(url, config);
     },
+    clearCookies () {
+        cookieContainer.clearCookies()
+    },
     load (url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
         let options:FetchOptions = {
             headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),

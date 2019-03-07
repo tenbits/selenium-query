@@ -111,7 +111,9 @@ export class CookieContainer {
         }
         container.add(cookies);
     }
-
+    clearCookies () {
+        this.domains = {};
+    }
     getCookies (url?: string) {
         let cookies = [];
         let domain = url && this.getDomain(url) || null;
