@@ -17,8 +17,8 @@ export interface IBuildConfig {
 	headers?: {[name: string] : string }
 	method?
 	query?: {[name: string] : string }
-    payload?
-	cookies?
+    body?: string | Buffer
+	cookies? 
 	cache?: {
 		folder?: string
         maxAge?: number

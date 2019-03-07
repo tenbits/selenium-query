@@ -100,13 +100,13 @@ export const NetworkDriver  = {
                             cookieContainer.addCookies(url, setCookie);
                         }
                         
-                        let typeEnum = 'text';
+                        let typeEnum = 'buffer';
                         let contentType = res.headers.get('content-type');
                         if (contentType && contentType.includes('json')) {
                             typeEnum = 'json';
                         }
-                        if (contentType && contentType.includes('octet')) {
-                            typeEnum = 'buffer';
+                        if (contentType && contentType.includes('text')) {
+                            typeEnum = 'text';
                         }
                         let body: any = null;
                         switch (typeEnum) {
@@ -139,8 +139,6 @@ export const NetworkDriver  = {
                     })
                     .catch(reject)
             }
-
-            
         })
         
     }

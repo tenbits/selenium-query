@@ -312,7 +312,7 @@ declare module 'selenium-query/common/IConfig' {
         query?: {
             [name: string]: string;
         };
-        payload?: any;
+        body?: string | Buffer;
         cookies?: any;
         cache?: {
             folder?: string;
