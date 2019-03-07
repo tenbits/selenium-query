@@ -317,6 +317,7 @@ declare module 'selenium-query/common/IConfig' {
         cache?: {
             folder?: string;
             maxAge?: number;
+            compress?: boolean;
         };
         cacheQueryIgnore?: string[];
         /** Webdriver will load this url, or requested url, to set the cookies first */
