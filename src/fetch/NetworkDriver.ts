@@ -83,7 +83,6 @@ export const NetworkDriver  = {
             doFetch ();
 
             function doFetch () {
-                console.log('FETCH', url);
                 fetch(url, options)
                     .then(async (res) => {
                         if (res.status >= 400) {
