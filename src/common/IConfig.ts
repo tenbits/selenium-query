@@ -21,7 +21,8 @@ export interface IBuildConfig {
 	cookies?
 	cache?: {
 		folder?: string
-		maxAge?: number
+        maxAge?: number
+        compress?: boolean
     }
     cacheQueryIgnore?: string[]
 	

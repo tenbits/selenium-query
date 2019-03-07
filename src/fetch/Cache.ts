@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import { ILoadConfig } from '../common/IConfig'
 import { File } from 'atma-io'
+import * as zlib from 'zlib'
 
 interface ICacheItem {
     time: number
@@ -47,7 +48,14 @@ export class Cache {
         if (meta.maxAge && seconds > meta.maxAge) {
             return null;
         }
-        return await new File(`${CACHE_BASE}/${meta.file}`, { cached: false }).readAsync();
+        let withCompression = meta.file.endsWith('.gz');
+        let encoding = withCompression ? 'buffer' : 'utf8';
+        let result = await new File(`${CACHE_BASE}/${meta.file}`, { cached: false }).readAsync({ encoding });
+        if (withCompression === false) {
+            return result;
+        }
+        let str = await Compression.decompress(<Buffer> result);
+        return JSON.parse(str);
     }
     save (url: string, config: ILoadConfig, json) {
         this.ensureMeta();
@@ -55,15 +63,28 @@ export class Cache {
 
         let md5 = crypto.createHash('md5').update(url).digest('hex');
         let file = `${md5}.json`;
+        let withCompression = config.cache.compress;
+        if (withCompression) {
+            file += '.gz';
+        }
+        
         this.meta[url] = {
             time: Date.now(),
             file: file,
             maxAge: config.cache && config.cache.maxAge
         };
 
-
         this.flushMeta();
-        new File(`${CACHE_BASE}/${file}`,   { cached: false }).writeAsync(json);
+
+        if (withCompression === false) {
+            new File(`${CACHE_BASE}/${file}`, { cached: false }).writeAsync(json);
+            return;
+        }
+
+        let str = JSON.stringify(json);
+        Compression.compress(Buffer.from(str)).then(buffer => {
+            new File(`${CACHE_BASE}/${file}`, { cached: false }).writeAsync(buffer);
+        });
     }
 
     private normalizeUrl (url: string, config: ILoadConfig) {
@@ -104,6 +125,31 @@ export class Cache {
                     this.isFlushDeferred = false;
                 });
         }, 1000);
+    }
+}
+
+class Compression {
+    static compress (buffer: Buffer): Promise<Buffer> {
+        return new Promise((resolve, reject) => {
+            zlib.deflate(buffer, (err, buffer) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(buffer);
+            });
+        });
+    }
+    static decompress (buffer: Buffer): Promise<string> {
+        return new Promise((resolve, reject) => {
+            zlib.unzip(buffer, (err, buffer) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(buffer.toString('utf8'));
+            });
+        });
     }
 }
 
