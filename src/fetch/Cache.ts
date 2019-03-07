@@ -76,7 +76,7 @@ export class Cache {
 
         this.flushMeta();
 
-        if (withCompression === false) {
+        if (!withCompression) {
             new File(`${CACHE_BASE}/${file}`, { cached: false }).writeAsync(json);
             return;
         }
