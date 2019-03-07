@@ -10,9 +10,13 @@ class DomainCookies {
         
     }
 
-    add(mix: string | string[]) {
+    add(mix: string | string[] | { [key: string]: string }) {
+        if (mix == null) {
+            return;
+        }
         if (typeof mix === 'string') {
             this.push(mix);
+            return;
         }
         if (Array.isArray(mix)) {
             if (mix.length === 0) {
@@ -25,6 +29,12 @@ class DomainCookies {
             }
             throw Error('Cookie models are not yet supported');
         }
+
+        for (let key in mix) {
+            let cookie = `${key}=${mix}`;
+            this.push(cookie);
+        }
+
     }
     stringify () {
         return this.arr.map(x => `${x.key}=${x.value}`).join('; ');
