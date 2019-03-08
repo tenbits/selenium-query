@@ -309,13 +309,15 @@ declare module 'selenium-query/common/IConfig' {
         headers?: {
             [name: string]: string;
         };
-        method?: any;
+        method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string;
         query?: {
             [name: string]: string;
         };
         body?: string | Buffer;
-        cookies?: any;
-        cache?: {
+        cookies?: {
+            [name: string]: string;
+        } | string[] | string;
+        cache?: boolean | {
             folder?: string;
             maxAge?: number;
             compress?: boolean;

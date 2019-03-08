@@ -57,13 +57,27 @@ export class Cache {
         let str = await Compression.decompress(<Buffer> result);
         return JSON.parse(str);
     }
-    save (url: string, config: ILoadConfig, json) {        
+    save (url: string, config: ILoadConfig, json) { 
+        if (config.cache == null || config.cache === false) {
+            return null;
+        }
+        let cache = typeof config.cache !== 'boolean' ? config.cache : {
+            compress: true,
+            maxAge: 24 * 60 * 60
+        };
+
+        if (config.cache === true) {
+            cache = {
+                compress: true,
+            };
+        }       
         this.ensureMeta();
         url = this.normalizeUrl(url, config);
 
         let md5 = crypto.createHash('md5').update(url).digest('hex');
         let file = `${md5}.json`;
-        let withCompression = config.cache == null ? false : config.cache.compress;
+
+        let withCompression = cache.compress;
         if (withCompression) {
             file += '.gz';
         }
@@ -71,7 +85,7 @@ export class Cache {
         this.meta[url] = {
             time: Date.now(),
             file: file,
-            maxAge: config.cache && config.cache.maxAge
+            maxAge: cache.maxAge
         };
 
         this.flushMeta();

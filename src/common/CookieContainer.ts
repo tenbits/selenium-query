@@ -95,9 +95,9 @@ export class CookieContainer {
         [domain: string]: DomainCookies
     } = {};
 
-    addCookies(cookies: string | string[]);
-    addCookies(url: string, cookies: string | string[])
-    addCookies(mix: any, cookies?: string | string[]) {
+    addCookies(cookies: string | string[] | { [key: string]: string });
+    addCookies(url: string, cookies: string | string[] | { [key: string]: string })
+    addCookies(mix: any, cookies?: string | string[] | { [key: string]: string }) {
         let domain = 'global';
         if (arguments.length === 2) {
             let url = mix;

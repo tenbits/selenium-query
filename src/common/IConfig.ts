@@ -15,11 +15,11 @@ export interface IBuildConfig {
 
 	/* HTTP, webdriver supports only cookies */
 	headers?: {[name: string] : string }
-	method?
+	method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string
 	query?: {[name: string] : string }
     body?: string | Buffer
-	cookies? 
-	cache?: {
+	cookies?: {[name: string] : string } | string[] | string
+	cache?: boolean | {
 		folder?: string
         maxAge?: number
         compress?: boolean
