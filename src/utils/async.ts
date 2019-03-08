@@ -108,7 +108,7 @@ export function async_getValueOf<TElement>(index: number, self: IQuery<TElement>
 				return;
 			}
             let result = getter(ctx[index])
-            if (result == null && 'then' in result === false) {
+            if (result == null || 'then' in result === false) {
                 resolve(result);
                 return; 
             }
