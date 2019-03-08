@@ -107,7 +107,12 @@ export function async_getValueOf<TElement>(index: number, self: IQuery<TElement>
 				resolve(null);
 				return;
 			}
-			getter(ctx[index]).then(resolve, error => {
+            let result = getter(ctx[index])
+            if (result == null && 'then' in result === false) {
+                resolve(result);
+                return; 
+            }
+            result.then(resolve, error => {
 				console.error('Getter error', error);
 				resolve(null);
 			});

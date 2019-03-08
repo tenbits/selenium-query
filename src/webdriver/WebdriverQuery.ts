@@ -43,33 +43,33 @@ declare var scripts_nodeNext: any;
 export class WebdriverQuery extends IQuery<IElement> {
    
 
-    hasClassFn (node: IElement, name: string): Deferred<boolean> {
+    protected hasClassFn (node: IElement, name: string): Deferred<boolean> {
         return <any> node_eval(node, scripts_nodeClassHas, name);
     }
-    addClassFn (node: IElement, name: string): Deferred<void> {
+    protected addClassFn (node: IElement, name: string): Deferred<void> {
         return <any> node_eval(node, scripts_nodeClassAdd, name);
     }
-    removeClassFn(node: IElement, name: string): Deferred<void> {
+    protected removeClassFn(node: IElement, name: string): Deferred<void> {
         return <any> node_eval(node, scripts_nodeClassRemove, name);
     }
-    toggleClassFn(node: IElement, name: string): Deferred<void> {
+    protected toggleClassFn(node: IElement, name: string): Deferred<void> {
         return <any> node_eval(node, scripts_nodeClassToggle, name);        
     }
 
 
-    textGetFn (node: IElement): Deferred<string>  {
+    protected textGetFn (node: IElement): Deferred<string>  {
         return this.getField(node, 'textContent');
     }
-    textSetFn (node: IElement, text: string): Deferred<void>  {
+    protected textSetFn (node: IElement, text: string): Deferred<void>  {
         return this.setField(node, 'textContent', text);
     }
-    htmlGetFn (node: IElement): Deferred<string>  {
+    protected htmlGetFn (node: IElement): Deferred<string>  {
         return this.getField(node, 'innerHTML');
     }
-    htmlSetFn (node: IElement, text: string): Deferred<void>  {
+    protected htmlSetFn (node: IElement, text: string): Deferred<void>  {
         return this.setField(node, 'innerHTML', text);
     }
-    appendFn (node: IElement, html: string): Deferred<void> {
+    protected appendFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
             node,
             'insertAdjacentHTML', 
@@ -77,7 +77,7 @@ export class WebdriverQuery extends IQuery<IElement> {
             html
         );
     }
-    prependFn (node: IElement, html: string): Deferred<void> {
+    protected prependFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
             node, 
             'insertAdjacentHTML', 
@@ -85,7 +85,7 @@ export class WebdriverQuery extends IQuery<IElement> {
             html
         );
     }
-    beforeFn (node: IElement, html: string): Deferred<void> {
+    protected beforeFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
             node, 
             'insertAdjacentHTML', 
@@ -93,7 +93,7 @@ export class WebdriverQuery extends IQuery<IElement> {
             html
         );
     }
-    afterFn (node: IElement, html: string): Deferred<void> {
+    protected afterFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
             node, 
             'insertAdjacentHTML', 
@@ -101,29 +101,29 @@ export class WebdriverQuery extends IQuery<IElement> {
             html
         );
     }
-    cssGet (node: IElement, prop: string): Promise<any> {
+    protected cssGet (node: IElement, prop: string): Promise<any> {
         return node.getCssValue(prop);
     }
-    cssSet (node: IElement, css: { [key: string]: any }): Deferred<void> {
+    protected cssSet (node: IElement, css: { [key: string]: any }): Deferred<void> {
         return <any>  node_eval(node, scripts_nodeCss, css);
     }
 
-    async heightGetFn (node: IElement): Promise<number> {
+    protected async heightGetFn (node: IElement): Promise<number> {
         return (await this.getBoundingClientRect(node)).height;
     }
-    async widthGetFn (node: IElement): Promise<number> {
+    protected async widthGetFn (node: IElement): Promise<number> {
         return (await this.getBoundingClientRect(node)).width;
     }
-    innerHeightFn (node: IElement): Promise<number> {
+    protected innerHeightFn (node: IElement): Promise<number> {
         return this.getField(node, 'offsetHeight');
     }
-    innerWidthFn (node: IElement): Promise<number> {
+    protected innerWidthFn (node: IElement): Promise<number> {
         return  this.getField(node, 'offsetWidth');
     }
-    getBoundingClientRect (node: IElement): Promise<{top: number, left: number, width: number, height: number}> {
+    protected getBoundingClientRect (node: IElement): Promise<{top: number, left: number, width: number, height: number}> {
         return <any> node_eval(node, scripts_nodeFunctionCall, 'getBoundingClientRect');
     }
-    async getPosition (node: IElement): Promise<{top: number, left: number}> {
+    protected async getPosition (node: IElement): Promise<{top: number, left: number}> {
         let dfrTop =  this.getField<number>(node, 'offsetTop');
         let dfrLeft = this.getField<number>(node, 'offsetLeft');
 
@@ -131,33 +131,33 @@ export class WebdriverQuery extends IQuery<IElement> {
         return { top, left };
     }
 
-    scrollTopGetFn (node: IElement): Promise<number> {
+    protected scrollTopGetFn (node: IElement): Promise<number> {
         return this.getField(node, 'scrollTop');
     }    
-    scrollTopSetFn (node: IElement, scroll: number): Deferred<void> {
+    protected scrollTopSetFn (node: IElement, scroll: number): Deferred<void> {
         return this.setField(node, 'scrollTop', scroll);
     }
-    scrollLeftGetFn (node: IElement): Promise<number> {
+    protected scrollLeftGetFn (node: IElement): Promise<number> {
         return this.getField(node, 'scrollLeft');
     }
     
-    scrollLeftSetFn (node: IElement, scroll: number): Deferred<void> {
+    protected scrollLeftSetFn (node: IElement, scroll: number): Deferred<void> {
         return this.setField(node, 'scrollLeft', scroll);
     }
     
-    evalFn(node: IElement, mix: Function | string, ...args): Promise<any> {
+    protected evalFn(node: IElement, mix: Function | string, ...args): Promise<any> {
 		return <any> node_eval(node, mix, ...args);
     }
     
     //#region Events
-	clickFn(node: IElement): Promise<void> {
+	protected clickFn(node: IElement): Promise<void> {
 		return node.click();
 	}
-	triggerFn(node: IElement, type: string, ...args): Promise<void> {
+	protected triggerFn(node: IElement, type: string, ...args): Promise<void> {
 		return <any> node_eval(node, scripts_nodeTrigger, type, ...args);
     }
     
-	selectFn(node: IElement, ...args): Promise<any> {
+	protected selectFn(node: IElement, ...args): Promise<any> {
         return this.getField(node, 'tagName').then(name => {
             var fn = name === 'SELECT' ?
                 scripts_nodeSelectOption :
@@ -167,49 +167,49 @@ export class WebdriverQuery extends IQuery<IElement> {
         });
 	}
 
-	focusFn(node: IElement): Promise<void> {
+	protected focusFn(node: IElement): Promise<void> {
 		return this.callField(node, 'focus');
 	}
-	blurFn(node: IElement): Promise<void> {
+	protected blurFn(node: IElement): Promise<void> {
 		return this.callField(node, 'blur');
 	}
-	sendKeysFn(node: IElement, mix): Promise<void> {	
+	protected sendKeysFn(node: IElement, mix): Promise<void> {	
         return node.sendKeys(mix);
     }
     
-	typeFn(node: IElement, str: string): Promise<void> {
+	protected typeFn(node: IElement, str: string): Promise<void> {
 		var arr = Events.toSequance(str),
 			fn = Events.getSequenceFunction(arr);
 		return fn(node);
 	}
-	pressFn (node: IElement, str:string): Promise<void> {
+	protected pressFn (node: IElement, str:string): Promise<void> {
 		var key = Events.toCombination(str);
 		return node.sendKeys(key);
 	}
     //#endregion
     //#region Manipulate
-	removeFn (node: IElement): Promise<void> {
+	protected removeFn (node: IElement): Promise<void> {
 		return <any> node_eval(node, scripts_nodeRemove);
 	}
     //#endregion
     //#region Properties
-    attrGetFn (node: IElement, prop: string): Promise<any> {
+    protected attrGetFn (node: IElement, prop: string): Promise<any> {
         return node.getAttribute(prop);
     }
-    attrSetFn (node: IElement, attr: { [key: string]: any }): Deferred<void> {
+    protected attrSetFn (node: IElement, attr: { [key: string]: any }): Deferred<void> {
         return <any> node_eval(node, scripts_nodeAttribute, attr);
     }
 
-    valGetFn (node: IElement): Promise<any> {
+    protected valGetFn (node: IElement): Promise<any> {
         return this.getField(node, 'value')
     }
-    valSetFn (node: IElement, value: any): Deferred<void> {
+    protected valSetFn (node: IElement, value: any): Deferred<void> {
         return this.setField(node, 'value', value);
     }
-    dataGetFn (node: IElement, key: string): Promise<any> {
+    protected dataGetFn (node: IElement, key: string): Promise<any> {
         return <any> node_eval(node, scripts_nodeDataset, key);
     }
-    dataSetFn (node: IElement, data: object): Deferred<void> {
+    protected dataSetFn (node: IElement, data: object): Deferred<void> {
         return <any> node_eval(node, scripts_nodeDataset, data);
     }
     protected propGetFn(node: IElement, key: string): Promise<any> {
@@ -220,24 +220,24 @@ export class WebdriverQuery extends IQuery<IElement> {
     }
     //#endregion
 
-    findFn (node: IElement, selector: string): Deferred<IElement[]> {
+    protected findFn (node: IElement, selector: string): Deferred<IElement[]> {
         return node.findElements({ css: selector });
     }
 
-    matchesFn (node: IElement, selector: string): Promise<boolean> {
+    protected matchesFn (node: IElement, selector: string): Promise<boolean> {
         return <any> node_eval(node, scripts_nodeMatchesSelector, selector);
     }
 
-    parentFn (node: IElement): Deferred<IElement> {
+    protected parentFn (node: IElement): Deferred<IElement> {
         return <any> node_eval(node, scripts_nodeParent);
     }
-    closestFn (node: IElement, sel: string): Promise<IElement> {
+    protected closestFn (node: IElement, sel: string): Promise<IElement> {
         return <any> node_eval(node, scripts_nodeClosest, sel);
     }
-    childrenFn (node: IElement, sel?: string): Promise<IElement[]> {
+    protected childrenFn (node: IElement, sel?: string): Promise<IElement[]> {
         return <any> node_eval(node, scripts_nodeChildren, sel);
     }
-    nextFn (node: IElement, sel?: string): Promise<IElement> {
+    protected nextFn (node: IElement, sel?: string): Promise<IElement> {
         return <any> node_eval(node, scripts_nodeNext, sel);
     }
 
