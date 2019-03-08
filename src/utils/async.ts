@@ -1,7 +1,7 @@
 import { map, each } from './arr'
 import { dfr_run } from './dfr'
 import { IQuery } from '../common/IQuery'
-import { class_Dfr } from 'atma-utils';
+import { class_Dfr, is_Object, is_Function } from 'atma-utils';
 
 
 export function async_each<TElement>(query: IQuery<TElement>, fn: (ctx: IQuery<TElement>, node: TElement) => any) {
@@ -108,7 +108,7 @@ export function async_getValueOf<TElement>(index: number, self: IQuery<TElement>
 				return;
 			}
             let result = getter(ctx[index])
-            if (result == null || 'then' in result === false) {
+            if (is_Object(result) === false || is_Function(result.then) === false) {
                 resolve(result);
                 return; 
             }
