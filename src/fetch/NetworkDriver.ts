@@ -35,6 +35,10 @@ export const NetworkDriver  = {
     clearCookies () {
         cookieContainer.clearCookies()
     },
+    clearCached (url: string, config: ILoadConfig = {}) {
+        url = serializeUrl(url, config);
+        cache.remove(url, config);
+    },
     load (url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
         let options:FetchOptions = {
             headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),

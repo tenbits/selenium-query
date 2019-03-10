@@ -97,6 +97,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             isCached(url: string, config?: import("../src/common/IConfig").ILoadConfig): boolean;
             isCachedAsync(url: string, config?: import("../src/common/IConfig").ILoadConfig): Promise<boolean>;
             clearCookies(): void;
+            clearCached(url: string, config?: import("../src/common/IConfig").ILoadConfig): void;
             load(url: string, config?: import("../src/common/IConfig").ILoadConfig): Promise<import("../src/fetch/NetworkDriver").NetworkResponse>;
         };
     }

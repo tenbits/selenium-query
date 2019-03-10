@@ -32,7 +32,19 @@ export class Cache {
         return <Promise<boolean>> <any> this.hasInner(url, config, { isAsync: true });
     }
 
-    async get (url: string, config: ILoadConfig ) {
+    remove (url: string, config: ILoadConfig) {
+        this.ensureMeta();
+        url = this.normalizeUrl(url, config);
+
+        let meta = this.meta[url];
+        if (meta == null) {
+            return null;
+        }
+        delete this.meta[url];
+        this.flushMeta();
+    }
+
+    async get (url: string, config: ILoadConfig) {
         if (config.cache == null || config.cache === false) {
             return null;
         }
