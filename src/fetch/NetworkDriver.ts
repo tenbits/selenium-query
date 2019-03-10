@@ -88,14 +88,19 @@ export const NetworkDriver  = {
             function doFetch () {
                 fetch(url, options)
                     .then(async (res) => {
-                        if (res.status >= 400) {
-                            if (res.status !== 404 && --retryCount > 0) {
-                                console.log(`Retry ${retryCount} for ${url} as got ${res.status}`)
-                                setTimeout(doFetch, retryTimeout);
-                                return;
-                            }
-                            reject(new Error(`Request failed ${res.status} for ${url}`));
-                            return;
+                        let errored = res.status >= 400;
+                        if (errored && --retryCount > 0) {
+                            switch (res.status) {
+                                case 404:
+                                case 401:
+                                case 403:
+                                    break;
+                                default: {
+                                    console.log(`Retry ${retryCount} for ${url} as got ${res.status}`)
+                                    setTimeout(doFetch, retryTimeout);                                
+                                    return;
+                                }
+                            }                                                        
                         }
 
                         let setCookie = res.headers.get('set-cookie');
@@ -130,6 +135,11 @@ export const NetworkDriver  = {
                             url: res.url,
                             body
                         };
+                        if (errored) {
+                            resp.message = `Request failed ${res.status} for ${url}`;
+                            reject(resp);
+                            return;
+                        }
         
                         cache.save(url, config, {
                             status: resp.status,
@@ -149,6 +159,8 @@ export const NetworkDriver  = {
 
 export interface NetworkResponse {
     status: number
+    message?: string
+
     headers: {[name: string] : string }
     url: string    
     body: any
