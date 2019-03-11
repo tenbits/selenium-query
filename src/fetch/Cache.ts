@@ -2,6 +2,7 @@ import * as crypto from 'crypto';
 import { ILoadConfig } from '../common/IConfig'
 import { File } from 'atma-io'
 import * as zlib from 'zlib'
+import { NetworkResponse } from './NetworkDriver';
 
 interface ICacheItem {
     time: number
@@ -62,14 +63,18 @@ export class Cache {
         }
         let withCompression = meta.file.endsWith('.gz');
         let encoding = withCompression ? 'buffer' : 'utf8';
-        let result = await new File(`${CACHE_BASE}/${meta.file}`, { cached: false }).readAsync({ encoding });
-        if (withCompression === false) {
-            return result;
+        let result: any = await new File(`${CACHE_BASE}/${meta.file}`, { cached: false }).readAsync({ encoding });
+        if (withCompression) {         
+            let str = await Compression.decompress(<Buffer> result);
+            result = JSON.parse(str);
         }
-        let str = await Compression.decompress(<Buffer> result);
-        return JSON.parse(str);
+        if (result.file != null) {
+            result.body = await new File(`${CACHE_BASE}/${result.file}`, { cached: false }).readAsync({ encoding });
+            delete result.file;
+        }
+        return result;
     }
-    save (url: string, config: ILoadConfig, json) { 
+    save (url: string, config: ILoadConfig, resp: NetworkResponse) { 
         if (config.cache == null || config.cache === false) {
             return null;
         }
@@ -88,6 +93,11 @@ export class Cache {
 
         let md5 = crypto.createHash('md5').update(url).digest('hex');
         let file = `${md5}.json`;
+        let domainMatch = /([\w\d_\-]+)\.[\w]{2,5}(\/|$)/.exec(url);
+        if (domainMatch) {
+            file = `${domainMatch[1]}_${file}`;
+        }
+        
 
         let withCompression = cache.compress;
         if (withCompression) {
@@ -100,7 +110,24 @@ export class Cache {
             maxAge: cache.maxAge
         };
 
-        this.flushMeta();
+        this.flushMeta();       
+        let json: any = {
+            status: resp.status,
+            headers: resp.headers,
+            url: resp.url,
+            body: resp.body
+        };
+        let contentType = resp.headers['content-type'];
+        let isText = /json|text/.test(contentType);
+        if (isText === false) {
+            let match = /\.[\w\d]+$/.exec(url);
+            let ext = match[0];
+            let path = `${CACHE_BASE}/files/${md5}${ext}`;
+            let file = new File(path, { cached: false });
+            file.writeAsync(resp.body);
+            json.file = `files/${md5}${ext}`
+            delete json.body;
+        }
 
         if (!withCompression) {
             new File(`${CACHE_BASE}/${file}`, { cached: false }).writeAsync(json);

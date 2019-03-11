@@ -129,7 +129,8 @@ export const NetworkDriver  = {
                                 body = await res.json();
                                 break;
                             case 'buffer':
-                                body = await res.arrayBuffer();
+                                let arr = await res.arrayBuffer();
+                                body = Buffer.from(arr);
                                 break;
                         }
 
@@ -145,12 +146,7 @@ export const NetworkDriver  = {
                             return;
                         }
         
-                        cache.save(url, config, {
-                            status: resp.status,
-                            headers: resp.headers,
-                            url: resp.url,
-                            body: resp.body
-                        });
+                        cache.save(url, config, resp);
         
                         resolve(resp);
                     })
