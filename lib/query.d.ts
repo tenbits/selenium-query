@@ -4,8 +4,10 @@
 
 declare module 'selenium-query' {
     import { WebdriverQuery } from 'selenium-query/webdriver/WebdriverQuery';
+    import { CookieContainer } from 'selenium-query/common/CookieContainer';
     class SQuery extends WebdriverQuery {
         static default: typeof SQuery;
+        static CookieContainer: typeof CookieContainer;
     }
     export = SQuery;
 }
@@ -101,6 +103,38 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             load(url: string, config?: import("../src/common/IConfig").ILoadConfig): Promise<import("../src/fetch/NetworkDriver").NetworkResponse>;
         };
     }
+}
+
+declare module 'selenium-query/common/CookieContainer' {
+    interface ICookie {
+        key: string;
+        value: string;
+        rawOptions?: string;
+    }
+    class DomainCookies {
+        domain: string;
+        arr: ICookie[];
+        constructor(domain: string);
+        add(mix: string | string[] | {
+            [key: string]: string;
+        }): void;
+        stringify(): string;
+    }
+    export class CookieContainer {
+        domains: {
+            [domain: string]: DomainCookies;
+        };
+        addCookies(cookies: string | string[] | {
+            [key: string]: string;
+        }): any;
+        addCookies(url: string, cookies: string | string[] | {
+            [key: string]: string;
+        }): any;
+        clearCookies(): void;
+        getCookies(url?: string): string;
+    }
+    export const cookieContainer: CookieContainer;
+    export {};
 }
 
 declare module 'selenium-query/common/IDriver' {
@@ -299,6 +333,7 @@ declare module 'selenium-query/common/IQuery' {
 
 declare module 'selenium-query/common/IConfig' {
     import { IQuery } from "selenium-query/common/IQuery";
+    import { CookieContainer } from 'selenium-query/common/CookieContainer';
     export interface IBuildConfig {
         name?: string;
         args?: string[];
@@ -327,6 +362,7 @@ declare module 'selenium-query/common/IConfig' {
         cacheQueryIgnore?: string[];
         /** Webdriver will load this url, or requested url, to set the cookies first */
         cookieOrigin?: string;
+        cookieContainer?: CookieContainer;
         [key: string]: any;
     }
     export interface ILoadConfig extends IBuildConfig {

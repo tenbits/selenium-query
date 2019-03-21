@@ -50,18 +50,18 @@ export const NetworkDriver  = {
                 }
             }
         };
-
+        let $cookieContainer = config.cookieContainer || cookieContainer;
         let retryCount = 'retryCount' in config ? config.retryCount : 3;
         let retryTimeout = 'retryTimeout' in config ? config.retryTimeout : 1000;
 
         if (config.cookies) {
-            cookieContainer.addCookies(config.cookies);
+            $cookieContainer.addCookies(config.cookies);
         }
         if (options.headers['Cookie']) {
-            cookieContainer.addCookies(options.headers['Cookie']);
+            $cookieContainer.addCookies(options.headers['Cookie']);
         }
 
-        let cookies = cookieContainer.getCookies(url);
+        let cookies = $cookieContainer.getCookies(url);
         if (cookies) {
             options.headers['Cookie'] = cookies;
         }
@@ -109,7 +109,7 @@ export const NetworkDriver  = {
 
                         let setCookie = res.headers.get('set-cookie');
                         if (setCookie) {
-                            cookieContainer.addCookies(url, setCookie);
+                            $cookieContainer.addCookies(url, setCookie);
                         }
                         
                         let typeEnum = 'buffer';

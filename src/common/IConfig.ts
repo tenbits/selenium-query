@@ -1,4 +1,5 @@
 import { IQuery } from "../common/IQuery";
+import { CookieContainer } from './CookieContainer';
 
 export interface IBuildConfig {
 	name?: string
@@ -28,7 +29,8 @@ export interface IBuildConfig {
 	
 
 	/** Webdriver will load this url, or requested url, to set the cookies first */
-	cookieOrigin?: string
+    cookieOrigin?: string
+    cookieContainer?: CookieContainer
 
 	[key: string]: any
 }
