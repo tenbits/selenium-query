@@ -141,6 +141,7 @@ declare module 'selenium-query/common/IQuery' {
     export class IQueryCtx {
         owner: IQuery<any>;
         self: IQuery<any>;
+        source: any;
         thener: (resolve: any, reject: any) => IQuery<any>;
         Ctor: new (mix?: any) => IQuery<any>;
         newSync(arr?: any, parent?: IQuery<any>): IQuery<any>;

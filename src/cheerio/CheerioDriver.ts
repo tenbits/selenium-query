@@ -14,7 +14,8 @@ export const CheerioDriver: IQueryStatics = {
 	build(config: ICheerioBuildConfig): IQuery<CheerioElement> {
 		let html = config.html;
 		let el: any = CheerioUtils.fromHtml(html);		
-		let query = new CherrioQuery(el);
+        let query = new CherrioQuery(el);
+        query.ctx.source = html;
 		return query;
 	},
 	load(url: string, config: ICheerioBuildConfig): IQuery<CheerioElement> {

@@ -223,7 +223,7 @@ export class CherrioQuery extends IQuery<CheerioElement> {
 
     static newAsync (mix?, parent?: IQuery<CheerioElement>) {
         let query = new CherrioQuery(mix);
-        query.ctx.owner = parent;
+        query.ctx.owner = parent;        
         query.then = query.ctx.thener;
         return query;
     }
@@ -241,8 +241,9 @@ export class CherrioQuery extends IQuery<CheerioElement> {
 	static load(url: string, config: IBuildConfig, setts?: ISettings) {
         let query = new CherrioQuery();
         NetworkDriver.load(url, setts.opts).then(content => {
-            
-            let $ = CheerioUtils.fromHtml(content.toString());
+            let html = content.toString();
+            let $ = CheerioUtils.fromHtml(html);
+            query.ctx.source = html;
             query.add($);
             query.resolve(query);
         })

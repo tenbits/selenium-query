@@ -18,7 +18,8 @@ import { Deferred } from '../types/Deferred';
 
 export class IQueryCtx {
 	owner: IQuery<any>
-	self: IQuery<any>
+    self: IQuery<any>
+    source: any
 	thener: (resolve, reject) => IQuery<any>
 	Ctor: new (mix?) => IQuery<any>
 	
@@ -175,7 +176,9 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
 	html(str: string): IQuery<TElement>;
 	html(str?: string) {
 		if (typeof str === 'undefined') {
-			return Arr.mapFirst(this, node => this.htmlGetFn(node));
+			return async_aggr('', this, (accum, node) => {
+				return this.htmlGetFn(node).then(val => accum + val)
+			}) as PromiseLike<string>;
 		}
 		return <IQuery<TElement>><any>async_each(this, ($, node) => {
             return this

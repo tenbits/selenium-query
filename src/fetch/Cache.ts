@@ -11,20 +11,21 @@ interface ICacheItem {
 }
 const CACHE_BASE = './cache/squery';
 export class Cache {
-    meta: {[url: string]: ICacheItem } = null;
+    meta:  { [domainKey: string]: { [url: string]: ICacheItem } } = null;
 
     private hasInner (url: string, config: ILoadConfig, { isAsync = false } = {}) {
         if (config.cache == null || config.cache === false) {
             return false;
         }
-        this.ensureMeta();
         url = this.normalizeUrl(url, config);
+        let domainKey = Utils.getDomainKey(url);
+        this.ensureMeta(domainKey);
 
-        let meta = this.meta[url];
+        let meta = this.meta[domainKey][url];
         if (meta == null) {
             return false;
         }
-        return File[ isAsync ? 'exists' : 'existsAsync' ](`${CACHE_BASE}/${meta.file}`);
+        return File[ isAsync ? 'exists' : 'existsAsync' ](`${CACHE_BASE}/${domainKey}/${meta.file}`);
     }
     public has (url: string, config?: ILoadConfig) {
         return <boolean> this.hasInner(url, config, { isAsync: false });
@@ -34,25 +35,27 @@ export class Cache {
     }
 
     remove (url: string, config: ILoadConfig) {
-        this.ensureMeta();
         url = this.normalizeUrl(url, config);
+        let domainKey = Utils.getDomainKey(url);
+        this.ensureMeta(domainKey);
 
-        let meta = this.meta[url];
+        let meta = this.meta[domainKey][url];
         if (meta == null) {
             return null;
         }
-        delete this.meta[url];
-        this.flushMeta();
+        delete this.meta[domainKey][url];
+        this.flushMeta(domainKey);
     }
 
     async get (url: string, config: ILoadConfig) {
         if (config.cache == null || config.cache === false) {
             return null;
         }
-        this.ensureMeta();
         url = this.normalizeUrl(url, config);
+        let domainKey = Utils.getDomainKey(url);
+        this.ensureMeta(domainKey);
 
-        let meta = this.meta[url];
+        let meta = this.meta[domainKey][url];
         if (meta == null) {
             return null;
         }
@@ -63,13 +66,13 @@ export class Cache {
         }
         let withCompression = meta.file.endsWith('.gz');
         let encoding = withCompression ? 'buffer' : 'utf8';
-        let result: any = await new File(`${CACHE_BASE}/${meta.file}`, { cached: false }).readAsync({ encoding });
+        let result: any = await new File(`${CACHE_BASE}/${domainKey}/${meta.file}`, { cached: false }).readAsync({ encoding });
         if (withCompression) {         
             let str = await Compression.decompress(<Buffer> result);
             result = JSON.parse(str);
         }
         if (result.file != null) {
-            result.body = await new File(`${CACHE_BASE}/${result.file}`, { cached: false }).readAsync({ encoding });
+            result.body = await new File(`${CACHE_BASE}/${domainKey}/${result.file}`, { cached: false }).readAsync({ encoding: 'buffer' });
             delete result.file;
         }
         return result;
@@ -88,29 +91,25 @@ export class Cache {
                 compress: true,
             };
         }       
-        this.ensureMeta();
         url = this.normalizeUrl(url, config);
+        let domainKey = Utils.getDomainKey(url);
+        this.ensureMeta(domainKey);
 
         let md5 = crypto.createHash('md5').update(url).digest('hex');
         let file = `${md5}.json`;
-        let domainMatch = /([\w\d_\-]+)\.[\w]{2,5}(\/|$)/.exec(url);
-        if (domainMatch) {
-            file = `${domainMatch[1]}_${file}`;
-        }
         
-
         let withCompression = cache.compress;
         if (withCompression) {
             file += '.gz';
         }
         
-        this.meta[url] = {
+        this.meta[domainKey][url] = {
             time: Date.now(),
             file: file,
             maxAge: cache.maxAge
         };
 
-        this.flushMeta();       
+        this.flushMeta(domainKey);       
         let json: any = {
             status: resp.status,
             headers: resp.headers,
@@ -122,7 +121,7 @@ export class Cache {
         if (isText === false) {
             let match = /\.[\w\d]+$/.exec(url);
             let ext = match[0];
-            let path = `${CACHE_BASE}/files/${md5}${ext}`;
+            let path = `${CACHE_BASE}/${domainKey}/files/${md5}${ext}`;
             let file = new File(path, { cached: false });
             file.writeAsync(resp.body);
             json.file = `files/${md5}${ext}`
@@ -130,13 +129,13 @@ export class Cache {
         }
 
         if (!withCompression) {
-            new File(`${CACHE_BASE}/${file}`, { cached: false }).writeAsync(json);
+            new File(`${CACHE_BASE}/${domainKey}/${file}`, { cached: false }).writeAsync(json);
             return;
         }
 
         let str = JSON.stringify(json);
         Compression.compress(Buffer.from(str)).then(buffer => {
-            new File(`${CACHE_BASE}/${file}`, { cached: false }).writeAsync(buffer);
+            new File(`${CACHE_BASE}/${domainKey}/${file}`, { cached: false }).writeAsync(buffer);
         });
     }
 
@@ -152,28 +151,31 @@ export class Cache {
         return url;
     }
 
-    private ensureMeta () {
-        if (this.meta != null) {
+    private ensureMeta (domainKey: string) {
+        if (this.meta != null && this.meta[domainKey] != null) {
             return;
         }
-        let file = `${CACHE_BASE}/meta.json`;
-        if (File.exists(file)) {
-            this.meta = <any> File.read(file);
+        if (this.meta == null) {
+            this.meta = <any> {};       
+        }
+        let file = `${CACHE_BASE}/${domainKey}/meta.json`;
+        if (File.exists(file)) {            
+            this.meta[domainKey] = <any> File.read(file);
         } else {
-            this.meta = {};
+            this.meta[domainKey] = {};
         }
     }
 
     isFlushDeferred = false  
 
-    private flushMeta () {
+    private flushMeta (domainKey) {
         if (this.isFlushDeferred) {
             return;
         }
         this.isFlushDeferred = true;
         setTimeout(() => {
             File
-                .writeAsync(`${CACHE_BASE}/meta.json`, <any> this.meta)
+                .writeAsync(`${CACHE_BASE}/${domainKey}/meta.json`, <any> this.meta[domainKey])
                 .always(x => {
                     this.isFlushDeferred = false;
                 });
@@ -203,6 +205,16 @@ class Compression {
                 resolve(buffer.toString('utf8'));
             });
         });
+    }
+}
+
+namespace Utils {
+    export function getDomainKey (url: string) {
+        let domainMatch = /([\w\d_\-]+\.[\w]{2,5})([\/:]|$)/.exec(url);
+        if (domainMatch) {
+            return domainMatch[1].replace('.', '_');
+        }
+        return '';
     }
 }
 
