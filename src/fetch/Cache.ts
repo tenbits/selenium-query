@@ -140,7 +140,8 @@ export class Cache {
     }
 
     private normalizeUrl (url: string, config: ILoadConfig) {
-        url = url.toLowerCase();
+        url = url.toLowerCase().replace(/(?<!:)[/]{2,}/g, '/');
+        
         let ignore = config.cacheQueryIgnore;
         if (ignore) {
             ignore.forEach(x => {
