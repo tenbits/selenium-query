@@ -40,7 +40,7 @@ export const NetworkDriver  = {
         cache.remove(url, config);
     },
     load (url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
-        let options:FetchOptions = {
+        let options: FetchOptions = {
             headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),
             method: config.method,
             body: config.body,
@@ -87,9 +87,13 @@ export const NetworkDriver  = {
                 return
             }
 
-            doFetch ();
+            let redirectCount = 0;
+            let redirectMax = options.follow == null ? 10 : options.follow;
+            options.redirect = 'manual';
 
-            function doFetch () {
+            doFetch (url, options);
+
+            function doFetch (url, options) {
                 fetch(url, options)
                     .then(async (res) => {
                         let errored = res.status >= 400;
@@ -106,51 +110,81 @@ export const NetworkDriver  = {
                                 }
                             }                                                        
                         }
-
                         let setCookie = res.headers.get('set-cookie');
                         if (setCookie) {
                             $cookieContainer.addCookies(url, setCookie);
                         }
-                        
-                        let typeEnum = 'buffer';
-                        let contentType = res.headers.get('content-type');
-                        if (contentType && contentType.includes('json')) {
-                            typeEnum = 'json';
-                        }
-                        if (contentType && contentType.includes('text')) {
-                            typeEnum = 'text';
-                        }
-                        let body: any = null;
-                        switch (typeEnum) {
-                            case 'text':
-                                body = await res.text();
-                                break;
-                            case 'json':
-                                body = await res.json();
-                                break;
-                            case 'buffer':
-                                let arr = await res.arrayBuffer();
-                                body = Buffer.from(arr);
-                                break;
-                        }
 
-                        let resp: NetworkResponse = {
-                            status: res.status,
-                            headers: readAllHeaders(res.headers),
-                            url: res.url,
-                            body
-                        };
-                        if (errored) {
-                            resp.message = `Request failed ${res.status} for ${url}`;
-                            reject(resp);
-                            return;
+                        if (res.status === 301 || res.status === 302) {
+                            let cookies = $cookieContainer.getCookies(url);
+                            if (cookies) {
+                                options.headers['Cookie'] = cookies;
+                            }
+                            var location = res.headers.get('location');
+                            if (!location) {
+                                throw new Error('Location not present');
+                            }
+                            if (++redirectCount < redirectMax) {
+                                options.method = 'GET';
+                                options.body = null;
+                                if (options.headers) {
+                                    delete options.headers['Content-Type'];
+                                    delete options.headers['content-type'];
+                                    delete options.headers['Content-Length'];
+                                    delete options.headers['content-length'];
+                                }
+                                doFetch(location, options);
+                                return;
+                            }
                         }
-        
-                        cache.save(url, config, resp);
-        
-                        resolve(resp);
+                        
+                        try {
+                            await onComplete(res);                    
+                        } catch (error) {
+                            reject(error);
+                        }
                     })
                     .catch(reject)
+            }
+            async function onComplete (res) {
+                let errored = res.status >= 400;
+                let typeEnum = 'buffer';
+                let contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('json')) {
+                    typeEnum = 'json';
+                }
+                if (contentType && contentType.includes('text')) {
+                    typeEnum = 'text';
+                }
+                let body: any = null;
+                switch (typeEnum) {
+                    case 'text':
+                        body = await res.text();
+                        break;
+                    case 'json':
+                        body = await res.json();
+                        break;
+                    case 'buffer':
+                        let arr = await res.arrayBuffer();
+                        body = Buffer.from(arr);
+                        break;
+                }
+
+                let resp: NetworkResponse = {
+                    status: res.status,
+                    headers: readAllHeaders(res.headers),
+                    url: res.url,
+                    body
+                };
+                if (errored) {
+                    resp.message = `Request failed ${res.status} for ${res.url}`;
+                    reject(resp);
+                    return;
+                }
+
+                cache.save(url, config, resp);
+
+                resolve(resp);
             }
         })
         
@@ -174,6 +208,7 @@ interface FetchOptions {
     body?  
     agent?
     onRedirect?: Function
+    redirect?: 'manual' | 'follow'
 }
 
 
