@@ -44,6 +44,7 @@ export const NetworkDriver  = {
             headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),
             method: config.method,
             body: config.body,
+            follow: config.follow,
             onRedirect (data) {
                 if (data.prev.startsWith('http:') && data.url.includes('https:')) {
                     data.opts.agent = agents.https;
@@ -104,8 +105,8 @@ export const NetworkDriver  = {
                                 case 403:
                                     break;
                                 default: {
-                                    console.log(`Retry ${retryCount} for ${url} as got ${res.status}`)
-                                    setTimeout(doFetch, retryTimeout);                                
+                                    console.log(`Retry ${retryCount} for [${options.method}] ${url} as got ${res.status}`)
+                                    setTimeout(() => doFetch(url, options), retryTimeout);                                
                                     return;
                                 }
                             }                                                        

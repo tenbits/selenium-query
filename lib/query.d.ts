@@ -368,6 +368,7 @@ declare module 'selenium-query/common/IConfig' {
     export interface ILoadConfig extends IBuildConfig {
         retryCount?: number;
         retryTimeout?: number;
+        follow?: number;
     }
     export interface ISettings {
         pool?: boolean | number;

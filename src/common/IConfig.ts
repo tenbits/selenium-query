@@ -38,6 +38,7 @@ export interface IBuildConfig {
 export interface ILoadConfig extends IBuildConfig {
     retryCount?: number
     retryTimeout?: number
+    follow?: number
 }
 
 export interface ISettings {
