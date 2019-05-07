@@ -379,6 +379,7 @@ declare module 'selenium-query/common/IConfig' {
         retryCount?: number;
         retryTimeout?: number;
         follow?: number;
+        httpsProxy?: string;
     }
     export interface ISettings {
         pool?: boolean | number;

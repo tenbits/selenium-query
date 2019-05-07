@@ -40,6 +40,7 @@ export interface ILoadConfig extends IBuildConfig {
     retryCount?: number
     retryTimeout?: number
     follow?: number
+    httpsProxy?: string
 }
 
 export interface ISettings {

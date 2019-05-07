@@ -81,6 +81,11 @@ export const NetworkDriver  = {
                 options.agent = agents.https;
             }
         }
+        if (config.httpsProxy) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+            const HttpsProxyAgent = require('https-proxy-agent');
+            options.agent = new HttpsProxyAgent(config.httpsProxy)
+        }
 
         return new Promise(async (resolve, reject) => {
             
