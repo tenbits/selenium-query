@@ -1,6 +1,9 @@
 import Utils from './utils'
 
 UTest({
+    $config: {
+        timeout: 50000
+    },
 	$before () {
 		Utils.start();
 	},
@@ -165,7 +168,7 @@ UTest({
 					.find('.foo')
 					.html()
 					.done(val => {
-						eq_(val, 'Span1', 'Should get html of the first element only. (See jQuery spec)');
+						eq_(val, 'Span1<span>Span2</span>', 'Should get html of all Elements. Though jQuery returns html of the first Element only');
 						done();
 					});
 			});

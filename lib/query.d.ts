@@ -117,6 +117,8 @@ declare module 'selenium-query/common/CookieContainer' {
         constructor(domain: string);
         add(mix: string | string[] | {
             [key: string]: string;
+        }, opts?: {
+            extend: boolean;
         }): void;
         stringify(): string;
     }
@@ -129,6 +131,11 @@ declare module 'selenium-query/common/CookieContainer' {
         }): any;
         addCookies(url: string, cookies: string | string[] | {
             [key: string]: string;
+        }): any;
+        addCookies(url: string, cookies: string | string[] | {
+            [key: string]: string;
+        }, opts: {
+            extend: boolean;
         }): any;
         clearCookies(): void;
         getCookies(url?: string): string;
@@ -352,6 +359,9 @@ declare module 'selenium-query/common/IConfig' {
         };
         body?: string | Buffer;
         cookies?: {
+            [name: string]: string;
+        } | string[] | string;
+        cookiesDefault?: {
             [name: string]: string;
         } | string[] | string;
         cache?: boolean | {

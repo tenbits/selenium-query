@@ -19,7 +19,8 @@ export interface IBuildConfig {
 	method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string
 	query?: {[name: string] : string }
     body?: string | Buffer
-	cookies?: {[name: string] : string } | string[] | string
+    cookies?: {[name: string] : string } | string[] | string
+    cookiesDefault?: {[name: string] : string } | string[] | string
 	cache?: boolean | {
 		folder?: string
         maxAge?: number

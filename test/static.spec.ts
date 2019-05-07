@@ -29,10 +29,10 @@ UTest({
 			.fetch('https://help.github.com/articles/github-terms-of-service/');
 
 		
-		let h2 = await $.find('.article > h2');
-		eq_(h2.length, 1);
+		let h1 = await $.find('article > h1');
+		eq_(h1.length, 1);
 
-		let str = await h2.text();
+		let str = await h1.text();
 		eq_(str, 'GitHub Terms of Service');
 	}
 })

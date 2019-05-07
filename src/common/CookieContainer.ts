@@ -10,12 +10,12 @@ class DomainCookies {
         
     }
 
-    add(mix: string | string[] | { [key: string]: string }) {
+    add(mix: string | string[] | { [key: string]: string }, opts?: { extend: boolean }) {
         if (mix == null) {
             return;
         }
         if (typeof mix === 'string') {
-            this.push(mix);
+            this.push(mix, opts);
             return;
         }
         if (Array.isArray(mix)) {
@@ -24,7 +24,7 @@ class DomainCookies {
             }
             let f = mix[0];
             if (typeof f === 'string') {
-                mix.forEach(str => this.push(str));
+                mix.forEach(str => this.push(str, opts));
                 return;
             }
             throw Error('Cookie models are not yet supported');
@@ -32,18 +32,22 @@ class DomainCookies {
 
         for (let key in mix) {
             let cookie = `${key}=${mix}`;
-            this.push(cookie);
+            this.push(cookie, opts);
         }
 
     }
     stringify () {
         return this.arr.map(x => `${x.key}=${x.value}`).join('; ');
     }
-    private push (str: string) {
+    private push (str: string, opts?: { extend: boolean }) {
         let arr = DomainCookies.parse(str);
         arr.forEach(cookie => {
             let i = this.arr.findIndex(x => x.key === cookie.key);
             if (i !== -1) {
+                if (opts && opts.extend) {
+                    // Skip existed cookie
+                    return;
+                }
                 this.arr[i] = cookie;
                 return;
             }
@@ -97,9 +101,10 @@ export class CookieContainer {
 
     addCookies(cookies: string | string[] | { [key: string]: string });
     addCookies(url: string, cookies: string | string[] | { [key: string]: string })
-    addCookies(mix: any, cookies?: string | string[] | { [key: string]: string }) {
+    addCookies(url: string, cookies: string | string[] | { [key: string]: string }, opts: { extend: boolean })
+    addCookies(mix: any, cookies?: string | string[] | { [key: string]: string }, opts?: { extend: boolean }) {
         let domain = 'global';
-        if (arguments.length === 2) {
+        if (arguments.length > 1) {
             let url = mix;
             domain = this.getDomain(url);
         } else {
@@ -109,7 +114,7 @@ export class CookieContainer {
         if (container == null) {
             container = this.domains[domain] = new DomainCookies(domain);
         }
-        container.add(cookies);
+        container.add(cookies, opts);
     }
     clearCookies () {
         this.domains = {};

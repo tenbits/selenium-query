@@ -55,24 +55,31 @@ export const NetworkDriver  = {
         let retryCount = 'retryCount' in config ? config.retryCount : 3;
         let retryTimeout = 'retryTimeout' in config ? config.retryTimeout : 1000;
 
-        if (config.cookies) {
-            $cookieContainer.addCookies(config.cookies);
-        }
         if (options.headers['Cookie']) {
-            $cookieContainer.addCookies(options.headers['Cookie']);
+            $cookieContainer.addCookies(url, options.headers['Cookie']);
         }
-
+        if (config.cookies) {
+            $cookieContainer.addCookies(url, config.cookies);
+        }
+        if (config.cookiesDefault) {
+            $cookieContainer.addCookies(url, config.cookiesDefault, { extend: true });
+        }
+        
         let cookies = $cookieContainer.getCookies(url);
         if (cookies) {
             options.headers['Cookie'] = cookies;
         }
         url = serializeUrl(url, config);
 
-        if (url.startsWith('http:')) {
-            options.agent = agents.http;
-        }
-        if (url.startsWith('https:')) {
-            options.agent = agents.https;
+        if (config.agent) {
+            options.agent = config.agent;
+        } else {
+            if (url.startsWith('http:')) {
+                options.agent = agents.http;
+            }
+            if (url.startsWith('https:')) {
+                options.agent = agents.https;
+            }
         }
 
         return new Promise(async (resolve, reject) => {
