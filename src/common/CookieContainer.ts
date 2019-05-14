@@ -55,22 +55,30 @@ class DomainCookies {
         });
     }    
     private static parse (cookies: string): ICookie[] {
-        let arr = [];
-        let rgx = /,/g
-        while (cookies !== '') {
-            let match = rgx.exec(cookies);
-            if (match == null) {
-                arr.push(cookies);
-                break;
-            }
-            let str = cookies.substring(0, match.index);
-            if (/Expires=[\w]{1,4}$/i.test(str)) {
-                continue;
-            }
-            arr.push(str);
-            cookies = cookies.substring(match.index + 1).trim();
+        let format = CookiesHelper.detectFormat(cookies);
+        if (format === 'key-values') {
+            return cookies.split(';').map(DomainCookies.parseSingle);
         }
-        return arr.map(DomainCookies.parseSingle);
+        if (format === 'set-cookie') {
+            // Comma Seperated cookies from `set-cookie` header
+            let arr = [];
+            let rgx = /,/g
+            while (cookies !== '') {
+                let match = rgx.exec(cookies);
+                if (match == null) {
+                    arr.push(cookies);
+                    break;
+                }
+                let str = cookies.substring(0, match.index);
+                if (/Expires=[\w]{1,4}$/i.test(str)) {
+                    continue;
+                }
+                arr.push(str);
+                cookies = cookies.substring(match.index + 1).trim();
+            }
+            return arr.map(DomainCookies.parseSingle);
+        }
+        throw new Error(`Unknown cookie format: ${format} for ${cookies}`);
     }
     private static parseSingle (cookie: string): ICookie {
         let i = cookie.indexOf('=');
@@ -91,6 +99,25 @@ class DomainCookies {
             value,
             rawOptions: cookie.substring(i)
         };
+    }
+}
+
+namespace CookiesHelper {
+    export function detectFormat (cookies: string): 'set-cookie' | 'key-values' {
+        let optionsRgx = /;\s*(Path|Domain|Expires|Max\-Age|Secure|HttpOnly)([=;]|$)/i;
+        let hasOptions = optionsRgx.test(cookies);
+        if (hasOptions) {
+            return 'set-cookie';
+        }
+
+        let commaIndex = cookies.indexOf(',');
+        let semicolonIndex = cookies.indexOf(';');
+        if (commaIndex > -1 && semicolonIndex === -1) {
+            // Has comma but not semicolon
+            return 'set-cookie';
+        }
+            
+        return 'key-values';
     }
 }
 

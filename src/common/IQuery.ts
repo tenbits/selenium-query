@@ -19,7 +19,7 @@ import { Deferred } from '../types/Deferred';
 export class IQueryCtx {
 	owner: IQuery<any>
     self: IQuery<any>
-    source: any
+    source: string
 	thener: (resolve, reject) => IQuery<any>
 	Ctor: new (mix?) => IQuery<any>
 	
