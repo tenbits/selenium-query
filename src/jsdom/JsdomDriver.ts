@@ -12,6 +12,9 @@ export interface IJsdomBuildConfig extends IBuildConfig {
 }
 
 export const JsdomDriver: IQueryStatics = {
+    fromHtml (html: string) {
+        return JsdomDriver.build({ html });
+    },
 	build(config: IJsdomBuildConfig): IQuery<Element> {
 		let html = config.html;
 		let jsdom = new JSDOM(html);

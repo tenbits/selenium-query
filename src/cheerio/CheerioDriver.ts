@@ -11,6 +11,9 @@ export interface ICheerioBuildConfig extends IBuildConfig {
 }
 
 export const CheerioDriver: IQueryStatics = {
+    fromHtml (html: string) {
+        return CheerioDriver.build({ html });
+    },
 	build(config: ICheerioBuildConfig): IQuery<CheerioElement> {
 		let html = config.html;
 		let el: any = CheerioUtils.fromHtml(html);		

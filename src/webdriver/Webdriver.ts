@@ -11,6 +11,9 @@ declare var scripts_fetchAsync: any;
 
 
 export const Webdriver: IQueryStatics = {
+    fromHtml (html, config?: ILoadConfig) {
+        return Webdriver.load(`data:text/html;charset=utf-8,${html}`, config);
+    },
 	build(config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
 
 		return driverPool
