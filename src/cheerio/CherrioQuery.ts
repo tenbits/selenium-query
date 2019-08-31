@@ -35,6 +35,10 @@ export class CherrioQuery extends IQuery<CheerioElement> {
         $(node).text(text);
         return dfr_resolve();
     }
+    htmlOuterGetFn (node: CheerioElement): Deferred<string>  {
+        
+        return dfr_resolve($.html(node));
+    }
     htmlGetFn (node: CheerioElement): Deferred<string>  {
         return dfr_resolve($(node).html());
     }

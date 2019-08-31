@@ -63,6 +63,9 @@ export class WebdriverQuery extends IQuery<IElement> {
     protected textSetFn (node: IElement, text: string): Deferred<void>  {
         return this.setField(node, 'textContent', text);
     }
+    protected htmlOuterGetFn (node: IElement): Deferred<string>  {
+        return this.getField(node, 'outerHTML');
+    }
     protected htmlGetFn (node: IElement): Deferred<string>  {
         return this.getField(node, 'innerHTML');
     }

@@ -34,6 +34,9 @@ export class JsdomQuery extends IQuery<Element> {
         node.textContent = text;
         return dfr_resolve();
     }
+    htmlOuterGetFn (node: Element): Deferred<string>  {
+        return dfr_resolve(node.outerHTML);
+    }
     htmlGetFn (node: Element): Deferred<string>  {
         return dfr_resolve(node.innerHTML);
     }
