@@ -24,6 +24,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
         protected toggleClassFn(node: IElement, name: string): Deferred<void>;
         protected textGetFn(node: IElement): Deferred<string>;
         protected textSetFn(node: IElement, text: string): Deferred<void>;
+        protected htmlOuterGetFn(node: IElement): Deferred<string>;
         protected htmlGetFn(node: IElement): Deferred<string>;
         protected htmlSetFn(node: IElement, text: string): Deferred<void>;
         protected appendFn(node: IElement, html: string): Deferred<void>;
@@ -216,7 +217,9 @@ declare module 'selenium-query/common/IQuery' {
         protected abstract textSetFn(node: TElement, text: string): Deferred<void>;
         html(): PromiseLike<string>;
         html(str: string): IQuery<TElement>;
+        outerHtml(): PromiseLike<string>;
         protected abstract htmlGetFn(node: TElement): Deferred<string>;
+        protected abstract htmlOuterGetFn(node: TElement): Deferred<string>;
         protected abstract htmlSetFn(node: TElement, text: string): Deferred<void>;
         append(html: string): IQuery<TElement>;
         protected abstract appendFn(node: TElement, html: string): Deferred<void>;
