@@ -89,15 +89,19 @@ export const NetworkDriver  = {
 
         return new Promise(async (resolve, reject) => {
             
-            let cached: Partial<NetworkResponse> = await <any> cache.get(url, config);
-            if (cached) {
-                resolve({
-                    status: cached.status,
-                    url: cached.url,
-                    headers: cached.headers,
-                    body: cached.body
-                });
-                return
+            try {
+                let cached: Partial<NetworkResponse> = await <any> cache.get(url, config);
+                if (cached) {
+                    resolve({
+                        status: cached.status,
+                        url: cached.url,
+                        headers: cached.headers,
+                        body: cached.body
+                    });
+                    return
+                } 
+            } catch (error) { 
+                // Not cached
             }
 
             let redirectCount = 0;
@@ -196,7 +200,6 @@ export const NetworkDriver  = {
                 }
 
                 cache.save(url, config, resp);
-
                 resolve(resp);
             }
         })
