@@ -12,6 +12,7 @@
 // import ./nodeDatasetRemove.es6
 // import ./nodeSelectTextRange.es6
 // import ./nodeSelectOption.es6
+// import ./nodeEventListener.es6
 // import ./class/add.es6
 // import ./class/remove.es6
 // import ./class/toggle.es6
@@ -20,3 +21,4 @@
 // import ./css/nodeCss.es6
 
 // import ./http/fetch.es6
+// import ./events/resource.es6

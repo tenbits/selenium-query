@@ -72,14 +72,17 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
     resolve(...args) {
         if (args.length !== 0) {
             let x = args[0];
-            if (x.then != null && x instanceof IQuery) {
+            if (x != null && x.then != null && x instanceof IQuery) {
                 let q = new x.ctx.Ctor(x);
                 args[0] = q;
             }
         }
         return super.resolve(...args);
     }
-
+    
+    wait (ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     //#region CssClass
     hasClass(name: string): PromiseLike<boolean> {
@@ -463,6 +466,21 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
     protected abstract setField(node: TElement, obj: any): Deferred<void>;
     protected abstract setField(node: TElement, field: string, val: any): Deferred<void>;
     protected abstract callField<T>(node: TElement, field: string, ...args): Deferred<T>;
+
+
+    on(type: string, cb: (el: TElement) => void) {
+        return async_each(this, (ctx, node) => this._onFn(node, type, cb));
+    }
+    off(type: string, cb: Function) {
+        return async_each(this, (ctx, node) => this._offFn(node, type, cb));
+    }
+    once(type: string, cb: (event: any) => void = null) {
+        return async_each(this, (ctx, node) => this._onOnceFn(node, type, cb));
+    }
+    
+    protected abstract _onFn(node: TElement, type: string, cb: Function): Promise<any>
+    protected abstract _onOnceFn(node: TElement, type: string, cb: Function): Promise<any>
+    protected abstract _offFn(node: TElement, type: string, cb: Function): Promise<any>
 
 }
 

@@ -83,9 +83,14 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
         protected setField(node: IElement, obj: any): Deferred<void>;
         protected setField(node: IElement, field: string, val: any): Deferred<void>;
         protected callField<T>(node: IElement, field: string, ...args: any[]): Deferred<T>;
+        protected _onFn(node: IElement, type: string, cb: Function): Promise<any>;
+        protected _offFn(node: IElement, type: string, cb?: Function): Promise<any>;
+        protected _onOnceFn(node: IElement, type: string, cb: Function): Promise<any>;
         manage(): IDriverManager;
         waitForPageLoad(): IQuery<any>;
-        waitForElement(selector: string): IQuery<any>;
+        waitForPageReady(): IQuery<any>;
+        waitForElement(selector: string): IQuery<IElement>;
+        waitForResource(selector: string): IQuery<IElement>;
         unlock(): void;
         static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any>;
@@ -197,6 +202,7 @@ declare module 'selenium-query/common/IQuery' {
         ensureSync(): IQuery<TElement>;
         ensureAsync(): IQuery<TElement>;
         resolve(...args: any[]): this;
+        wait(ms: any): Promise<{}>;
         hasClass(name: string): PromiseLike<boolean>;
         protected abstract hasClassFn(node: TElement, name: string): Deferred<boolean>;
         addClass(name: string): any;
@@ -338,6 +344,12 @@ declare module 'selenium-query/common/IQuery' {
         protected abstract setField(node: TElement, obj: any): Deferred<void>;
         protected abstract setField(node: TElement, field: string, val: any): Deferred<void>;
         protected abstract callField<T>(node: TElement, field: string, ...args: any[]): Deferred<T>;
+        on(type: string, cb: (el: TElement) => void): any;
+        off(type: string, cb: Function): any;
+        once(type: string, cb?: (event: any) => void): any;
+        protected abstract _onFn(node: TElement, type: string, cb: Function): Promise<any>;
+        protected abstract _onOnceFn(node: TElement, type: string, cb: Function): Promise<any>;
+        protected abstract _offFn(node: TElement, type: string, cb: Function): Promise<any>;
     }
 }
 

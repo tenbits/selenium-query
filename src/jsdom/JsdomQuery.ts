@@ -9,6 +9,16 @@ import { NetworkDriver } from '../fetch/NetworkDriver'
 
 export class JsdomQuery extends IQuery<Element> {
    
+    
+    protected _onFn(node: Element, type: string, cb: Function): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    protected _onOnceFn(node: Element, type: string, cb: Function): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    protected _offFn(node: Element, type: string, cb: Function): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
 
     hasClassFn (node: Element, name: string): Deferred<boolean> {
         return dfr_resolve(node.classList.contains(name));

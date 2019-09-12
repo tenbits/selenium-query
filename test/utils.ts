@@ -33,12 +33,15 @@ export default {
 			return
 		}
 	},
-	query: function (path, fn) {
+	query: function (path, cb?) {
 		return this
 			.driver
 			.get('file://' + __dirname + path)
-			.then(function () {
-				return fn(new SQuery(this.driver))
-			}.bind(this));
+			.then(() => {
+                let $ = new SQuery(this.driver);
+                cb && cb($);
+
+                return $;
+			});
 	}
 };

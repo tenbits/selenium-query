@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+    <head>
+        <script async  src='./foo.js'></script>
+    </head>
+	<body>
+        <button>Button</button>
+        
+        <script>
+            document.querySelector('button').addEventListener('click', function () {
+                console.log('Inner event listener: clicked');
+            }, false);
+
+            // setTimeout(function(){
+            //     var s = document.createElement('script');
+            //     s.async = true;
+            //     s.src = './foo.js';
+
+            //     document.body.appendChild(s);
+            // }, 2000)
+        </script>
+	</body>
+</html>

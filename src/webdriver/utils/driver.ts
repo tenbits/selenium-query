@@ -6,6 +6,7 @@ import { IQuery } from '../../common/IQuery'
 import { driverPool } from '../DriverPool'
 import { WebdriverQuery } from '../WebdriverQuery';
 import { class_Dfr } from 'atma-utils';
+import { node_toScript } from './node'
 
 export function loadUrl (driver: IDriver, url: string, config: ILoadConfig): Promise<IDriver> {
     return driver
@@ -54,9 +55,28 @@ export function ensureCookies(driver: IDriver, url: string, cookies: string, con
     });
 } 
 
+export function driver_evalAsync (el: IElement | IDriver | WebdriverQuery | any, mix: string | Function, ...args: any[]): IQuery<IElement> {
+    let set = WebdriverQuery.newAsync(void 0, el);
+    let script = node_toScript(mix);
+    let driver = driverPool.extractDriver(el as any);
+    if (driver == null) {
+        set.reject(new Error('Driver is not resolved.'));
+        return set;
+    }
+    driver
+        .executeAsyncScript(script, ...args)
+        .then((result) => {
+            set.resolve(Promise.resolve(result));
+        }, error => {
+            console.error('Unexpected browser error', error);
+            set.reject(error);
+        });
+    return set;
+}
+
 export function waitForElement (query: IQuery<IElement>, selector: string): IQuery<IElement> {
     let driver = driverPool.extractDriver(query as any);
-    let set = WebdriverQuery.newAsync(null, query);
+    let set = WebdriverQuery.newAsync(void 0, query);
     if (driver == null) {
         set.reject(new Error(`Driver not found in set`));
         return;
@@ -75,12 +95,12 @@ export function waitForElement (query: IQuery<IElement>, selector: string): IQue
     return set;
 }
 
-export function waitForPageLoad (query: IQuery<IElement>): IQuery<IElement> {
+export function waitForPageLoad (query: IQuery<IElement>, waitForState: 'complete' | 'interactive' = 'complete'): IQuery<IElement> {
     let driver = driverPool.extractDriver(query as any);
     let set = WebdriverQuery.newAsync(null, query);
     if (driver == null) {
         set.reject(new Error(`Driver not found in set`));
-        return;
+        return set;
     }
 
     let delay = WaitForPageLoad.delay();
@@ -88,7 +108,7 @@ export function waitForPageLoad (query: IQuery<IElement>): IQuery<IElement> {
 
     async_all([q, delay]).then(([query]) => {
         let awaiters = [
-            () => WaitForPageLoad.documentIsReady(driver, 5000),
+            () => WaitForPageLoad.documentState(driver, 5000, waitForState),
         ];
         if (query.length > 0 && query[0] !== driver) {
             /* If element is passed, listen also for the element to be destroyed on page unload */
@@ -114,7 +134,7 @@ namespace WaitForPageLoad {
         return dfr;
     }
 
-    export function documentIsReady (driver: IDriver, timeout: number) {
+    export function documentState(driver: IDriver, timeout: number, waitForState: 'complete' | 'interactive' = 'complete') {
         let dfr = new class_Dfr;
         waitForTrue(isReady, timeout).then(() => {
             dfr.resolve();
@@ -126,7 +146,10 @@ namespace WaitForPageLoad {
             return driver
                 .executeScript('return document.readyState')
                 .then(state => {
-                    return state === 'complete'
+                    if (waitForState === 'interactive') {
+                        return state === 'interactive' || state === 'complete';
+                    }
+                    return state === waitForState
                 });
         }
     }

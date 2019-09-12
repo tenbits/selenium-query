@@ -10,7 +10,7 @@ export function async_each<TElement>(query: IQuery<TElement>, fn: (ctx: IQuery<T
 	
 		const dfrs = map($base as TElement[], node => {
 			return fn($, node)
-		});		
+		}).filter(Boolean);		
 		_when(dfrs, () => {
 			$.resolve($)
 		});
@@ -106,13 +106,17 @@ export function async_getValueOf<TElement>(index: number, self: IQuery<TElement>
 			if (index >= ctx.length) {
 				resolve(null);
 				return;
-			}
+            }
+            
             let result = getter(ctx[index])
             if (is_Object(result) === false || is_Function(result.then) === false) {
                 resolve(result);
                 return; 
             }
-            result.then(resolve, error => {
+            result.then(function (val) {
+                debugger;
+                resolve(val);
+            }, error => {
 				console.error('Getter error', error);
 				resolve(null);
 			});

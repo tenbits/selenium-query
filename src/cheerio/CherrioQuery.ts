@@ -8,6 +8,16 @@ import { CheerioUtils } from './CheerioUtils';
 import * as $ from 'cheerio'
 
 export class CherrioQuery extends IQuery<CheerioElement> {
+    
+    protected _onFn(node: CheerioElement, type: string, cb: Function): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    protected _onOnceFn(node: CheerioElement, type: string, cb: Function): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
+    protected _offFn(node: CheerioElement, type: string, cb: Function): Promise<any> {
+        throw new Error('Method not implemented.');
+    }
    
 
     hasClassFn (node: CheerioElement, name: string): Deferred<boolean> {

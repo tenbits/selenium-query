@@ -1,5 +1,9 @@
 import Utils from './utils'
+
 UTest({
+    $config: {
+        timeout: 20000
+    },
 	$before () {
 		Utils.start();
 	},
@@ -37,5 +41,34 @@ UTest({
 					done();
 				});
 		});
-	}
+    },
+    'should listen for the event' (done) {
+        async function inner () {
+            
+            let $ = await Utils.query('/html/button.html');
+            await $.waitForPageReady();
+            
+            let fn = assert.await(function (event) {
+                eq_(event.type, 'click');
+                eq_(typeof event.x === 'number', true);
+                eq_(typeof event.x === 'number', true);
+                done();
+            });
+
+            let $button = await $.find('button');
+
+            await $button.once('click', fn);
+            await $button.click();
+        }
+
+        inner().then(null, error => console.log(error));
+    },
+    async '!should list for resource to be loaded' () {
+        let $ = await Utils.query('/html/button.html');
+        //await $.waitForPageReady();
+        await $.waitForResource(`script[src*="foo"]`);
+        
+        let x = await $.eval(() => window.foo);
+        eq_(x, 'Foo123');
+    }
 });
