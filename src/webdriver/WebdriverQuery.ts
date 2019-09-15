@@ -1,4 +1,4 @@
-import { node_eval, node_evalAsync } from './utils/node'
+import { node_eval, node_evalAsync, node_getDriver } from './utils/node'
 import { refs } from '../global'
 import { IElement, IDriver, IDriverManager } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
@@ -66,9 +66,17 @@ export class WebdriverQuery extends IQuery<IElement> {
         return this.setField(node, 'textContent', text);
     }
     protected htmlOuterGetFn (node: IElement): Deferred<string>  {
+        let driver = node_getDriver(node);
+        if (driver === <any> node) {
+            return driver.getPageSource() as any;
+        }
         return this.getField(node, 'outerHTML');
     }
     protected htmlGetFn (node: IElement): Deferred<string>  {
+        let driver = node_getDriver(node);
+        if (driver === <any> node) {
+            return driver.getPageSource() as any;
+        }
         return this.getField(node, 'innerHTML');
     }
     protected htmlSetFn (node: IElement, text: string): Deferred<void>  {

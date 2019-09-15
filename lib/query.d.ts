@@ -155,8 +155,9 @@ declare module 'selenium-query/common/IDriver' {
         executeScript<T>(script: string, ...var_args: any[]): Promise<T>;
         executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
         get(url: string): Promise<any>;
-        getCurrentUrl(): Promise<string>;
         manage(): IDriverManager;
+        getCurrentUrl(): Promise<string>;
+        getPageSource(): Promise<string>;
     }
     export interface IDriverManager {
         addCookie(cookie: any): Promise<void>;

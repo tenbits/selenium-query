@@ -25,6 +25,7 @@ export interface IBuildConfig {
 		folder?: string
         maxAge?: number
         compress?: boolean
+        //-ensureCacheAllowed? (resp): boolean
     }
     cacheQueryIgnore?: string[]
 	

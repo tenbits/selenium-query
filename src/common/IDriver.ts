@@ -4,8 +4,10 @@ export interface IDriver {
     executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
 
     get (url: string): Promise<any>
-    getCurrentUrl (): Promise<string>
     manage (): IDriverManager
+
+    getCurrentUrl (): Promise<string>
+    getPageSource (): Promise<string>
 }
 
 export interface IDriverManager {
@@ -27,5 +29,5 @@ export interface IElement {
     getCssValue (name: string): Promise<any>    
     getAttribute (name: string): Promise<any>
 
-    findElements({ css: string });    
+    findElements({ css: string });
 }

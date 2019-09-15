@@ -63,7 +63,7 @@ UTest({
 
         inner().then(null, error => console.log(error));
     },
-    async '!should list for resource to be loaded' () {
+    async 'should list for resource to be loaded' () {
         let $ = await Utils.query('/html/button.html');
         //await $.waitForPageReady();
         await $.waitForResource(`script[src*="foo"]`);
