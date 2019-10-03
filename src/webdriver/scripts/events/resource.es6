@@ -11,7 +11,7 @@ function scripts_waitForResourceCallback () {
         if (el == null) {
             let ms = Date.now() - start;
             if (ms > TIMEOUT) {
-                cb({ error: new Error(`Timeout`)})
+                cb({ error: new Error(`Resource wait timeout: ${selector} in ${TIMEOUT}ms`)})
                 return;
             }
             setTimeout(poll, 150);

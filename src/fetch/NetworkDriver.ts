@@ -212,7 +212,7 @@ export interface NetworkResponse {
     message?: string
 
     headers: {[name: string] : string }
-    url: string    
+    url: string
     body: any
 }
 
