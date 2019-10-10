@@ -5,6 +5,7 @@ import { CherrioQuery } from './CherrioQuery';
 import { NetworkDriver } from '../fetch/NetworkDriver';
 import { IQuery } from '../common/IQuery';
 import { CheerioUtils } from './CheerioUtils';
+import { SelectorsEx } from '../common/SelectorsEx';
 
 export interface ICheerioBuildConfig extends IBuildConfig {
 	html: string
@@ -42,7 +43,8 @@ export const CheerioDriver: IQueryStatics = {
 	},
 	unlockDriver(mix) {
         driver = null;
-	}
+    },
+    pseudo: SelectorsEx.pseudoFns
 };
 
 class CheerioDriverInner implements IDriver {

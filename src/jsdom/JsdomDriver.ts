@@ -5,6 +5,7 @@ import { JsdomQuery } from './JsdomQuery';
 import { NetworkDriver } from '../fetch/NetworkDriver';
 import { JSDOM } from 'jsdom'
 import { IQuery } from '../common/IQuery';
+import { SelectorsEx } from '../common/SelectorsEx';
 
 export interface IJsdomBuildConfig extends IBuildConfig {
 	html?: string,
@@ -62,6 +63,7 @@ export const JsdomDriver: IQueryStatics = {
 	},
 	unlockDriver(mix) {
         throw new Error('JSDOM does not support driver');
-	}
+	},
+    pseudo: SelectorsEx.pseudoFns
 };
 

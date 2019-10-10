@@ -5,6 +5,7 @@ import { class_Dfr, is_ArrayLike } from "atma-utils";
 import { IBuildConfig, ISettings, ILoadConfig } from "../common/IConfig";
 import { WebdriverQuery } from "./WebdriverQuery";
 import { IQueryStatics } from "../common/IQueryStatics"
+import { SelectorsEx } from '../common/SelectorsEx';
 
 declare var process: any;
 declare var scripts_fetchAsync: any;
@@ -74,6 +75,7 @@ export const Webdriver: IQueryStatics = {
             );
 
         return <Promise<T>> <any> dfr;
-    }
+    },
+    pseudo: SelectorsEx.pseudoFns
 };
 
