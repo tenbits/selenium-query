@@ -15,6 +15,7 @@ import { each } from '../utils/arr';
 
 
 import { Deferred } from '../types/Deferred';
+import { SelectorsEx } from './SelectorsEx';
 
 
 export class IQueryCtx {
@@ -417,7 +418,10 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
     //#endregion
     //#region Traverse
     find(sel: string): IQuery<TElement> {
-        return async_traverse(this, (node: TElement) => this.findFn(node, sel));
+        return SelectorsEx.find(this, sel, (el, sel) => {
+            return async_traverse(el, (node: TElement) => this.findFn(node, sel));
+        }) as any as IQuery<TElement>;
+        //return async_traverse(this, (node: TElement) => this.findFn(node, sel));
     }
     protected abstract findFn(node: TElement, selector: string): Deferred<TElement[]>
 
@@ -454,7 +458,7 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
     }
     protected abstract childrenFn(node: TElement, sel?: string): Promise<TElement[]>;
 
-    next(sel: string): IQuery<TElement> {
+    next(sel?: string): IQuery<TElement> {
         return async_traverse(this, node => {
             return this.nextFn(node, sel);
         });
@@ -481,7 +485,6 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
     protected abstract _onFn(node: TElement, type: string, cb: Function): Promise<any>
     protected abstract _onOnceFn(node: TElement, type: string, cb: Function): Promise<any>
     protected abstract _offFn(node: TElement, type: string, cb: Function): Promise<any>
-
 }
 
 namespace Arr {

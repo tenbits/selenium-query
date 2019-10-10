@@ -1,6 +1,9 @@
 import Utils from './utils'
 
 UTest({
+    $config: {
+        timeout: 10000
+    },
 	$before () {
 		Utils.start();
 	},
@@ -18,7 +21,7 @@ UTest({
 		});
 	},
 	'filter' (done) {
-		return Utils.query('/html/foo.html', $ => {
+		Utils.query('/html/foo.html', $ => {
 			$
 				.find('.foo')
 				.done($ => {
@@ -32,7 +35,7 @@ UTest({
 		});
 	},
 	'parent' (done) {
-		return Utils.query('/html/foo.html', $ => {
+		Utils.query('/html/foo.html', $ => {
 			$
 				.find('.foo > span')
 				.parent()
@@ -46,7 +49,7 @@ UTest({
 		})
 	},
 	'closest' (done) {
-		return Utils.query('/html/foo.html', $ => {
+		Utils.query('/html/foo.html', $ => {
 			$
 				.find('.foo > span')
 				.closest('body')
@@ -62,7 +65,7 @@ UTest({
 	},
 	'children': {
 		'should get all children' (done) {
-			return Utils.query('/html/foo.html', $ => {
+			Utils.query('/html/foo.html', $ => {
 				$
 					.find('body')
 					.children()
@@ -73,7 +76,7 @@ UTest({
 			})
 		},
 		'should filter children' (done) {
-			return Utils.query('/html/foo.html', $ => {
+			Utils.query('/html/foo.html', $ => {
 				$
 					.find('body')
 					.children('section')
@@ -86,34 +89,28 @@ UTest({
 	},
 	'next': {
 		'should get direct next element' (done) {
-			return Utils.query('/html/foo.html', $ => {
+			Utils.query('/html/foo.html', $ => {
 				$
 					.find('body > span')
-					.done($ => eq_($.length, 1))
+					.done($ => {
+                        eq_($.length, 1);
+                    })
 					.next()
 					.done($ => {
-						eq_($.length, 1);
-						return done();
-						$[0].getTagName().then(x => {
-							eq_(x, 'section');
-							done();
-						});
+                        eq_($.length, 1);
+                        done();
 					})
 			})
 		},
 		'should filter children' (done) {
-			return Utils.query('/html/foo.html', $ => {
-				$
+            Utils.query('/html/foo.html', $ => {
+            	$
 					.find('body > span')
 					.done($ => eq_($.length, 1))
 					.next('footer')
 					.done($ => {
 						eq_($.length, 1);
-						return done();
-						$[0].getTagName().then(x => {
-							eq_(x, 'footer');
-							done();
-						});
+                        done();
 					})
 			})
 		},

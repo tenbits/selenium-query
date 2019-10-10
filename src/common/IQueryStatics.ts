@@ -1,6 +1,7 @@
 import { IBuildConfig, ISettings, ILoadConfig } from "./IConfig";
 import { IDriver } from "./IDriver";
 import { IQuery } from "./IQuery";
+import { IPseudoSelectorFn } from './SelectorsEx';
 
 export interface IQueryStatics {
     fromHtml(html: string): IQuery<any>
@@ -9,5 +10,6 @@ export interface IQueryStatics {
 	unlockDriver (mix);
 	fetch <T> (url: string, config: ILoadConfig, setts?: ISettings): Promise<T>;
 
+    pseudo: { [key: string]: IPseudoSelectorFn } 
 	[key: string]: any
 }

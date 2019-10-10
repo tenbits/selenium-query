@@ -12,6 +12,7 @@ import { NetworkDriver } from '../fetch/NetworkDriver'
 import { waitForPageLoad, waitForElement, driver_evalAsync } from './utils/driver';
 import { DefaultConfig } from './SeleniumDriver';
 import { WebdriverEventsPoll } from './WebdriverEventsPoll';
+import { SelectorsEx } from '../common/SelectorsEx'
 
 declare var scripts_nodeClassHas: any;
 declare var scripts_nodeClassAdd: any;
@@ -368,6 +369,8 @@ export class WebdriverQuery extends IQuery<IElement> {
     static cheerio = CheerioDriver
     static jsdom = JsdomDriver
     static network = NetworkDriver
+
+    static pseudo = SelectorsEx.pseudoFns
 }
 
 
