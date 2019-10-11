@@ -131,7 +131,6 @@ export const NetworkDriver  = {
                         if (setCookie) {
                             $cookieContainer.addCookies(url, setCookie);
                         }
-
                         if (res.status === 301 || res.status === 302) {
                             let cookies = $cookieContainer.getCookies(url);
                             if (cookies) {
@@ -154,9 +153,8 @@ export const NetworkDriver  = {
                                 return;
                             }
                         }
-                        
                         try {
-                            await onComplete(res);                    
+                            await onComplete(res);
                         } catch (error) {
                             reject(error);
                         }
@@ -194,8 +192,11 @@ export const NetworkDriver  = {
                     body
                 };
                 if (errored) {
-                    resp.message = `Request failed ${res.status} for ${res.url}`;
-                    reject(resp);
+                    let error: Error & any = new Error(`Request for ${res.url} failed with ${res.status}`);
+                    error.status = res.status;
+                    error.body = res.body;
+                    error.headers = res.headers;
+                    reject(error);
                     return;
                 }
 
