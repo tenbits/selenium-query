@@ -114,7 +114,6 @@ export function async_getValueOf<TElement>(index: number, self: IQuery<TElement>
                 return; 
             }
             result.then(function (val) {
-                debugger;
                 resolve(val);
             }, error => {
 				console.error('Getter error', error);
