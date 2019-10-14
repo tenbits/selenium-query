@@ -3,7 +3,7 @@ import * as https from 'https'
 import * as http from 'http'
 
 import { ILoadConfig } from "../common/IConfig";
-import { cookieContainer } from '../common/CookieContainer'
+import { cookieContainer, CookieContainer } from '../common/CookieContainer'
 import { cache } from './Cache'
 
 
@@ -40,173 +40,12 @@ export const NetworkDriver  = {
         cache.remove(url, config);
     },
     load (url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
-        let options: FetchOptions = {
-            headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),
-            method: config.method,
-            body: config.body,
-            follow: config.follow,
-            onRedirect (data) {
-                if (data.prev.startsWith('http:') && data.url.includes('https:')) {
-                    data.opts.agent = agents.https;
-                }
-            }
-        };
-        let $cookieContainer = config.cookieContainer || cookieContainer;
-        let retryCount = 'retryCount' in config ? config.retryCount : 3;
-        let retryTimeout = 'retryTimeout' in config ? config.retryTimeout : 1000;
+        let worker = new RequestWorker(url, config);
 
-        if (options.headers['Cookie']) {
-            $cookieContainer.addCookies(url, options.headers['Cookie']);
-        }
-        if (config.cookies) {
-            $cookieContainer.addCookies(url, config.cookies);
-        }
-        if (config.cookiesDefault) {
-            $cookieContainer.addCookies(url, config.cookiesDefault, { extend: true });
-        }
-        
-        let cookies = $cookieContainer.getCookies(url);
-        if (cookies) {
-            options.headers['Cookie'] = cookies;
-        }
-        url = serializeUrl(url, config);
-
-        if (config.agent) {
-            options.agent = config.agent;
-        } else {
-            if (url.startsWith('http:')) {
-                options.agent = agents.http;
-            }
-            if (url.startsWith('https:')) {
-                options.agent = agents.https;
-            }
-        }
-        if (config.httpsProxy) {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-            const HttpsProxyAgent = require('https-proxy-agent');
-            options.agent = new HttpsProxyAgent(config.httpsProxy)
-        }
-
-        return new Promise(async (resolve, reject) => {
-            
-            try {
-                let cached: Partial<NetworkResponse> = await <any> cache.get(url, config);
-                if (cached) {
-                    resolve({
-                        status: cached.status,
-                        url: cached.url,
-                        headers: cached.headers,
-                        body: cached.body
-                    });
-                    return
-                } 
-            } catch (error) { 
-                // Not cached
-            }
-
-            let redirectCount = 0;
-            let redirectMax = options.follow == null ? 10 : options.follow;
-            options.redirect = 'manual';
-
-            doFetch (url, options);
-
-            function doFetch (url, options) {
-                fetch(url, options)
-                    .then(async (res) => {
-                        let errored = res.status >= 400;
-                        if (errored && --retryCount > 0) {
-                            switch (res.status) {
-                                case 404:
-                                case 401:
-                                case 403:
-                                    break;
-                                default: {
-                                    console.log(`Retry ${retryCount} for [${options.method}] ${url} as got ${res.status}`)
-                                    setTimeout(() => doFetch(url, options), retryTimeout);                                
-                                    return;
-                                }
-                            }                                                        
-                        }
-                        let setCookie = res.headers.get('set-cookie');
-                        if (setCookie) {
-                            $cookieContainer.addCookies(url, setCookie);
-                        }
-                        if (res.status === 301 || res.status === 302) {
-                            let cookies = $cookieContainer.getCookies(url);
-                            if (cookies) {
-                                options.headers['Cookie'] = cookies;
-                            }
-                            var location = res.headers.get('location');
-                            if (!location) {
-                                throw new Error('Location not present');
-                            }
-                            if (++redirectCount < redirectMax) {
-                                options.method = 'GET';
-                                options.body = null;
-                                if (options.headers) {
-                                    delete options.headers['Content-Type'];
-                                    delete options.headers['content-type'];
-                                    delete options.headers['Content-Length'];
-                                    delete options.headers['content-length'];
-                                }
-                                doFetch(location, options);
-                                return;
-                            }
-                        }
-                        try {
-                            await onComplete(res);
-                        } catch (error) {
-                            reject(error);
-                        }
-                    })
-                    .catch(reject)
-            }
-            async function onComplete (res) {
-                let errored = res.status >= 400;
-                let typeEnum = 'buffer';
-                let contentType = res.headers.get('content-type');
-                if (contentType && contentType.includes('json')) {
-                    typeEnum = 'json';
-                }
-                if (contentType && contentType.includes('text')) {
-                    typeEnum = 'text';
-                }
-                let body: any = null;
-                switch (typeEnum) {
-                    case 'text':
-                        body = await res.text();
-                        break;
-                    case 'json':
-                        body = await res.json();
-                        break;
-                    case 'buffer':
-                        let arr = await res.arrayBuffer();
-                        body = Buffer.from(arr);
-                        break;
-                }
-
-                let resp: NetworkResponse = {
-                    status: res.status,
-                    headers: readAllHeaders(res.headers),
-                    url: res.url,
-                    body
-                };
-                if (errored) {
-                    let error: Error & any = new Error(`Request for ${res.url} failed with ${res.status}`);
-                    error.status = res.status;
-                    error.body = res.body;
-                    error.headers = res.headers;
-                    reject(error);
-                    return;
-                }
-
-                cache.save(url, config, resp);
-                resolve(resp);
-            }
-        })
-        
+        return worker.load();
     }
 }
+
 
 export interface NetworkResponse {
     status: number
@@ -248,4 +87,198 @@ function readAllHeaders (headers) {
         obj[key] = value;
     }
     return obj;
+}
+
+
+class RequestWorker {
+    private options: FetchOptions;
+    private cookieContainer: CookieContainer
+    private retryCount: number;
+    private retryTimeout: number;
+    private redirectCount: number;
+
+    public redirectIndex = 0;
+    public retryIndex = 0;
+
+    /** Current URL (handles redirects) */
+    private location: string;
+    
+    constructor (private url: string, private config: ILoadConfig = {}) {
+        this.options = {
+            headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),
+            method: config.method,
+            body: config.body,
+            follow: config.follow,
+            onRedirect (data) {
+                if (data.prev.startsWith('http:') && data.url.includes('https:')) {
+                    data.opts.agent = agents.https;
+                }
+            }
+        };
+        this.cookieContainer = config.cookieContainer || cookieContainer;
+        this.retryCount = 'retryCount' in config ? config.retryCount : 3;
+        this.retryTimeout = 'retryTimeout' in config ? config.retryTimeout : 1000;
+        
+
+        if (this.options.headers['Cookie']) {
+            this.cookieContainer.addCookies(url, this.options.headers['Cookie']);
+        }
+        if (config.cookies) {
+            this.cookieContainer.addCookies(url, config.cookies);
+        }
+        if (config.cookiesDefault) {
+            this.cookieContainer.addCookies(url, config.cookiesDefault, { extend: true });
+        }
+        
+        let cookies = this.cookieContainer.getCookies(url);
+        if (cookies) {
+            this.options.headers['Cookie'] = cookies;
+        }
+        url = serializeUrl(url, config);
+
+        if (config.agent) {
+            this.options.agent = config.agent;
+        } else {
+            if (url.startsWith('http:')) {
+                this.options.agent = agents.http;
+            }
+            if (url.startsWith('https:')) {
+                this.options.agent = agents.https;
+            }
+        }
+        if (config.httpsProxy) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+            const HttpsProxyAgent = require('https-proxy-agent');
+            this.options.agent = new HttpsProxyAgent(config.httpsProxy)
+        }
+
+        this.redirectCount = this.options.follow == null ? 10 : this.options.follow;
+        this.options.redirect = 'manual';
+        this.location = url;
+    }
+
+
+    async load (): Promise<NetworkResponse> {
+        let cached = await this._fromCache();
+        if (cached) {
+            return cached;
+        }
+        return await this._fetch(this.location);
+    }
+
+
+    private async _fromCache (): Promise<NetworkResponse> {
+        try {
+            let cached: Partial<NetworkResponse> = await <any> cache.get(this.url, this.config);
+            if (cached) {
+                return {
+                    status: cached.status,
+                    url: cached.url,
+                    headers: cached.headers,
+                    body: cached.body
+                };
+            } 
+        } catch (error) { 
+            // Not cached
+        }
+
+        return null;
+    }
+    private async _handleResponse (res) {
+        let errored = res.status >= 400;
+        if (errored && --this.retryCount > 0) {
+            switch (res.status) {
+                case 404:
+                case 401:
+                case 403:
+                    break;
+                default: {
+                    console.log(`Retry ${this.retryCount} for [${this.options.method}] ${this.location} as got ${res.status}`);
+                    await wait(this.retryTimeout);
+                    return this._fetch(this.location);
+                }
+            }
+        }
+        let setCookie = res.headers.get('set-cookie');
+        if (setCookie) {
+            this.cookieContainer.addCookies(this.location, setCookie);
+        }
+        if (res.status === 301 || res.status === 302) {
+            let cookies = this.cookieContainer.getCookies(this.location);
+            if (cookies) {
+                this.options.headers['Cookie'] = cookies;
+            }
+            var location = res.headers.get('location');
+            if (!location) {
+                throw new Error('Location not present');
+            }
+            if (++this.redirectIndex < this.redirectCount) {
+                this.options.method = 'GET';
+                this.options.body = null;
+                if (this.options.headers) {
+                    delete this.options.headers['Content-Type'];
+                    delete this.options.headers['content-type'];
+                    delete this.options.headers['Content-Length'];
+                    delete this.options.headers['content-length'];
+                }
+                this.location = location;
+                return this._fetch(location);
+            }
+        }
+        return await this._handleCompletion(res);
+    }
+    private async _handleCompletion (res) {
+        let errored = res.status >= 400;
+        let typeEnum = 'buffer';
+        let contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('json')) {
+            typeEnum = 'json';
+        }
+        if (contentType && contentType.includes('text')) {
+            typeEnum = 'text';
+        }
+        let body: any = null;
+        switch (typeEnum) {
+            case 'text':
+                body = await res.text();
+                break;
+            case 'json':
+                body = await res.json();
+                break;
+            case 'buffer':
+                let arr = await res.arrayBuffer();
+                body = Buffer.from(arr);
+                break;
+        }
+    
+        let resp: NetworkResponse = {
+            status: res.status,
+            headers: readAllHeaders(res.headers),
+            url: res.url,
+            body
+        };
+        if (errored) {
+            let error: Error & any = new Error(`Request for ${res.url} failed with ${res.status}`);
+            error.status = res.status;
+            error.body = res.body;
+            error.headers = res.headers;
+            throw error;
+        }
+    
+        cache.save(this.location, this.config, resp);
+        return resp;
+    }
+
+    private async _fetch (url: string): Promise<NetworkResponse>  {
+        let res = await fetch(url, this.options);
+
+        return this._handleResponse(res);
+    }
+}
+
+
+function wait (ms) {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(), ms);
+    })
 }

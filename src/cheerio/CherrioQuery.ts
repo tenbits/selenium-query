@@ -50,7 +50,7 @@ export class CherrioQuery extends IQuery<CheerioElement> {
         return dfr_resolve($.html(node));
     }
     htmlGetFn (node: CheerioElement): Deferred<string>  {
-        return dfr_resolve($(node).html());
+        return dfr_resolve(CheerioUtils.fromNode(node).html());
     }
     htmlSetFn (node: CheerioElement, text: string): Deferred<void>  {
         $(node).html(text);
