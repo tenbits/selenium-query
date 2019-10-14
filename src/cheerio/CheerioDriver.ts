@@ -80,7 +80,9 @@ class CheerioDriverInner implements IDriver {
 					query.add($el);
 					query.resolve(query);
 				}, 
-				error => query.reject(error)
+				error => {
+                    query.reject(error)
+                }
 			);
 
 		return query as any as Promise<any>;

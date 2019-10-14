@@ -47,7 +47,9 @@ export const JsdomDriver: IQueryStatics = {
 					
 					query.resolve(query);
 				}, 
-				error => query.reject(error)
+				error => {
+                    query.reject(error)
+                }
 			);
 
 		return query;
