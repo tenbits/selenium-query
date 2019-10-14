@@ -27,12 +27,12 @@ export class IQueryCtx {
 
     newSync(arr?: any, parent?: IQuery<any>) {
         let query = new this.Ctor(arr);
-        query.ctx.owner = parent;
+        query.ctx.owner = parent || this.self;
         return query;
     }
     newAsync(arr?: any, parent?: IQuery<any>) {
         let query = new this.Ctor(arr);
-        query.ctx.owner = parent;
+        query.ctx.owner = parent || this.self;
         query.then = query.ctx.thener;
         return query;
     }

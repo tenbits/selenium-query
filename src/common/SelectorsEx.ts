@@ -14,7 +14,19 @@ export namespace SelectorsEx {
         pseudoFns[name] = fn;
     }
     
-    export async function find <TElement> (el: IQuery<TElement>, selector: string, find: (el: IQuery<TElement> , selector: string) => IQuery<TElement>)  {
+    export function find <TElement> (el: IQuery<TElement>, selector: string, find: (el: IQuery<TElement> , selector: string) => IQuery<TElement>)  {
+        let query = el.ctx.newAsync();
+        findInner(el, selector, find).then(
+            $ => {
+                query.resolve($);
+            },
+            error => {
+                query.reject(error)
+            });
+        return query;
+    }
+
+    async function findInner <TElement> (el: IQuery<TElement>, selector: string, find: (el: IQuery<TElement> , selector: string) => IQuery<TElement>)  {
         rgx_PSEUDO.lastIndex = -1;
 
         let $ = el;
@@ -40,8 +52,6 @@ export namespace SelectorsEx {
 
             let fn = pseudoFns[name];
             $ = await fn($, arg);
-
-            
         } while (selector.length > 0);
 
         if (selector.length > 0) {
@@ -50,3 +60,5 @@ export namespace SelectorsEx {
         return $;
     }
 }
+
+
