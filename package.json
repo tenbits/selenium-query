@@ -1,7 +1,7 @@
 {
     "name": "selenium-query",
     "description": "jQuery API for Selenium WebDriver/JSDom",
-    "version": "0.52.12",
+    "version": "0.52.13",
     "contributors": [],
     "main": "./lib/query.js",
     "types": "./lib/query.d.ts",
@@ -114,9 +114,10 @@
         "atma-class": "^1.1.83",
         "atma-io": "^1.2.6",
         "atma-utils": "^0.1.15",
-        "node-fetch": "^2.3.0",
         "cheerio": "^1.0.0-rc.2",
+        "encoding": "^0.1.12",
         "jsdom": "^12.0.0",
+        "node-fetch": "^2.3.0",
         "selenium-webdriver": "^3.4.0"
     }
 }

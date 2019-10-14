@@ -240,7 +240,7 @@ class RequestWorker {
         let body: any = null;
         switch (typeEnum) {
             case 'text':
-                body = await res.text();
+                body = await res.textConverted();
                 break;
             case 'json':
                 body = await res.json();
