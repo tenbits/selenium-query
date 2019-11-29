@@ -94,22 +94,36 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
         unlock(): void;
         static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any>;
-        static fetch(url: string, config?: IBuildConfig, setts?: ISettings): Promise<{}>;
+        static fetch(url: string, config?: IBuildConfig, setts?: ISettings): Promise<unknown>;
         static setDriver(driver: IDriver): void;
         static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
         static unlockDriver(mix: any): void;
         static newAsync(mix?: any, parent?: IQuery<IElement>): WebdriverQuery;
-        static cheerio: import("../src/common/IQueryStatics").IQueryStatics;
-        static jsdom: import("../src/common/IQueryStatics").IQueryStatics;
+        static cheerio: import("../common/IQueryStatics").IQueryStatics;
+        static jsdom: import("../common/IQueryStatics").IQueryStatics;
         static network: {
-            isCached(url: string, config?: import("../src/common/IConfig").ILoadConfig): boolean;
-            isCachedAsync(url: string, config?: import("../src/common/IConfig").ILoadConfig): Promise<boolean>;
+            isCached(url: string, config?: import("../common/IConfig").ILoadConfig): boolean;
+            isCachedAsync(url: string, config?: import("../common/IConfig").ILoadConfig): Promise<boolean>;
             clearCookies(): void;
-            clearCached(url: string, config?: import("../src/common/IConfig").ILoadConfig): void;
-            load(url: string, config?: import("../src/common/IConfig").ILoadConfig): Promise<import("../src/fetch/NetworkDriver").NetworkResponse>;
+            clearCached(url: string, config?: import("../common/IConfig").ILoadConfig): void;
+            load(url: string, config?: import("../common/IConfig").ILoadConfig): Promise<import("../fetch/NetworkDriver").NetworkResponse>;
+            getCookies(url?: string): string;
+            setCookies: {
+                (cookies: string | string[] | {
+                    [key: string]: string;
+                }): any;
+                (url: string, cookies: string | string[] | {
+                    [key: string]: string;
+                }): any;
+                (url: string, cookies: string | string[] | {
+                    [key: string]: string;
+                }, opts: {
+                    extend: boolean;
+                }): any;
+            };
         };
         static pseudo: {
-            [key: string]: import("../src/common/SelectorsEx").IPseudoSelectorFn<any>;
+            [key: string]: import("../common/SelectorsEx").IPseudoSelectorFn<any>;
         };
     }
 }
@@ -206,10 +220,10 @@ declare module 'selenium-query/common/IQuery' {
         ensureSync(): IQuery<TElement>;
         ensureAsync(): IQuery<TElement>;
         resolve(...args: any[]): this;
-        wait(ms: any): Promise<{}>;
+        wait(ms: any): Promise<unknown>;
         hasClass(name: string): PromiseLike<boolean>;
         protected abstract hasClassFn(node: TElement, name: string): Deferred<boolean>;
-        addClass(name: string): any;
+        addClass(name: string): IQuery<any>;
         protected abstract addClassFn(node: TElement, name: string): Deferred<void>;
         removeClass(name: string): IQuery<TElement>;
         protected abstract removeClassFn(node: TElement, name: string): Deferred<void>;
@@ -219,8 +233,8 @@ declare module 'selenium-query/common/IQuery' {
         eq(index: any): IQuery<any>;
         slice(start?: number, end?: number): IQuery<any>;
         each(fn: any): IQuery<any>;
-        map(fn: any): any;
-        toArray(): Deferred<{}>;
+        map(fn: any): IQuery<any>;
+        toArray(): Deferred<unknown>;
         text(): PromiseLike<string>;
         text(str: string): IQuery<TElement>;
         protected abstract textGetFn(node: TElement): Deferred<string>;
@@ -233,11 +247,11 @@ declare module 'selenium-query/common/IQuery' {
         protected abstract htmlSetFn(node: TElement, text: string): Deferred<void>;
         append(html: string): IQuery<TElement>;
         protected abstract appendFn(node: TElement, html: string): Deferred<void>;
-        prepend(html: string): any;
+        prepend(html: string): IQuery<any>;
         protected abstract prependFn(node: TElement, html: string): Deferred<void>;
-        before(html: string): any;
+        before(html: string): IQuery<any>;
         protected abstract beforeFn(node: TElement, html: string): Deferred<void>;
-        after(html: string): any;
+        after(html: string): IQuery<any>;
         protected abstract afterFn(node: TElement, html: string): Deferred<void>;
         css(cssObj: {
             [key: string]: any;
@@ -348,9 +362,9 @@ declare module 'selenium-query/common/IQuery' {
         protected abstract setField(node: TElement, obj: any): Deferred<void>;
         protected abstract setField(node: TElement, field: string, val: any): Deferred<void>;
         protected abstract callField<T>(node: TElement, field: string, ...args: any[]): Deferred<T>;
-        on(type: string, cb: (el: TElement) => void): any;
-        off(type: string, cb: Function): any;
-        once(type: string, cb?: (event: any) => void): any;
+        on(type: string, cb: (el: TElement) => void): IQuery<any>;
+        off(type: string, cb: Function): IQuery<any>;
+        once(type: string, cb?: (event: any) => void): IQuery<any>;
         protected abstract _onFn(node: TElement, type: string, cb: Function): Promise<any>;
         protected abstract _onOnceFn(node: TElement, type: string, cb: Function): Promise<any>;
         protected abstract _offFn(node: TElement, type: string, cb: Function): Promise<any>;

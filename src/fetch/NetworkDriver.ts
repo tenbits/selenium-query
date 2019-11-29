@@ -43,7 +43,13 @@ export const NetworkDriver  = {
         let worker = new RequestWorker(url, config);
 
         return worker.load();
-    }
+    },
+    getCookies (url?: string) {
+        return cookieContainer.getCookies(url);
+    },
+    setCookies: <typeof cookieContainer.addCookies> <any> ((...args) => {
+        cookieContainer.addCookies.apply(cookieContainer, args);
+    })
 }
 
 
