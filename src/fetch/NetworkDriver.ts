@@ -5,6 +5,8 @@ import * as http from 'http'
 import { ILoadConfig } from "../common/IConfig";
 import { cookieContainer, CookieContainer } from '../common/CookieContainer'
 import { cache } from './Cache'
+import { is_rawObject } from 'atma-utils';
+import { Body } from './Body';
 
 
 const DefaultOptions = {
@@ -156,6 +158,9 @@ class RequestWorker {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
             const HttpsProxyAgent = require('https-proxy-agent');
             this.options.agent = new HttpsProxyAgent(config.httpsProxy)
+        }
+        if (config.body != null && is_rawObject(config.body)) {
+            Body.handleAsRawObject(this.options);
         }
 
         this.redirectCount = this.options.follow == null ? 10 : this.options.follow;

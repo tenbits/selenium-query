@@ -13,118 +13,122 @@ declare module 'selenium-query' {
 }
 
 declare module 'selenium-query/webdriver/WebdriverQuery' {
-    import { IElement, IDriver, IDriverManager } from 'selenium-query/common/IDriver';
+    import { IPseudoSelectorFn } from 'selenium-query/common/SelectorsEx'; 
+     import { NetworkResponse } from 'selenium-query/fetch/NetworkDriver'; 
+     import { ILoadConfig } from 'selenium-query/common/IConfig'; 
+     import { IQueryStatics } from 'selenium-query/common/IQueryStatics'; 
+     import { IElement, IDriver, IDriverManager } from 'selenium-query/common/IDriver';
     import { Deferred } from 'selenium-query/types/Deferred';
     import { IQuery } from 'selenium-query/common/IQuery';
     import { IBuildConfig, ISettings } from 'selenium-query/common/IConfig';
     export class WebdriverQuery extends IQuery<IElement> {
-        protected hasClassFn(node: IElement, name: string): Deferred<boolean>;
-        protected addClassFn(node: IElement, name: string): Deferred<void>;
-        protected removeClassFn(node: IElement, name: string): Deferred<void>;
-        protected toggleClassFn(node: IElement, name: string): Deferred<void>;
-        protected textGetFn(node: IElement): Deferred<string>;
-        protected textSetFn(node: IElement, text: string): Deferred<void>;
-        protected htmlOuterGetFn(node: IElement): Deferred<string>;
-        protected htmlGetFn(node: IElement): Deferred<string>;
-        protected htmlSetFn(node: IElement, text: string): Deferred<void>;
-        protected appendFn(node: IElement, html: string): Deferred<void>;
-        protected prependFn(node: IElement, html: string): Deferred<void>;
-        protected beforeFn(node: IElement, html: string): Deferred<void>;
-        protected afterFn(node: IElement, html: string): Deferred<void>;
-        protected cssGet(node: IElement, prop: string): Promise<any>;
-        protected cssSet(node: IElement, css: {
-            [key: string]: any;
-        }): Deferred<void>;
-        protected heightGetFn(node: IElement): Promise<number>;
-        protected widthGetFn(node: IElement): Promise<number>;
-        protected innerHeightFn(node: IElement): Promise<number>;
-        protected innerWidthFn(node: IElement): Promise<number>;
-        protected getBoundingClientRect(node: IElement): Promise<{
-            top: number;
-            left: number;
-            width: number;
-            height: number;
-        }>;
-        protected getPosition(node: IElement): Promise<{
-            top: number;
-            left: number;
-        }>;
-        protected scrollTopGetFn(node: IElement): Promise<number>;
-        protected scrollTopSetFn(node: IElement, scroll: number): Deferred<void>;
-        protected scrollLeftGetFn(node: IElement): Promise<number>;
-        protected scrollLeftSetFn(node: IElement, scroll: number): Deferred<void>;
-        protected evalFn(node: IElement, mix: Function | string, ...args: any[]): Promise<any>;
-        protected clickFn(node: IElement): Promise<void>;
-        protected triggerFn(node: IElement, type: string, ...args: any[]): Promise<void>;
-        protected selectFn(node: IElement, ...args: any[]): Promise<any>;
-        protected focusFn(node: IElement): Promise<void>;
-        protected blurFn(node: IElement): Promise<void>;
-        protected sendKeysFn(node: IElement, mix: any): Promise<void>;
-        protected typeFn(node: IElement, str: string): Promise<void>;
-        protected pressFn(node: IElement, str: string): Promise<void>;
-        protected removeFn(node: IElement): Promise<void>;
-        protected attrGetFn(node: IElement, prop: string): Promise<any>;
-        protected attrSetFn(node: IElement, attr: {
-            [key: string]: any;
-        }): Deferred<void>;
-        protected valGetFn(node: IElement): Promise<any>;
-        protected valSetFn(node: IElement, value: any): Deferred<void>;
-        protected dataGetFn(node: IElement, key: string): Promise<any>;
-        protected dataSetFn(node: IElement, data: object): Deferred<void>;
-        protected propGetFn(node: IElement, key: string): Promise<any>;
-        protected propSetFn(node: IElement, data: object): Deferred<void>;
-        protected findFn(node: IElement, selector: string): Deferred<IElement[]>;
-        protected matchesFn(node: IElement, selector: string): Promise<boolean>;
-        protected parentFn(node: IElement): Deferred<IElement>;
-        protected closestFn(node: IElement, sel: string): Promise<IElement>;
-        protected childrenFn(node: IElement, sel?: string): Promise<IElement[]>;
-        protected nextFn(node: IElement, sel?: string): Promise<IElement>;
-        protected getField<T>(node: IElement, field: string): Deferred<T>;
-        protected setField(node: IElement, obj: any): Deferred<void>;
-        protected setField(node: IElement, field: string, val: any): Deferred<void>;
-        protected callField<T>(node: IElement, field: string, ...args: any[]): Deferred<T>;
-        protected _onFn(node: IElement, type: string, cb: Function): Promise<any>;
-        protected _offFn(node: IElement, type: string, cb?: Function): Promise<any>;
-        protected _onOnceFn(node: IElement, type: string, cb: Function): Promise<any>;
-        manage(): IDriverManager;
-        waitForPageLoad(): IQuery<any>;
-        waitForPageReady(): IQuery<any>;
-        waitForElement(selector: string): IQuery<IElement>;
-        waitForResource(selector: string): IQuery<IElement>;
-        unlock(): void;
-        static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
-        static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any>;
-        static fetch(url: string, config?: IBuildConfig, setts?: ISettings): Promise<unknown>;
-        static setDriver(driver: IDriver): void;
-        static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
-        static unlockDriver(mix: any): void;
-        static newAsync(mix?: any, parent?: IQuery<IElement>): WebdriverQuery;
-        static cheerio: import("../common/IQueryStatics").IQueryStatics;
-        static jsdom: import("../common/IQueryStatics").IQueryStatics;
-        static network: {
-            isCached(url: string, config?: import("../common/IConfig").ILoadConfig): boolean;
-            isCachedAsync(url: string, config?: import("../common/IConfig").ILoadConfig): Promise<boolean>;
-            clearCookies(): void;
-            clearCached(url: string, config?: import("../common/IConfig").ILoadConfig): void;
-            load(url: string, config?: import("../common/IConfig").ILoadConfig): Promise<import("../fetch/NetworkDriver").NetworkResponse>;
-            getCookies(url?: string): string;
-            setCookies: {
-                (cookies: string | string[] | {
-                    [key: string]: string;
-                }): any;
-                (url: string, cookies: string | string[] | {
-                    [key: string]: string;
-                }): any;
-                (url: string, cookies: string | string[] | {
-                    [key: string]: string;
-                }, opts: {
-                    extend: boolean;
-                }): any;
+            protected hasClassFn(node: IElement, name: string): Deferred<boolean>;
+            protected addClassFn(node: IElement, name: string): Deferred<void>;
+            protected removeClassFn(node: IElement, name: string): Deferred<void>;
+            protected toggleClassFn(node: IElement, name: string): Deferred<void>;
+            protected textGetFn(node: IElement): Deferred<string>;
+            protected textSetFn(node: IElement, text: string): Deferred<void>;
+            protected htmlOuterGetFn(node: IElement): Deferred<string>;
+            protected htmlGetFn(node: IElement): Deferred<string>;
+            protected htmlSetFn(node: IElement, text: string): Deferred<void>;
+            protected appendFn(node: IElement, html: string): Deferred<void>;
+            protected prependFn(node: IElement, html: string): Deferred<void>;
+            protected beforeFn(node: IElement, html: string): Deferred<void>;
+            protected afterFn(node: IElement, html: string): Deferred<void>;
+            protected cssGet(node: IElement, prop: string): Promise<any>;
+            protected cssSet(node: IElement, css: {
+                    [key: string]: any;
+            }): Deferred<void>;
+            protected heightGetFn(node: IElement): Promise<number>;
+            protected widthGetFn(node: IElement): Promise<number>;
+            protected innerHeightFn(node: IElement): Promise<number>;
+            protected innerWidthFn(node: IElement): Promise<number>;
+            protected getBoundingClientRect(node: IElement): Promise<{
+                    top: number;
+                    left: number;
+                    width: number;
+                    height: number;
+            }>;
+            protected getPosition(node: IElement): Promise<{
+                    top: number;
+                    left: number;
+            }>;
+            protected scrollTopGetFn(node: IElement): Promise<number>;
+            protected scrollTopSetFn(node: IElement, scroll: number): Deferred<void>;
+            protected scrollLeftGetFn(node: IElement): Promise<number>;
+            protected scrollLeftSetFn(node: IElement, scroll: number): Deferred<void>;
+            protected evalFn(node: IElement, mix: Function | string, ...args: any[]): Promise<any>;
+            protected clickFn(node: IElement): Promise<void>;
+            protected triggerFn(node: IElement, type: string, ...args: any[]): Promise<void>;
+            protected selectFn(node: IElement, ...args: any[]): Promise<any>;
+            protected focusFn(node: IElement): Promise<void>;
+            protected blurFn(node: IElement): Promise<void>;
+            protected sendKeysFn(node: IElement, mix: any): Promise<void>;
+            protected typeFn(node: IElement, str: string): Promise<void>;
+            protected pressFn(node: IElement, str: string): Promise<void>;
+            protected removeFn(node: IElement): Promise<void>;
+            protected attrGetFn(node: IElement, prop: string): Promise<any>;
+            protected attrSetFn(node: IElement, attr: {
+                    [key: string]: any;
+            }): Deferred<void>;
+            protected valGetFn(node: IElement): Promise<any>;
+            protected valSetFn(node: IElement, value: any): Deferred<void>;
+            protected dataGetFn(node: IElement, key: string): Promise<any>;
+            protected dataSetFn(node: IElement, data: object): Deferred<void>;
+            protected propGetFn(node: IElement, key: string): Promise<any>;
+            protected propSetFn(node: IElement, data: object): Deferred<void>;
+            protected findFn(node: IElement, selector: string): Deferred<IElement[]>;
+            protected matchesFn(node: IElement, selector: string): Promise<boolean>;
+            protected parentFn(node: IElement): Deferred<IElement>;
+            protected closestFn(node: IElement, sel: string): Promise<IElement>;
+            protected childrenFn(node: IElement, sel?: string): Promise<IElement[]>;
+            protected nextFn(node: IElement, sel?: string): Promise<IElement>;
+            protected getField<T>(node: IElement, field: string): Deferred<T>;
+            protected setField(node: IElement, obj: any): Deferred<void>;
+            protected setField(node: IElement, field: string, val: any): Deferred<void>;
+            protected callField<T>(node: IElement, field: string, ...args: any[]): Deferred<T>;
+            protected _onFn(node: IElement, type: string, cb: Function): Promise<any>;
+            protected _offFn(node: IElement, type: string, cb?: Function): Promise<any>;
+            protected _onOnceFn(node: IElement, type: string, cb: Function): Promise<any>;
+            manage(): IDriverManager;
+            waitForPageLoad(): IQuery<any>;
+            waitForPageReady(): IQuery<any>;
+            waitForElement(selector: string): IQuery<IElement>;
+            waitForResource(selector: string): IQuery<IElement>;
+            unlock(): void;
+            static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+            static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any>;
+            static fetch(url: string, config?: IBuildConfig, setts?: ISettings): Promise<unknown>;
+            static setDriver(driver: IDriver): void;
+            static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+            static unlockDriver(mix: any): void;
+            static newAsync(mix?: any, parent?: IQuery<IElement>): WebdriverQuery;
+            static cheerio: IQueryStatics;
+            static jsdom: IQueryStatics;
+            static network: {
+                    isCached(url: string, config?: ILoadConfig): boolean;
+                    isCachedAsync(url: string, config?: ILoadConfig): Promise<boolean>;
+                    clearCookies(): void;
+                    clearCached(url: string, config?: ILoadConfig): void;
+                    load(url: string, config?: ILoadConfig): Promise<NetworkResponse>;
+                    getCookies(url?: string): string;
+                    setCookies: {
+                            (cookies: string | string[] | {
+                                    [key: string]: string;
+                            }): any;
+                            (url: string, cookies: string | string[] | {
+                                    [key: string]: string;
+                            }): any;
+                            (url: string, cookies: string | string[] | {
+                                    [key: string]: string;
+                            }, opts: {
+                                    extend: boolean;
+                            }): any;
+                    };
             };
-        };
-        static pseudo: {
-            [key: string]: import("../common/SelectorsEx").IPseudoSelectorFn<any>;
-        };
+            static pseudo: {
+                    [key: string]: IPseudoSelectorFn<any>;
+            };
     }
 }
 
@@ -165,6 +169,121 @@ declare module 'selenium-query/common/CookieContainer' {
     }
     export const cookieContainer: CookieContainer;
     export {};
+}
+
+declare module 'selenium-query/common/SelectorsEx' {
+    import { IQuery } from 'selenium-query/common/IQuery';
+    export interface IPseudoSelectorFn<TElement = any> {
+        ($: IQuery<TElement>, arg: string): IQuery<TElement>;
+    }
+    export namespace SelectorsEx {
+        const pseudoFns: {
+            [key: string]: IPseudoSelectorFn<any>;
+        };
+        function register(name: string, fn: IPseudoSelectorFn): void;
+        function find<TElement>(el: IQuery<TElement>, selector: string, find: (el: IQuery<TElement>, selector: string) => IQuery<TElement>): IQuery<any>;
+    }
+}
+
+declare module 'selenium-query/fetch/NetworkDriver' {
+    import { ILoadConfig } from "selenium-query/common/IConfig";
+    export const NetworkDriver: {
+        isCached(url: string, config?: ILoadConfig): boolean;
+        isCachedAsync(url: string, config?: ILoadConfig): Promise<boolean>;
+        clearCookies(): void;
+        clearCached(url: string, config?: ILoadConfig): void;
+        load(url: string, config?: ILoadConfig): Promise<NetworkResponse>;
+        getCookies(url?: string): string;
+        setCookies: {
+            (cookies: string | string[] | {
+                [key: string]: string;
+            }): any;
+            (url: string, cookies: string | string[] | {
+                [key: string]: string;
+            }): any;
+            (url: string, cookies: string | string[] | {
+                [key: string]: string;
+            }, opts: {
+                extend: boolean;
+            }): any;
+        };
+    };
+    export interface NetworkResponse {
+        status: number;
+        message?: string;
+        headers: {
+            [name: string]: string;
+        };
+        url: string;
+        body: any;
+    }
+}
+
+declare module 'selenium-query/common/IConfig' {
+    import { IQuery } from "selenium-query/common/IQuery";
+    import { CookieContainer } from 'selenium-query/common/CookieContainer';
+    export interface IBuildConfig {
+        name?: string;
+        args?: string[];
+        binaryPath?: string;
+        applyOptions?(builder: any, options: any): any;
+        setOptions?(builder: any, options: any): any;
+        setArguments?(options: any): any;
+        setBinaryPath?(options: any): any;
+        setLogging?(options: any): any;
+        headers?: {
+            [name: string]: string;
+        };
+        method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string;
+        query?: {
+            [name: string]: string;
+        };
+        body?: string | Buffer;
+        cookies?: {
+            [name: string]: string;
+        } | string[] | string;
+        cookiesDefault?: {
+            [name: string]: string;
+        } | string[] | string;
+        cache?: boolean | {
+            folder?: string;
+            maxAge?: number;
+            compress?: boolean;
+        };
+        cacheQueryIgnore?: string[];
+        /** Webdriver will load this url, or requested url, to set the cookies first */
+        cookieOrigin?: string;
+        cookieContainer?: CookieContainer;
+        [key: string]: any;
+    }
+    export interface ILoadConfig extends IBuildConfig {
+        retryCount?: number;
+        retryTimeout?: number;
+        follow?: number;
+        httpsProxy?: string;
+    }
+    export interface ISettings {
+        pool?: boolean | number;
+        query?: IQuery<any>;
+        opts?: any;
+    }
+}
+
+declare module 'selenium-query/common/IQueryStatics' {
+    import { IBuildConfig, ISettings, ILoadConfig } from "selenium-query/common/IConfig";
+    import { IQuery } from "selenium-query/common/IQuery";
+    import { IPseudoSelectorFn } from 'selenium-query/common/SelectorsEx';
+    export interface IQueryStatics {
+        fromHtml(html: string): IQuery<any>;
+        build(config: IBuildConfig, setts?: ISettings): any;
+        load(url: string, config: ILoadConfig, setts?: ISettings): IQuery<any>;
+        unlockDriver(mix: any): any;
+        fetch<T>(url: string, config: ILoadConfig, setts?: ISettings): Promise<T>;
+        pseudo: {
+            [key: string]: IPseudoSelectorFn;
+        };
+        [key: string]: any;
+    }
 }
 
 declare module 'selenium-query/common/IDriver' {
@@ -368,56 +487,6 @@ declare module 'selenium-query/common/IQuery' {
         protected abstract _onFn(node: TElement, type: string, cb: Function): Promise<any>;
         protected abstract _onOnceFn(node: TElement, type: string, cb: Function): Promise<any>;
         protected abstract _offFn(node: TElement, type: string, cb: Function): Promise<any>;
-    }
-}
-
-declare module 'selenium-query/common/IConfig' {
-    import { IQuery } from "selenium-query/common/IQuery";
-    import { CookieContainer } from 'selenium-query/common/CookieContainer';
-    export interface IBuildConfig {
-        name?: string;
-        args?: string[];
-        binaryPath?: string;
-        applyOptions?(builder: any, options: any): any;
-        setOptions?(builder: any, options: any): any;
-        setArguments?(options: any): any;
-        setBinaryPath?(options: any): any;
-        setLogging?(options: any): any;
-        headers?: {
-            [name: string]: string;
-        };
-        method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string;
-        query?: {
-            [name: string]: string;
-        };
-        body?: string | Buffer;
-        cookies?: {
-            [name: string]: string;
-        } | string[] | string;
-        cookiesDefault?: {
-            [name: string]: string;
-        } | string[] | string;
-        cache?: boolean | {
-            folder?: string;
-            maxAge?: number;
-            compress?: boolean;
-        };
-        cacheQueryIgnore?: string[];
-        /** Webdriver will load this url, or requested url, to set the cookies first */
-        cookieOrigin?: string;
-        cookieContainer?: CookieContainer;
-        [key: string]: any;
-    }
-    export interface ILoadConfig extends IBuildConfig {
-        retryCount?: number;
-        retryTimeout?: number;
-        follow?: number;
-        httpsProxy?: string;
-    }
-    export interface ISettings {
-        pool?: boolean | number;
-        query?: IQuery<any>;
-        opts?: any;
     }
 }
 
