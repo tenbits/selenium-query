@@ -121,6 +121,9 @@ $(driver)
     - [`build`](#cheerio-build)
     - [`load`](#cheerio-load)
 
+- :zap: [Network](#network)
+    - [`load`](#network-load)
+
 
 ##### `constructor(WebDriver|WebElement|Array<WebElement>|SQuery|Array<SQuery>)` <a name='constructor'></a>
 
@@ -346,8 +349,6 @@ interface IJsdomLoadParams {
 }
 ```
 
-
-
 ## Cheerio
 
 #### `static` `SQuery.cheerio.build(config: ICheerioParams):SQuery` <a name='cheerio-build'></a>
@@ -376,6 +377,48 @@ interface ICheerioLoadParams {
     cacheQueryIgnore?: string[]	
 	/** Webdriver will load this url, or requested url, to set the cookies first */
 	cookieOrigin?: string
+}
+```
+
+
+
+## Network
+
+HTTP Utils to load and submit data. Handles cache and cookies.
+
+#### `load` `SQuery.network.load(url: string, config: IHttpParams):IHttpResponse` <a name='network-load'></a>
+
+```typescript
+interface IHttpParams {
+    headers?: {[name: string] : string }
+    method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string
+    query?: {[name: string] : string }
+    body?: string | Buffer
+    
+    cookies?: {[name: string] : string } | string[] | string
+    cookiesDefault?: {[name: string] : string } | string[] | string
+    
+    cache?: boolean | {
+		folder?: string
+        maxAge?: number
+        compress?: boolean
+        //-ensureCacheAllowed? (resp): boolean
+    }
+    cacheQueryIgnore?: string[]
+
+    retryCount?: number
+    retryTimeout?: number
+    follow?: number
+    httpsProxy?: string
+    ignoreSSLErrors?: boolean
+}
+interface IHttpResponse {
+    status: number
+    message?: string
+
+    headers: {[name: string] : string }
+    url: string
+    body: any
 }
 ```
 

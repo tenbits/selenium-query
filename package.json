@@ -1,7 +1,7 @@
 {
     "name": "selenium-query",
     "description": "jQuery API for Selenium WebDriver/JSDom",
-    "version": "0.52.17",
+    "version": "0.52.18",
     "contributors": [],
     "main": "./lib/query.js",
     "types": "./lib/query.d.ts",
@@ -30,8 +30,9 @@
         "test": "atma test",
         "build": "app-bundler && npm run build-dts",
         "watch": "app-bundler --watch",
-        "build-dts": "tsc -p ts-types && atma custom ts-types/build-dts",
-        "release": "atma bump && npm run build && git add -A && git commit -am \"bump\" && git push && npm publish"
+        "build-dts": "tsc -p tsconfig-build.json && atma run tools/build-dts",
+        "-release": "atma bump && npm run build && git add -A && git commit -am \"bump\" && git push && npm publish",
+        "release": "echo \"run atma pub -m \"message\"\""
     },
     "keywords": [
         "dom selenium webdriver"

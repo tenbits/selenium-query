@@ -76,7 +76,10 @@ interface FetchOptions {
 }
 
 
-function serializeUrl (url: string, config: ILoadConfig = {}) {    
+function serializeUrl (url: string, config: ILoadConfig = {}) {
+    if (url.includes('://localhost')) {
+        url.replace('://localhost', '://127.0.0.1');
+    }
     if (config.query) {
         let q = '';
         for (let key in config.query) {
@@ -158,6 +161,9 @@ class RequestWorker {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
             const HttpsProxyAgent = require('https-proxy-agent');
             this.options.agent = new HttpsProxyAgent(config.httpsProxy)
+        }
+        if (config.ignoreSSLErrors) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         }
         if (config.body != null && is_rawObject(config.body)) {
             Body.handleAsRawObject(this.options);

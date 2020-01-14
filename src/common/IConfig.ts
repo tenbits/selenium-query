@@ -42,6 +42,7 @@ export interface ILoadConfig extends IBuildConfig {
     retryTimeout?: number
     follow?: number
     httpsProxy?: string
+    ignoreSSLErrors?: boolean
 }
 
 export interface ISettings {

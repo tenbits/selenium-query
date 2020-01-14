@@ -1,6 +1,6 @@
 {
 	"files": [
-    	"../src/SQueryLibrary.ts"
+    	"src/SQueryLibrary.ts"
   	],
 	"exclude": [
 		"node_modules",
