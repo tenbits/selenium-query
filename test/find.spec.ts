@@ -3,8 +3,8 @@ import SQuery from '../src/SQueryLibrary'
 UTest({
     async 'should support custom pseudo fns' () {
         
-        SQuery.pseudo.isA = function ($) {
-            return $.filter(async x => await x.attr('name') === 'A');
+        SQuery.pseudo.isA = async function (x) {
+            return await x.attr('name') === 'A';
         };
 
         
@@ -32,8 +32,8 @@ UTest({
         eq_(await iA.attr('name'), '2');
     },
     async 'should support text finder' () {
-        SQuery.pseudo.has_text = function ($, txt) {
-            return $.filter(async x => (await x.text()).includes(txt));
+        SQuery.pseudo.has_text = async function (x, txt) {
+            return (await x.text()).includes(txt);
         };
         let $ = SQuery.cheerio.fromHtml(`
             <div>

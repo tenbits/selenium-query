@@ -174,7 +174,7 @@ declare module 'selenium-query/common/CookieContainer' {
 declare module 'selenium-query/common/SelectorsEx' {
     import { IQuery } from 'selenium-query/common/IQuery';
     export interface IPseudoSelectorFn<TElement = any> {
-        ($: IQuery<TElement>, arg: string): IQuery<TElement>;
+        ($: IQuery<TElement>, arg: string): boolean | Promise<boolean>;
     }
     export namespace SelectorsEx {
         const pseudoFns: {

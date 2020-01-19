@@ -3,7 +3,7 @@ import { IQuery } from './IQuery';
 let rgx_PSEUDO = /:([\w]+)(\s*\(([^)]+)\))?/g;
 
 export interface IPseudoSelectorFn <TElement = any> {
-    ($: IQuery<TElement>, arg: string): IQuery<TElement>
+    ($: IQuery<TElement>, arg: string): boolean | Promise<boolean>
 }
 
 export namespace SelectorsEx {
@@ -30,7 +30,7 @@ export namespace SelectorsEx {
         rgx_PSEUDO.lastIndex = -1;
 
         let $ = el;
-    
+        
         do {
             let match = rgx_PSEUDO.exec(selector);
             if (match == null) {
@@ -50,8 +50,17 @@ export namespace SelectorsEx {
             }
             selector = selector.substring(match.index + match[0].length);
 
-            let fn = pseudoFns[name];
-            $ = await fn($, arg);
+            let $arr = el.ctx.newSync(null, el);
+            let filterFn = pseudoFns[name];
+            for (let i = 0 ; i < $.length; i++) {
+                let node = $[i];
+                let $el = $.ctx.newSync(node);
+                let result = await filterFn($el, arg);
+                if (result) {
+                    $arr.add(node);
+                }
+            }
+            $ = $arr;
         } while (selector.length > 0);
 
         if (selector.length > 0) {
