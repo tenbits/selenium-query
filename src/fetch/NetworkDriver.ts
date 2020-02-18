@@ -260,7 +260,12 @@ class RequestWorker {
                 body = await res.textConverted();
                 break;
             case 'json':
-                body = await res.json();
+                let str = await res.textConverted();
+                try {
+                    body = JSON.parse(str);
+                } catch (error) {
+                    throw new Error(`Invalid json response for ${res.url}: ${str}`);
+                }
                 break;
             case 'buffer':
                 let arr = await res.arrayBuffer();
