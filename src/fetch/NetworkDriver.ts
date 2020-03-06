@@ -7,6 +7,7 @@ import { cookieContainer, CookieContainer } from '../common/CookieContainer'
 import { cache } from './Cache'
 import { is_rawObject } from 'atma-utils';
 import { Body } from './Body';
+import { NetworkSpan, NetworkTracer } from './NetworkTracer';
 
 
 const DefaultOptions = {
@@ -16,7 +17,7 @@ const DefaultOptions = {
         'Accept-Language': 'en,ru;q=0.9,de;q=0.8,en-GB;q=0.7,uk;q=0.6,la;q=0.5',
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
-        'Referer': 'https://www.google.de/',        
+        'Referer': 'https://www.google.de/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
     }
 }
@@ -24,6 +25,7 @@ const agents = {
     http: new http.Agent({ keepAlive: true }),
     https: new https.Agent({ keepAlive: true }),
 };
+const tracer = new NetworkTracer();
 
 export const NetworkDriver  = {
     isCached (url: string, config: ILoadConfig = {}): boolean {        
@@ -51,7 +53,8 @@ export const NetworkDriver  = {
     },
     setCookies: <typeof cookieContainer.addCookies> <any> ((...args) => {
         cookieContainer.addCookies.apply(cookieContainer, args);
-    })
+    }),
+    tracer: tracer
 }
 
 
@@ -113,6 +116,7 @@ class RequestWorker {
 
     /** Current URL (handles redirects) */
     private location: string;
+    private span: NetworkSpan;
     
     constructor (private url: string, private config: ILoadConfig = {}) {
         this.options = {
@@ -176,8 +180,16 @@ class RequestWorker {
 
 
     async load (): Promise<NetworkResponse> {
+        this.span = tracer.createSpan({
+            url: this.location,
+            headers: this.options.headers,
+            method: this.options.method,
+            body: this.options.body
+        });
+
         let cached = await this._fromCache();
         if (cached) {
+            this.span.complete(cached);
             return cached;
         }
         return await this._fetch(this.location);
@@ -279,6 +291,8 @@ class RequestWorker {
             url: res.url,
             body
         };
+        this.span.complete(resp);
+
         if (errored) {
             let error: Error & any = new Error(`Request for ${res.url} failed with ${res.status}`);
             error.status = res.status;
@@ -293,7 +307,6 @@ class RequestWorker {
 
     private async _fetch (url: string): Promise<NetworkResponse>  {
         let res = await fetch(url, this.options);
-
         return this._handleResponse(res);
     }
 }

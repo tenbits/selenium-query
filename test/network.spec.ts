@@ -86,9 +86,14 @@ UTest({
                 }
             }
         });
+        NetworkDriver.tracer.onComplete(<any> assert.await(function(span){
+            eq_(span.res.url, test.url);
+            eq_(span.res.body, 'foo');
+        }));
         let resp = await NetworkDriver.load(test.url);
         eq_(resp.body, 'foo');
         eq_(resp.url, test.url);
+        NetworkDriver.tracer.clear();
     },
     async 'should handle redirect' () {
         let test = Server.define({

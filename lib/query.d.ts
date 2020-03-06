@@ -14,6 +14,7 @@ declare module 'selenium-query' {
 
 declare module 'selenium-query/webdriver/WebdriverQuery' {
     import { IPseudoSelectorFn } from 'selenium-query/common/SelectorsEx'; 
+     import { NetworkTracer } from 'selenium-query/fetch/NetworkTracer'; 
      import { NetworkResponse } from 'selenium-query/fetch/NetworkDriver'; 
      import { ILoadConfig } from 'selenium-query/common/IConfig'; 
      import { IQueryStatics } from 'selenium-query/common/IQueryStatics'; 
@@ -125,6 +126,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
                                     extend: boolean;
                             }): any;
                     };
+                    tracer: NetworkTracer;
             };
             static pseudo: {
                     [key: string]: IPseudoSelectorFn<any>;
@@ -185,8 +187,45 @@ declare module 'selenium-query/common/SelectorsEx' {
     }
 }
 
+declare module 'selenium-query/fetch/NetworkTracer' {
+    import { class_EventEmitter } from 'atma-utils';
+    export class NetworkTracer extends class_EventEmitter {
+        spans: NetworkSpan[];
+        createSpan(req: IReq): NetworkSpan;
+        onComplete(cb: (span: NetworkSpan) => void): void;
+        clear(): void;
+    }
+    export class NetworkSpan extends class_EventEmitter {
+        startTime: Date;
+        endTime: Date;
+        res: IRes;
+        req: IReq;
+        cached: boolean;
+        constructor(req: IReq);
+        complete(res: IRes): void;
+    }
+    interface IReq {
+        method: string;
+        url: string;
+        headers: {
+            [name: string]: string;
+        };
+        body: any;
+    }
+    interface IRes {
+        url: string;
+        status: number;
+        headers: {
+            [name: string]: string;
+        };
+        body: any;
+    }
+    export {};
+}
+
 declare module 'selenium-query/fetch/NetworkDriver' {
     import { ILoadConfig } from "selenium-query/common/IConfig";
+    import { NetworkTracer } from 'selenium-query/fetch/NetworkTracer';
     export const NetworkDriver: {
         isCached(url: string, config?: ILoadConfig): boolean;
         isCachedAsync(url: string, config?: ILoadConfig): Promise<boolean>;
@@ -207,6 +246,7 @@ declare module 'selenium-query/fetch/NetworkDriver' {
                 extend: boolean;
             }): any;
         };
+        tracer: NetworkTracer;
     };
     export interface NetworkResponse {
         status: number;
