@@ -17,7 +17,7 @@ const DefaultOptions = {
         'Accept-Language': 'en,ru;q=0.9,de;q=0.8,en-GB;q=0.7,uk;q=0.6,la;q=0.5',
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
-        'Referer': 'https://www.google.de/',
+        //'Referer': 'https://www.google.de/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
     }
 }
@@ -120,7 +120,10 @@ class RequestWorker {
     
     constructor (private url: string, private config: ILoadConfig = {}) {
         this.options = {
-            headers: Object.assign({}, DefaultOptions.headers, config.headers || {}),
+            headers: Object.assign(
+                {}, 
+                DefaultOptions.headers,
+                config.headers || {}),
             method: config.method,
             body: config.body,
             follow: config.follow,
@@ -172,7 +175,9 @@ class RequestWorker {
         if (config.body != null && is_rawObject(config.body)) {
             Body.handleAsRawObject(this.options);
         }
-
+        if (this.options.headers['Referer'] == null) {
+            this.options.headers['Referer'] = url;
+        }
         this.redirectCount = this.options.follow == null ? 10 : this.options.follow;
         this.options.redirect = 'manual';
         this.location = url;
