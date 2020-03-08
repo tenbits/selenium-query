@@ -8,11 +8,10 @@ export class NetworkTracer extends class_EventEmitter {
     spans: NetworkSpan[] = []
 
     createSpan (req: IReq): NetworkSpan {
-        let span = new NetworkSpan(req);
         if (this.active === false) {
-            return span;
+            return new NetworkSpanMock(req) as NetworkSpan;
         }
-
+        let span = new NetworkSpan(req);
         this.spans.push(span);
         span.on(EVENT_COMPLETE, () => this.trigger(EVENT_COMPLETE, span));
         return span;
@@ -58,6 +57,11 @@ export class NetworkSpan extends class_EventEmitter {
         }
         this.trigger(EVENT_COMPLETE, this);
     }
+}
+
+class NetworkSpanMock {
+    constructor (req: IReq) {}
+    complete (res: IRes) {}
 }
 
 interface IReq {
