@@ -190,6 +190,7 @@ declare module 'selenium-query/common/SelectorsEx' {
 declare module 'selenium-query/fetch/NetworkTracer' {
     import { class_EventEmitter } from 'atma-utils';
     export class NetworkTracer extends class_EventEmitter {
+        active: boolean;
         spans: NetworkSpan[];
         createSpan(req: IReq): NetworkSpan;
         onComplete(cb: (span: NetworkSpan) => void): void;

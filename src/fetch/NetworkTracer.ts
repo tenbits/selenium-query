@@ -3,22 +3,28 @@ import { class_EventEmitter } from 'atma-utils';
 const EVENT_COMPLETE = 'complete'
 
 export class NetworkTracer extends class_EventEmitter {
+    active = false
 
     spans: NetworkSpan[] = []
 
     createSpan (req: IReq): NetworkSpan {
         let span = new NetworkSpan(req);
-        this.spans.push(span);
+        if (this.active === false) {
+            return span;
+        }
 
+        this.spans.push(span);
         span.on(EVENT_COMPLETE, () => this.trigger(EVENT_COMPLETE, span));
         return span;
     }
 
     onComplete (cb: (span: NetworkSpan) => void) {
+        this.active = true;
         this.on(EVENT_COMPLETE, cb);
     }
 
     clear () {
+        this.active = false;
         this.spans.length = 0;
         this.off(EVENT_COMPLETE);
     }
