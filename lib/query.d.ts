@@ -288,7 +288,7 @@ declare module 'selenium-query/common/IConfig' {
         } | string[] | string;
         cache?: boolean | {
             folder?: string;
-            maxAge?: number;
+            maxAge?: number | string;
             compress?: boolean;
         };
         cacheQueryIgnore?: string[];

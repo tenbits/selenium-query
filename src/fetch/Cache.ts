@@ -1,8 +1,9 @@
 import * as crypto from 'crypto';
-import { ILoadConfig } from '../common/IConfig'
+import { ILoadConfig, IBuildConfig } from '../common/IConfig'
 import { File } from 'atma-io'
 import * as zlib from 'zlib'
 import { NetworkResponse } from './NetworkDriver';
+import { Humanize } from '../utils/humanize';
 
 interface ICacheItem {
     time: number
@@ -61,13 +62,14 @@ export class Cache {
         }
         let now = Date.now();
         let seconds = ((now - meta.time) / 1000) | 0;
-        if (meta.maxAge && seconds > meta.maxAge) {
+        let maxAge = Utils.getMaxAge(config.cache, meta);
+        if (maxAge && seconds > maxAge) {
             return null;
         }
         let withCompression = meta.file.endsWith('.gz');
         let encoding = withCompression ? 'buffer' : 'utf8';
         let result: any = await new File(`${CACHE_BASE}/${domainKey}/${meta.file}`, { cached: false }).readAsync({ encoding });
-        if (withCompression) {         
+        if (withCompression) {
             let str = await Compression.decompress(<Buffer> result);
             result = JSON.parse(str);
         }
@@ -77,7 +79,7 @@ export class Cache {
         }
         return result;
     }
-    save (url: string, config: ILoadConfig, resp: NetworkResponse) { 
+    save (url: string, config: ILoadConfig, resp: NetworkResponse) {
         if (config.cache == null || config.cache === false) {
             return null;
         }
@@ -90,26 +92,26 @@ export class Cache {
             cache = {
                 compress: true,
             };
-        }       
+        }
         url = this.normalizeUrl(url, config);
         let domainKey = Utils.getDomainKey(url);
         this.ensureMeta(domainKey);
 
         let md5 = crypto.createHash('md5').update(url).digest('hex');
         let file = `${md5}.json`;
-        
+
         let withCompression = cache.compress;
         if (withCompression) {
             file += '.gz';
         }
-        
+
         this.meta[domainKey][url] = {
             time: Date.now(),
             file: file,
-            maxAge: cache.maxAge
+            maxAge: Utils.getMaxAge(cache)
         };
 
-        this.flushMeta(domainKey);       
+        this.flushMeta(domainKey);
         let json: any = {
             status: resp.status,
             headers: resp.headers,
@@ -141,7 +143,7 @@ export class Cache {
 
     private normalizeUrl (url: string, config: ILoadConfig) {
         url = url.toLowerCase().replace(/(?<!:)[/]{2,}/g, '/');
-        
+
         let ignore = config.cacheQueryIgnore;
         if (ignore) {
             ignore.forEach(x => {
@@ -157,17 +159,17 @@ export class Cache {
             return;
         }
         if (this.meta == null) {
-            this.meta = <any> {};       
+            this.meta = <any> {};
         }
         let file = `${CACHE_BASE}/${domainKey}/meta.json`;
-        if (File.exists(file)) {            
+        if (File.exists(file)) {
             this.meta[domainKey] = <any> File.read(file);
         } else {
             this.meta[domainKey] = {};
         }
     }
 
-    isFlushDeferred = false  
+    isFlushDeferred = false
 
     private flushMeta (domainKey) {
         if (this.isFlushDeferred) {
@@ -216,6 +218,26 @@ namespace Utils {
             return domainMatch[1].replace('.', '_');
         }
         return '';
+    }
+    export function getMaxAge (configCache: { maxAge? } | boolean, configMeta?: { maxAge? } | boolean) {
+        return $getMaxAge(configCache) ?? $getMaxAge(configMeta) ?? 0;
+    }
+
+    function $getMaxAge (cache: { maxAge? } | boolean) {
+        if (cache == null) {
+            return true;
+        }
+        if (cache === false) {
+            return 0;
+        }
+        if (cache === true) {
+            return Number.MAX_SAFE_INTEGER;
+        }
+        let maxAge = cache.maxAge;
+        if (typeof maxAge === 'string') {
+            return Humanize.Time.getSeconds(maxAge);
+        }
+        return maxAge;
     }
 }
 

@@ -12,7 +12,7 @@ export interface IBuildConfig {
 
 	setArguments? (options: any)
 	setBinaryPath? (options: any)
-	setLogging? (options: any) 
+	setLogging? (options: any)
 
 	/* HTTP, webdriver supports only cookies */
 	headers?: {[name: string] : string }
@@ -23,12 +23,12 @@ export interface IBuildConfig {
     cookiesDefault?: {[name: string] : string } | string[] | string
 	cache?: boolean | {
 		folder?: string
-        maxAge?: number
+        maxAge?: number | string
         compress?: boolean
         //-ensureCacheAllowed? (resp): boolean
     }
     cacheQueryIgnore?: string[]
-	
+
 
 	/** Webdriver will load this url, or requested url, to set the cookies first */
     cookieOrigin?: string
