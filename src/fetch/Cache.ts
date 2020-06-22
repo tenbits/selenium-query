@@ -4,6 +4,7 @@ import { File } from 'atma-io'
 import * as zlib from 'zlib'
 import { NetworkResponse } from './NetworkDriver';
 import { Humanize } from '../utils/humanize';
+import { serializeCachableUrl } from '../utils/url';
 
 interface ICacheItem {
     time: number
@@ -18,11 +19,12 @@ export class Cache {
         if (config.cache == null || config.cache === false) {
             return false;
         }
-        url = this.normalizeUrl(url, config);
+        url = serializeCachableUrl(url, config);
         let domainKey = Utils.getDomainKey(url);
         this.ensureMeta(domainKey);
 
-        let meta = this.meta[domainKey][url];
+        let domainCache = this.meta[domainKey];
+        let meta = domainCache[url] ?? domainCache[url.toLowerCase()];
         if (meta == null) {
             return false;
         }
@@ -36,11 +38,12 @@ export class Cache {
     }
 
     remove (url: string, config: ILoadConfig) {
-        url = this.normalizeUrl(url, config);
+        url = serializeCachableUrl(url, config);
         let domainKey = Utils.getDomainKey(url);
         this.ensureMeta(domainKey);
 
-        let meta = this.meta[domainKey][url];
+        let domainCache = this.meta[domainKey];
+        let meta = domainCache[url] ?? domainCache[url.toLowerCase()];
         if (meta == null) {
             return null;
         }
@@ -52,11 +55,12 @@ export class Cache {
         if (config.cache == null || config.cache === false) {
             return null;
         }
-        url = this.normalizeUrl(url, config);
+        url = serializeCachableUrl(url, config);
         let domainKey = Utils.getDomainKey(url);
         this.ensureMeta(domainKey);
 
-        let meta = this.meta[domainKey][url];
+        let domainCache = this.meta[domainKey];
+        let meta = domainCache[url] ?? domainCache[url.toLowerCase()];
         if (meta == null) {
             return null;
         }
@@ -93,7 +97,7 @@ export class Cache {
                 compress: true,
             };
         }
-        url = this.normalizeUrl(url, config);
+        url = serializeCachableUrl(url, config);
         let domainKey = Utils.getDomainKey(url);
         this.ensureMeta(domainKey);
 
@@ -141,18 +145,6 @@ export class Cache {
         });
     }
 
-    private normalizeUrl (url: string, config: ILoadConfig) {
-        url = url.toLowerCase().replace(/(?<!:)[/]{2,}/g, '/');
-
-        let ignore = config.cacheQueryIgnore;
-        if (ignore) {
-            ignore.forEach(x => {
-                url = url.replace(new RegExp(`&${x}=[\\w\\d]+`), '');
-                url = url.replace(new RegExp(`\\?${x}=[\\w\\d]+`), '?');
-            });
-        }
-        return url;
-    }
 
     private ensureMeta (domainKey: string) {
         if (this.meta != null && this.meta[domainKey] != null) {

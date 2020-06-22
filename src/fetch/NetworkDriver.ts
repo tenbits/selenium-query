@@ -8,6 +8,7 @@ import { cache } from './Cache'
 import { is_rawObject } from 'atma-utils';
 import { Body } from './Body';
 import { NetworkSpan, NetworkTracer } from './NetworkTracer';
+import { serializeCachableUrl, serializeUrl } from '../utils/url';
 
 
 const DefaultOptions = {
@@ -28,19 +29,19 @@ const agents = {
 const tracer = new NetworkTracer();
 
 export const NetworkDriver  = {
-    isCached (url: string, config: ILoadConfig = {}): boolean {        
-        url = serializeUrl(url, config);
+    isCached (url: string, config: ILoadConfig = {}): boolean {
+        url = serializeCachableUrl(url, config);
         return cache.has(url, config);
     },
-    isCachedAsync (url: string, config: ILoadConfig = {}): Promise<boolean> {        
-        url = serializeUrl(url, config);
+    isCachedAsync (url: string, config: ILoadConfig = {}): Promise<boolean> {
+        url = serializeCachableUrl(url, config);
         return cache.hasAsync(url, config);
     },
     clearCookies () {
         cookieContainer.clearCookies()
     },
     clearCached (url: string, config: ILoadConfig = {}) {
-        url = serializeUrl(url, config);
+        url = serializeCachableUrl(url, config);
         cache.remove(url, config);
     },
     load (url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
@@ -72,28 +73,12 @@ interface FetchOptions {
     follow?: number
     headers?: {[name: string] : string }
     method?
-    body?  
+    body?
     agent?
     onRedirect?: Function
     redirect?: 'manual' | 'follow'
 }
 
-
-function serializeUrl (url: string, config: ILoadConfig = {}) {
-    if (url.includes('://localhost')) {
-        url.replace('://localhost', '://127.0.0.1');
-    }
-    if (config.query) {
-        let q = '';
-        for (let key in config.query) {
-            let  p = `${key}=${ encodeURIComponent(config.query[key]) }`;
-            
-            q += (q ? '&' : '') + p;
-        }
-        url += (url.includes('?') ? '&' : '?') + q;
-    }
-    return url;
-}
 function readAllHeaders (headers) {
     let obj = {};
     for (let entry of headers.entries()) {
@@ -117,11 +102,11 @@ class RequestWorker {
     /** Current URL (handles redirects) */
     private location: string;
     private span: NetworkSpan;
-    
+
     constructor (private url: string, private config: ILoadConfig = {}) {
         this.options = {
             headers: Object.assign(
-                {}, 
+                {},
                 DefaultOptions.headers,
                 config.headers || {}),
             method: config.method,
@@ -136,7 +121,7 @@ class RequestWorker {
         this.cookieContainer = config.cookieContainer || cookieContainer;
         this.retryCount = 'retryCount' in config ? config.retryCount : 3;
         this.retryTimeout = 'retryTimeout' in config ? config.retryTimeout : 1000;
-        
+
 
         if (this.options.headers['Cookie']) {
             this.cookieContainer.addCookies(url, this.options.headers['Cookie']);
@@ -147,7 +132,7 @@ class RequestWorker {
         if (config.cookiesDefault) {
             this.cookieContainer.addCookies(url, config.cookiesDefault, { extend: true });
         }
-        
+
         let cookies = this.cookieContainer.getCookies(url);
         if (cookies) {
             this.options.headers['Cookie'] = cookies;
@@ -211,8 +196,8 @@ class RequestWorker {
                     headers: cached.headers,
                     body: cached.body
                 };
-            } 
-        } catch (error) { 
+            }
+        } catch (error) {
             // Not cached
         }
 
@@ -289,7 +274,7 @@ class RequestWorker {
                 body = Buffer.from(arr);
                 break;
         }
-    
+
         let resp: NetworkResponse = {
             status: res.status,
             headers: readAllHeaders(res.headers),
@@ -305,7 +290,7 @@ class RequestWorker {
             error.headers = res.headers;
             throw error;
         }
-    
+
         cache.save(this.location, this.config, resp);
         return resp;
     }

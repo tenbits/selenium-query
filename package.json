@@ -1,7 +1,7 @@
 {
     "name": "selenium-query",
     "description": "jQuery API for Selenium WebDriver/JSDom",
-    "version": "0.52.25",
+    "version": "0.52.26",
     "contributors": [],
     "main": "./lib/query.js",
     "types": "./lib/query.d.ts",
