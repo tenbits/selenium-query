@@ -27,10 +27,10 @@ export const CheerioDriver: IQueryStatics = {
         query.ctx.source = html;
         return query;
     },
-    load(url: string, config: ICheerioBuildConfig): IQuery<CheerioElement> {
+    load(url: string, config: ICheerioBuildConfig): CherrioQuery {
         driver = new CheerioDriverInner(config);
 
-        return driver.get(url) as any as IQuery<CheerioElement>;
+        return driver.get(url) as any as CherrioQuery;
     },
     fetch(url: string, config: IBuildConfig, setts?: ISettings) {
         return this.load(url, config, setts);
@@ -65,7 +65,7 @@ class CheerioDriverInner implements IDriver {
     executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T> {
         throw new Error('Method not implemented.');
     }
-    get(url: string): Promise<any> {
+    get(url: string): Promise<CherrioQuery> {
         let query = CherrioQuery.newAsync();
 
         NetworkDriver
@@ -78,6 +78,11 @@ class CheerioDriverInner implements IDriver {
 
                     let html = resp.body.toString();
                     let $el = CheerioUtils.fromHtml(html);
+
+                    query.ctx.source = html;
+                    query.ctx.url = url;
+                    query.ctx.status = resp.status;
+                    query.ctx.headers = resp.headers;
                     query.add($el);
                     query.resolve(query);
                 },
@@ -86,7 +91,7 @@ class CheerioDriverInner implements IDriver {
                 }
             );
 
-        return query as any as Promise<any>;
+        return query as any as Promise<CherrioQuery>;
     }
     manage(): IDriverManager {
         throw new Error('Method not implemented.');

@@ -22,19 +22,36 @@ export class IQueryCtx {
     owner: IQuery<any>
     self: IQuery<any>
     source: string
+    url: string
+    status: number
+    headers: { [key: string]: string}
+
     thener: (resolve, reject) => IQuery<any>
     Ctor: new (mix?) => IQuery<any>
 
     newSync(arr?: any, parent?: IQuery<any>) {
         let query = new this.Ctor(arr);
-        query.ctx.owner = parent || this.self;
+        query.ctx.owner = parent ?? this.self;
+
+        IQueryCtx.copyFrom(query.ctx, parent?.ctx);
         return query;
     }
     newAsync(arr?: any, parent?: IQuery<any>) {
         let query = new this.Ctor(arr);
-        query.ctx.owner = parent || this.self;
+        query.ctx.owner = parent ?? this.self;
         query.then = query.ctx.thener;
+
+        IQueryCtx.copyFrom(query.ctx, parent?.ctx);
         return query;
+    }
+    static copyFrom (targetCtx: IQueryCtx, parentCtx: IQueryCtx) {
+        if (parentCtx != null) {
+            targetCtx.url = parentCtx?.url;
+            targetCtx.source = parentCtx?.source;
+            targetCtx.status = parentCtx?.status;
+            targetCtx.headers = parentCtx?.headers;
+        }
+        return targetCtx;
     }
 }
 
@@ -80,7 +97,7 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
         }
         return super.resolve(...args);
     }
-    
+
     wait (ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -196,7 +213,7 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
             return this.htmlOuterGetFn(node).then(val => accum + val)
         }) as PromiseLike<string>;
     }
-    
+
     protected abstract htmlGetFn(node: TElement): Deferred<string>;
     protected abstract htmlOuterGetFn(node: TElement): Deferred<string>;
     protected abstract htmlSetFn(node: TElement, text: string): Deferred<void>;
@@ -481,7 +498,7 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
     once(type: string, cb: (event: any) => void = null) {
         return async_each(this, (ctx, node) => this._onOnceFn(node, type, cb));
     }
-    
+
     protected abstract _onFn(node: TElement, type: string, cb: Function): Promise<any>
     protected abstract _onOnceFn(node: TElement, type: string, cb: Function): Promise<any>
     protected abstract _offFn(node: TElement, type: string, cb: Function): Promise<any>

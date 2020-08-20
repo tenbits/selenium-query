@@ -87,6 +87,10 @@ export class Cache {
         if (config.cache == null || config.cache === false) {
             return null;
         }
+        if (!resp.body || resp.status >= 400) {
+            // Do not cache failed and empty responses
+            return null;
+        }
         let cache = typeof config.cache !== 'boolean' ? config.cache : {
             compress: true,
             maxAge: 24 * 60 * 60

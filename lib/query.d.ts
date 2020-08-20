@@ -368,10 +368,16 @@ declare module 'selenium-query/common/IQuery' {
         owner: IQuery<any>;
         self: IQuery<any>;
         source: string;
+        url: string;
+        status: number;
+        headers: {
+            [key: string]: string;
+        };
         thener: (resolve: any, reject: any) => IQuery<any>;
         Ctor: new (mix?: any) => IQuery<any>;
         newSync(arr?: any, parent?: IQuery<any>): IQuery<any>;
         newAsync(arr?: any, parent?: IQuery<any>): IQuery<any>;
+        static copyFrom(targetCtx: IQueryCtx, parentCtx: IQueryCtx): IQueryCtx;
     }
     export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<any> {
         [index: number]: TElement;
