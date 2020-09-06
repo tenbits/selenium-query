@@ -274,12 +274,12 @@ declare module 'selenium-query/common/IConfig' {
         setLogging?(options: any): any;
         headers?: {
             [name: string]: string;
-        };
+        } | string;
         method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string;
         query?: {
             [name: string]: string;
         };
-        body?: string | Buffer;
+        body?: string | Buffer | any;
         cookies?: {
             [name: string]: string;
         } | string[] | string;

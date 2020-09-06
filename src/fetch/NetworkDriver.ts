@@ -28,31 +28,31 @@ const agents = {
 };
 const tracer = new NetworkTracer();
 
-export const NetworkDriver  = {
-    isCached (url: string, config: ILoadConfig = {}): boolean {
+export const NetworkDriver = {
+    isCached(url: string, config: ILoadConfig = {}): boolean {
         url = serializeCachableUrl(url, config);
         return cache.has(url, config);
     },
-    isCachedAsync (url: string, config: ILoadConfig = {}): Promise<boolean> {
+    isCachedAsync(url: string, config: ILoadConfig = {}): Promise<boolean> {
         url = serializeCachableUrl(url, config);
         return cache.hasAsync(url, config);
     },
-    clearCookies () {
+    clearCookies() {
         cookieContainer.clearCookies()
     },
-    clearCached (url: string, config: ILoadConfig = {}) {
+    clearCached(url: string, config: ILoadConfig = {}) {
         url = serializeCachableUrl(url, config);
         cache.remove(url, config);
     },
-    load (url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
+    load(url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
         let worker = new RequestWorker(url, config);
 
         return worker.load();
     },
-    getCookies (url?: string) {
+    getCookies(url?: string) {
         return cookieContainer.getCookies(url);
     },
-    setCookies: <typeof cookieContainer.addCookies> <any> ((...args) => {
+    setCookies: <typeof cookieContainer.addCookies><any>((...args) => {
         cookieContainer.addCookies.apply(cookieContainer, args);
     }),
     tracer: tracer
@@ -63,7 +63,7 @@ export interface NetworkResponse {
     status: number
     message?: string
 
-    headers: {[name: string] : string }
+    headers: { [name: string]: string }
     url: string
     body: any
 }
@@ -71,7 +71,7 @@ export interface NetworkResponse {
 
 interface FetchOptions {
     follow?: number
-    headers?: {[name: string] : string }
+    headers?: { [name: string]: string }
     method?
     body?
     agent?
@@ -79,7 +79,7 @@ interface FetchOptions {
     redirect?: 'manual' | 'follow'
 }
 
-function readAllHeaders (headers) {
+function readAllHeaders(headers) {
     let obj = {};
     for (let entry of headers.entries()) {
         let [key, value] = entry;
@@ -103,16 +103,18 @@ class RequestWorker {
     private location: string;
     private span: NetworkSpan;
 
-    constructor (private url: string, private config: ILoadConfig = {}) {
+    constructor(private url: string, private config: ILoadConfig = {}) {
+        const headers = Object.assign(
+            {},
+            DefaultOptions.headers,
+            Headers.get(config.headers)
+        );
         this.options = {
-            headers: Object.assign(
-                {},
-                DefaultOptions.headers,
-                config.headers || {}),
+            headers: headers,
             method: config.method,
             body: config.body,
             follow: config.follow,
-            onRedirect (data) {
+            onRedirect(data) {
                 if (data.prev.startsWith('http:') && data.url.includes('https:')) {
                     data.opts.agent = agents.https;
                 }
@@ -169,7 +171,7 @@ class RequestWorker {
     }
 
 
-    async load (): Promise<NetworkResponse> {
+    async load(): Promise<NetworkResponse> {
         this.span = tracer.createSpan({
             url: this.location,
             headers: this.options.headers,
@@ -186,9 +188,9 @@ class RequestWorker {
     }
 
 
-    private async _fromCache (): Promise<NetworkResponse> {
+    private async _fromCache(): Promise<NetworkResponse> {
         try {
-            let cached: Partial<NetworkResponse> = await <any> cache.get(this.url, this.config);
+            let cached: Partial<NetworkResponse> = await <any>cache.get(this.url, this.config);
             if (cached) {
                 return {
                     status: cached.status,
@@ -203,7 +205,7 @@ class RequestWorker {
 
         return null;
     }
-    private async _handleResponse (res) {
+    private async _handleResponse(res) {
         let errored = res.status >= 400;
         if (errored && --this.retryCount > 0) {
             switch (res.status) {
@@ -246,7 +248,7 @@ class RequestWorker {
         }
         return await this._handleCompletion(res);
     }
-    private async _handleCompletion (res) {
+    private async _handleCompletion(res) {
         let errored = res.status >= 400;
         let typeEnum = 'buffer';
         let contentType = res.headers.get('content-type');
@@ -295,15 +297,42 @@ class RequestWorker {
         return resp;
     }
 
-    private async _fetch (url: string): Promise<NetworkResponse>  {
+    private async _fetch(url: string): Promise<NetworkResponse> {
         let res = await fetch(url, this.options);
         return this._handleResponse(res);
     }
 }
 
 
-function wait (ms) {
+function wait(ms) {
     return new Promise(resolve => {
         setTimeout(() => resolve(), ms);
     })
+}
+
+namespace Headers {
+
+    export function get(headers: any | string) {
+        if (headers == null) {
+            return {};
+        }
+        if (typeof headers === 'string') {
+            let hash = Object.create(null);
+            headers
+                .split('\n')
+                .map(x => x.trim())
+                .filter(Boolean)
+                .forEach(line => {
+                    let semi = line.indexOf(':');
+                    if (semi === -1) {
+                        throw new Error(`Invalid header delimter. ":" expected. ${line} in ${headers}`);
+                    }
+                    let key = line.substring(0, semi).trim();
+                    let val = line.substring(semi + 1).trim();
+                    hash[key] = val;
+                });
+            return hash;
+        }
+        return headers;
+    }
 }

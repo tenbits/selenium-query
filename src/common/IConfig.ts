@@ -15,10 +15,10 @@ export interface IBuildConfig {
 	setLogging? (options: any)
 
 	/* HTTP, webdriver supports only cookies */
-	headers?: {[name: string] : string }
+	headers?: {[name: string] : string } | string
 	method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string
 	query?: {[name: string] : string }
-    body?: string | Buffer
+    body?: string | Buffer | any
     cookies?: {[name: string] : string } | string[] | string
     cookiesDefault?: {[name: string] : string } | string[] | string
 	cache?: boolean | {
