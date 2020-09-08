@@ -95,6 +95,7 @@ class RequestWorker {
     private retryCount: number;
     private retryTimeout: number;
     private redirectCount: number;
+    private doNotThrow: boolean;
 
     public redirectIndex = 0;
     public retryIndex = 0;
@@ -123,6 +124,7 @@ class RequestWorker {
         this.cookieContainer = config.cookieContainer || cookieContainer;
         this.retryCount = 'retryCount' in config ? config.retryCount : 3;
         this.retryTimeout = 'retryTimeout' in config ? config.retryTimeout : 1000;
+        this.doNotThrow = config.doNotThrow;
 
 
         if (this.options.headers['Cookie']) {
@@ -286,6 +288,9 @@ class RequestWorker {
         this.span.complete(resp);
 
         if (errored) {
+            if (this.doNotThrow === true) {
+                return resp;
+            }
             let error: Error & any = new Error(`Request for ${res.url} failed with ${res.status}`);
             error.status = res.status;
             error.body = res.body;

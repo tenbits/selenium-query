@@ -303,6 +303,7 @@ declare module 'selenium-query/common/IConfig' {
         follow?: number;
         httpsProxy?: string;
         ignoreSSLErrors?: boolean;
+        doNotThrow?: boolean;
     }
     export interface ISettings {
         pool?: boolean | number;
