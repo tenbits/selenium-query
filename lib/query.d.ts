@@ -131,7 +131,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             static pseudo: {
                     [key: string]: IPseudoSelectorFn<any> | {
                             isNodeFilter: boolean;
-                            fn: <T = any>($: IQuery<T>, arg?: string) => IQuery<T>;
+                            fn: <T = any>($: IQuery<T>, arg?: string) => IQuery<T> | Promise<IQuery<T>>;
                     };
             };
     }
@@ -185,7 +185,7 @@ declare module 'selenium-query/common/SelectorsEx' {
         const pseudoFns: {
             [key: string]: IPseudoSelectorFn<any> | {
                 isNodeFilter: boolean;
-                fn: <T = any>($: IQuery<T>, arg?: string) => IQuery<T>;
+                fn: <T = any>($: IQuery<T>, arg?: string) => (IQuery<T> | Promise<IQuery<T>>);
             };
         };
         function register(name: string, fn: IPseudoSelectorFn): void;

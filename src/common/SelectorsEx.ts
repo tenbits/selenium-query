@@ -11,7 +11,7 @@ export namespace SelectorsEx {
     export const pseudoFns: {
         [key: string]: IPseudoSelectorFn<any> | {
             isNodeFilter: boolean
-            fn: <T = any> ($: IQuery<T>, arg?: string) => IQuery<T>
+            fn: <T = any> ($: IQuery<T>, arg?: string) => (IQuery<T> | Promise<IQuery<T>>)
         }
     } = {}
 
