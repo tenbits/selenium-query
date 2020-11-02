@@ -8,12 +8,17 @@ export interface IPseudoSelectorFn <TElement = any> {
 
 export namespace SelectorsEx {
 
-    export const pseudoFns: { [key: string]: IPseudoSelectorFn<any> } = {}
+    export const pseudoFns: {
+        [key: string]: IPseudoSelectorFn<any> | {
+            isNodeFilter: boolean
+            fn: <T = any> ($: IQuery<T>, arg?: string) => IQuery<T>
+        }
+    } = {}
 
     export function register (name: string, fn: IPseudoSelectorFn) {
         pseudoFns[name] = fn;
     }
-    
+
     export function find <TElement> (el: IQuery<TElement>, selector: string, find: (el: IQuery<TElement> , selector: string) => IQuery<TElement>)  {
         let query = el.ctx.newAsync();
         findInner(el, selector, find).then(
@@ -30,7 +35,7 @@ export namespace SelectorsEx {
         rgx_PSEUDO.lastIndex = -1;
 
         let $ = el;
-        
+
         do {
             let match = rgx_PSEUDO.exec(selector);
             if (match == null) {
@@ -50,8 +55,14 @@ export namespace SelectorsEx {
             }
             selector = selector.substring(match.index + match[0].length);
 
+            let misc = pseudoFns[name];
+            if (typeof misc !== 'function') {
+                $ = await misc.fn($, arg);
+                continue;
+            }
+
+            let filterFn = misc;
             let $arr = el.ctx.newSync(null, el);
-            let filterFn = pseudoFns[name];
             for (let i = 0 ; i < $.length; i++) {
                 let node = $[i];
                 let $el = $.ctx.newSync(node);

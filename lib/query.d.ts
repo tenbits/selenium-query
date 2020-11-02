@@ -129,7 +129,10 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
                     tracer: NetworkTracer;
             };
             static pseudo: {
-                    [key: string]: IPseudoSelectorFn<any>;
+                    [key: string]: IPseudoSelectorFn<any> | {
+                            isNodeFilter: boolean;
+                            fn: <T = any>($: IQuery<T>, arg?: string) => IQuery<T>;
+                    };
             };
     }
 }
@@ -180,7 +183,10 @@ declare module 'selenium-query/common/SelectorsEx' {
     }
     export namespace SelectorsEx {
         const pseudoFns: {
-            [key: string]: IPseudoSelectorFn<any>;
+            [key: string]: IPseudoSelectorFn<any> | {
+                isNodeFilter: boolean;
+                fn: <T = any>($: IQuery<T>, arg?: string) => IQuery<T>;
+            };
         };
         function register(name: string, fn: IPseudoSelectorFn): void;
         function find<TElement>(el: IQuery<TElement>, selector: string, find: (el: IQuery<TElement>, selector: string) => IQuery<TElement>): IQuery<any>;
@@ -315,16 +321,14 @@ declare module 'selenium-query/common/IConfig' {
 declare module 'selenium-query/common/IQueryStatics' {
     import { IBuildConfig, ISettings, ILoadConfig } from "selenium-query/common/IConfig";
     import { IQuery } from "selenium-query/common/IQuery";
-    import { IPseudoSelectorFn } from 'selenium-query/common/SelectorsEx';
+    import { SelectorsEx } from 'selenium-query/common/SelectorsEx';
     export interface IQueryStatics {
         fromHtml(html: string): IQuery<any>;
         build(config: IBuildConfig, setts?: ISettings): any;
         load(url: string, config: ILoadConfig, setts?: ISettings): IQuery<any>;
         unlockDriver(mix: any): any;
         fetch<T>(url: string, config: ILoadConfig, setts?: ISettings): Promise<T>;
-        pseudo: {
-            [key: string]: IPseudoSelectorFn;
-        };
+        pseudo: typeof SelectorsEx.pseudoFns;
         [key: string]: any;
     }
 }
