@@ -12,15 +12,15 @@ let POOL_DEFAULT = 5;
 let POOL_CUSTOM: number;
 
 export class DriverPool {
-	
-    
+
+
     singleton: DriverWrapper
     singletonPromise: Promise<DriverWrapper>
 
     pool: DriverWrapper[] = [];
     queue: {url: string, config: ILoadConfig, dfr: class_Dfr}[] = []
 
-    async get (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {        
+    async get (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {
         if (setts) {
             let driver = DriverExtractor.extractDriver(setts.query);
             if (driver) {
@@ -53,7 +53,7 @@ export class DriverPool {
         let wrapper = await this.get(url, config, setts);
         let match = /[^/]\/[^/]/.exec(url);
         let domain = match == null ? url : url.substring(0, match.index + 1);
-        
+
         let currentUrl = await wrapper.driver.getCurrentUrl();
         if (!currentUrl || !currentUrl.includes(domain.replace(/https?:\/\//, ''))) {
             await wrapper.driver.get(domain);
@@ -62,7 +62,7 @@ export class DriverPool {
     }
 
     async unlockDriver(mix: IQuery<any> | IDriver | DriverWrapper) {
-        
+
         let driver = DriverExtractor.extractDriver(mix);
         if (driver == null) {
             return;
@@ -87,7 +87,7 @@ export class DriverPool {
     @singleton
     private async getGlobal(url: string = null, config: ILoadConfig):Promise<DriverWrapper> {
         this.memCookies(url, config);
-        
+
         let singleton = new DriverWrapper();
 
         await singleton.build(config);
@@ -100,7 +100,7 @@ export class DriverPool {
     }
 
     private async requestDriver(url: string = null, config: ILoadConfig):Promise<DriverWrapper> {
-        
+
         this.memCookies(url, config);
 
         let free = this.pool.find(x => x.busy !== true);
@@ -115,7 +115,7 @@ export class DriverPool {
             wrapper.busy = true;
             wrapper.requestedAt = new Date;
             this.pool.push(wrapper);
-            
+
             await wrapper.build(config);
             await wrapper.ensureCookies(url, config);
             return wrapper;
@@ -127,8 +127,8 @@ export class DriverPool {
     }
 
     private memCookies (url: string, config: ILoadConfig) {
-        if (config && config.cookies) {
-            cookieContainer.addCookies(url, config.cookies as any);            
+        if (config?.cookies) {
+            cookieContainer.addCookies(url, config.cookies as any);
         }
     }
 
@@ -137,8 +137,8 @@ export class DriverPool {
         this.singleton.busy = false;
         this.singleton.driver = driver;
 	}
-    
- 
+
+
 }
 
 export class DriverWrapper {
@@ -149,7 +149,7 @@ export class DriverWrapper {
     cookies: string
 
     async build (config: IBuildConfig) {
-        this.driver = await buildDriver(config);        
+        this.driver = await buildDriver(config);
     }
 
     async ensureCookies (url: string, config: ILoadConfig) {
@@ -158,9 +158,9 @@ export class DriverWrapper {
         if (!cookies || cookies === this.cookies) {
             return;
         }
-        
+
         this.cookies = cookies;
-        await ensureCookies(this.driver, url, cookies, config); 
+        await ensureCookies(this.driver, url, cookies, config);
     }
 }
 
@@ -172,7 +172,7 @@ export const driverPool = new DriverPool();
 
 
 namespace DriverExtractor {
-    
+
     function isElement (mix) {
         return mix != null && 'getDriver' in mix;
     }
@@ -203,7 +203,7 @@ namespace DriverExtractor {
             if (stack.indexOf(owner) !== -1) {
                 return null;
             }
-        }        
+        }
     }
     function fromWrapper (mix) {
         if (isDriver(mix)) {
@@ -214,7 +214,7 @@ namespace DriverExtractor {
         }
         return null;
     }
-    
+
 
     export  function extractDriver(mix: IDriver | IQuery<any> | DriverWrapper): IDriver {
         if (mix == null) {
