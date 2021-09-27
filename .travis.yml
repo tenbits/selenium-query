@@ -3,13 +3,10 @@ sudo: required
 env: DISPLAY=':99.0'
 dist: trusty
 addons:
+  chrome: stable
   apt:
     update: true
-    sources:
-      - google-chrome
     packages:
-      - dpkg
-      - google-chrome-stable
       - chromium-chromedriver
 
 before_script:
