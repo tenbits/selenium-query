@@ -1,4 +1,10 @@
-# Query and Manipulation Library
+# Web Query and Manipulation Library
+
+<p align='center'>
+    <img src='assets/background.jpg'/>
+</p>
+
+----
 
 [![Build Status](https://app.travis-ci.com/tenbits/selenium-query.svg?branch=master)](https://app.travis-ci.com/github/tenbits/selenium-query)
 [![NPM version](https://badge.fury.io/js/selenium-query.svg)](http://badge.fury.io/js/selenium-query)
