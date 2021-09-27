@@ -22,6 +22,7 @@ function scripts_addEventListener (){
                 }
                 delete hash[id];
                 obj.el.removeEventListener(obj.type, obj.cb, false);
+                return true;
             },
             tryGet (id) {
                 var obj = hash[id];
@@ -31,8 +32,42 @@ function scripts_addEventListener (){
                 if (obj.queue.length === 0) {
                     return null;
                 }
-                return obj.queue.shift();
+                var event = serialize(obj.queue.shift());
+                return event;
             }
+        };
+        function serialize (model, refs) {
+            if (refs == null) {
+                refs = [];
+            }
+            if (model == null || typeof model !== 'object') {
+                return model;
+            }
+            if (model === document || model === window) {
+                // do not pass window/document objects, as causing circular refs
+                return null;
+            }
+            if (model instanceof HTMLElement) {
+                // check if element is not staled
+                if (document.body.contains(model) === false) {
+                    return null;
+                }
+                return model;
+            }
+            if (Array.isArray(model)) {
+                return model.map(function (x) {
+                    return serialize(x, refs);
+                });
+            }
+            if (refs.indexOf(model) > -1) {
+                return null;
+            }
+            refs.push(model);
+            var obj = {};
+            for (var key in model) {
+                obj[key] = serialize(model[key], refs);
+            }
+            return obj;
         }
     }
 

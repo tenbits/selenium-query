@@ -22,10 +22,10 @@ UTest({
     async 'fetch' () {
         let $ = await Utils.SQuery
             .jsdom
-			.fetch('https://help.github.com/articles/github-terms-of-service/');
+            .fetch('https://help.github.com/articles/github-terms-of-service/');
 
-		
-        let h1 = await $.find('article > h1');
+
+        let h1 = await $.find('main h1');
         eq_(h1.length, 1);
 
         let str = await h1.text();
@@ -36,21 +36,19 @@ UTest({
         let server = http
             .createServer((request, response) => {
                 headers = request.headers;
-                
+
                 response.end('<!DOCTYPE><html><body>Yes FOO</body></html>')
             })
             .listen(5772, (error) => {
                 if (error) return done(error);
 
                 Utils.SQuery.jsdom.fetch('http://localhost:5772').then(query => {
-                    
-                    console.log(headers);
                     has_(headers['user-agent'], 'Chrome');
                     has_(headers['host'], 'localhost:5772');
                     server.close(() => done());
                 });
             });
-        
-        
+
+
     }
 })

@@ -8,6 +8,10 @@
 /test
 /ts-temp
 /cache
+/tools
+/types
+/typings
 build.js
+tsconfig-build.json
 .travis.yml
 .npmignore

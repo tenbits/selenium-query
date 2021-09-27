@@ -18,20 +18,19 @@
     ],
     "devDependencies": {
         "@types/cheerio": "^0.22.10",
-        "@types/jsdom": "^11.12.0",
-        "app-bundler": "0.0.75",
-        "atma": "^0.11.21",
+        "@types/node": "^16.10.1",
+        "app-bundler": "^0.0.97",
+        "atma": "^0.12.33",
         "atma-io-middleware-importer": "^1.1.30",
         "atma-loader-babel": "^1.0.19",
-        "atma-loader-ts": "^1.1.12",
+        "atma-loader-ts": "^1.1.16",
         "dts-bundle": "^0.7.3"
     },
     "scripts": {
+        "build": "app-bundler && npm run build:dts",
+        "build:dts": "tsc -p tsconfig-build.json && atma run tools/build-dts",
         "test": "atma test",
-        "build": "app-bundler && npm run build-dts",
         "watch": "app-bundler --watch",
-        "build-dts": "tsc -p tsconfig-build.json && atma run tools/build-dts",
-        "-release": "atma bump && npm run build && git add -A && git commit -am \"bump\" && git push && npm publish",
         "release": "echo \"run atma pub -m \"message\"\""
     },
     "keywords": [
@@ -114,15 +113,14 @@
         }
     },
     "dependencies": {
-        "@types/node": "^12.12.14",
         "atma-class": "^1.1.83",
         "atma-io": "^1.2.26",
         "atma-utils": "^0.1.15",
         "cheerio": "^1.0.0-rc.2",
         "encoding": "^0.1.12",
         "form-data": "^3.0.0",
-        "jsdom": "^12.0.0",
-        "node-fetch": "^2.3.0",
-        "selenium-webdriver": "^4.0.0-alpha.5"
+        "jsdom": "^17.0.0",
+        "node-fetch": "^2.6.5",
+        "selenium-webdriver": "^4.0.0-rc-1"
     }
 }

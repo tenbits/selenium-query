@@ -44,7 +44,7 @@ declare var scripts_nodeNext: any;
 declare var scripts_waitForResourceCallback: any;
 
 export class WebdriverQuery extends IQuery<IElement> {
-   
+
 
     protected hasClassFn (node: IElement, name: string): Deferred<boolean> {
         return <any> node_eval(node, scripts_nodeClassHas, name);
@@ -56,7 +56,7 @@ export class WebdriverQuery extends IQuery<IElement> {
         return <any> node_eval(node, scripts_nodeClassRemove, name);
     }
     protected toggleClassFn(node: IElement, name: string): Deferred<void> {
-        return <any> node_eval(node, scripts_nodeClassToggle, name);        
+        return <any> node_eval(node, scripts_nodeClassToggle, name);
     }
 
 
@@ -86,32 +86,32 @@ export class WebdriverQuery extends IQuery<IElement> {
     protected appendFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
             node,
-            'insertAdjacentHTML', 
-            'beforeend', 
+            'insertAdjacentHTML',
+            'beforeend',
             html
         );
     }
     protected prependFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
-            node, 
-            'insertAdjacentHTML', 
-            'afterbegin', 
+            node,
+            'insertAdjacentHTML',
+            'afterbegin',
             html
         );
     }
     protected beforeFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
-            node, 
-            'insertAdjacentHTML', 
-            'beforebegin', 
+            node,
+            'insertAdjacentHTML',
+            'beforebegin',
             html
         );
     }
     protected afterFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
-            node, 
-            'insertAdjacentHTML', 
-            'afterend', 
+            node,
+            'insertAdjacentHTML',
+            'afterend',
             html
         );
     }
@@ -149,22 +149,22 @@ export class WebdriverQuery extends IQuery<IElement> {
 
     protected scrollTopGetFn (node: IElement): Promise<number> {
         return this.getField(node, 'scrollTop');
-    }    
+    }
     protected scrollTopSetFn (node: IElement, scroll: number): Deferred<void> {
         return this.setField(node, 'scrollTop', scroll);
     }
     protected scrollLeftGetFn (node: IElement): Promise<number> {
         return this.getField(node, 'scrollLeft');
     }
-    
+
     protected scrollLeftSetFn (node: IElement, scroll: number): Deferred<void> {
         return this.setField(node, 'scrollLeft', scroll);
     }
-    
+
     protected evalFn(node: IElement, mix: Function | string, ...args): Promise<any> {
         return <any> node_eval(node, mix, ...args);
     }
-    
+
     //#region Events
     protected clickFn(node: IElement): Promise<void> {
         return node.click();
@@ -172,7 +172,7 @@ export class WebdriverQuery extends IQuery<IElement> {
     protected triggerFn(node: IElement, type: string, ...args): Promise<void> {
         return <any> node_eval(node, scripts_nodeTrigger, type, ...args);
     }
-    
+
     protected selectFn(node: IElement, ...args): Promise<any> {
         return this.getField(node, 'tagName').then(name => {
             var fn = name === 'SELECT' ?
@@ -189,10 +189,10 @@ export class WebdriverQuery extends IQuery<IElement> {
     protected blurFn(node: IElement): Promise<void> {
         return this.callField(node, 'blur');
     }
-    protected sendKeysFn(node: IElement, mix): Promise<void> {    
+    protected sendKeysFn(node: IElement, mix): Promise<void> {
         return node.sendKeys(mix);
     }
-    
+
     protected typeFn(node: IElement, str: string): Promise<void> {
         var arr = Events.toSequance(str),
             fn = Events.getSequenceFunction(arr);
@@ -264,11 +264,11 @@ export class WebdriverQuery extends IQuery<IElement> {
     protected getField<T>(node: IElement, field: string): Deferred<T> {
         return <any> node_eval(node, scripts_nodeProperty, field);
     }
-    
+
     protected setField(node: IElement, obj: any): Deferred<void>;
     protected setField(node: IElement, field: string, val: any): Deferred<void>;
     protected setField(node: IElement, mix, val?): Deferred<void> {
-        if (arguments.length === 2) { 
+        if (arguments.length === 2) {
             return <any> node_eval(node, scripts_nodeProperty, mix);
         }
         if (arguments.length === 3) {
@@ -278,9 +278,9 @@ export class WebdriverQuery extends IQuery<IElement> {
     }
     protected callField<T>(node: IElement, field: string, ...args): Deferred<T> {
         return <any> node_eval(
-            node, 
-            scripts_nodeFunctionCall, 
-            field, 
+            node,
+            scripts_nodeFunctionCall,
+            field,
             ...args
         );
     }
@@ -292,13 +292,13 @@ export class WebdriverQuery extends IQuery<IElement> {
         return WebdriverEventsPoll.removeEventListener(node, type, cb);
     }
     protected _onOnceFn(node: IElement, type: string, cb: Function): Promise<any> {
-        const fn = function (event) {
-            WebdriverEventsPoll.removeEventListener(node, type, fn);
+        const fn = async function (event) {
+            await WebdriverEventsPoll.removeEventListener(node, type, fn);
             cb(event);
         };
         return WebdriverEventsPoll.addEventListener(node, type, fn);
     }
-    
+
     //#region driver utils
     manage (): IDriverManager {
         let driver = driverPool.extractDriver(this);
@@ -326,7 +326,7 @@ export class WebdriverQuery extends IQuery<IElement> {
     //#endregion driver utils
 
     static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
-        
+
         return Webdriver.build(config, setts);
     }
     static load(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
@@ -337,7 +337,7 @@ export class WebdriverQuery extends IQuery<IElement> {
                 return CheerioDriver.load(url, config, setts);
             default:
                 return Webdriver.load(url, config, setts);
-        }        
+        }
     }
     static fetch(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
         switch (config.name.toLowerCase()) {
@@ -358,7 +358,7 @@ export class WebdriverQuery extends IQuery<IElement> {
     static unlockDriver (mix) {
         Webdriver.unlockDriver(mix);
     }
-    
+
     static newAsync (mix?, parent?: IQuery<IElement>) {
         let query = new WebdriverQuery(mix);
         query.ctx.owner = parent;
@@ -376,6 +376,8 @@ export class WebdriverQuery extends IQuery<IElement> {
 
 namespace Events {
 
+    // https://www.selenium.dev/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Key.html
+
     const Key = refs.Key;
     const aliases = {
         'ctrl': 'control',
@@ -386,7 +388,7 @@ namespace Events {
         'up': 'arrow_up',
         'down': 'arrow_down',
     };
-    
+
     export function toSequance(str) {
         var delimiter = '_%%%%%%_';
         str = str.replace(/\{([\w_]+)\}/g, function (full, name) {
@@ -427,14 +429,15 @@ namespace Events {
         var key = (aliases[name] || name).toUpperCase();
         return Key[key];
     }
-    function isSpecial(name) {
+    function isSpecial(name: string) {
         var key = (aliases[name] || name).toUpperCase();
         return key in Key;
     }
-    export function getSequenceFunction(arr) {
-        return function (node) {
-            var dfrs = arr.map(str => node.sendKeys(str));
-            return dfrs[dfrs.length - 1];
+    export function getSequenceFunction(arr: string[]) {
+        return async function (node) {
+            for (let str of arr) {
+                await node.sendKeys(str)
+            }
         };
     }
 

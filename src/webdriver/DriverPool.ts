@@ -64,7 +64,7 @@ export class DriverPool {
     async unlockDriver(mix: IQuery<any> | IDriver | DriverWrapper) {
 
         let driver = DriverExtractor.extractDriver(mix);
-        if (driver == null) {
+        if (driver == null || this.pool.length === 0) {
             return;
         }
         let wrapper = this.pool.find(x => x.driver === driver);

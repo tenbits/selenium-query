@@ -1,19 +1,28 @@
 {
-	"files": [
-    	"src/SQueryLibrary.ts"
-  	],
-	"exclude": [
-		"node_modules",
-		"test"
-	],
-	"compilerOptions": {
+    "files": [
+        "src/SQueryLibrary.ts"
+      ],
+    "exclude": [
+        "node_modules",
+        "test",
+        "node_modules/@types/jsdom/index.d.ts"
+    ],
+    "compilerOptions": {
         "baseUrl": "./",
-		"outDir": "ts-temp",
-		"diagnostics": true,
-		"declaration": true,
-		"target":"ES2015",
-		"module": "commonjs",
-		"sourceMap": false,
-		"experimentalDecorators": true
-	}
+        "outDir": "ts-temp",
+        "typeRoots": [
+            "./node_modules/@types",
+            "./typings/"
+        ],
+        "types": [
+            "node"
+        ],
+
+        "diagnostics": true,
+        "declaration": true,
+        "target":"ES2015",
+        "module": "commonjs",
+        "sourceMap": false,
+        "experimentalDecorators": true
+    }
 }

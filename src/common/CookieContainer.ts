@@ -5,9 +5,9 @@ interface ICookie {
 }
 class DomainCookies {
     arr: ICookie[] = []
-    
+
     constructor (public domain: string) {
-        
+
     }
 
     add(mix: string | string[] | { [key: string]: string }, opts?: { extend: boolean }) {
@@ -31,7 +31,7 @@ class DomainCookies {
         }
 
         for (let key in mix) {
-            let cookie = `${key}=${mix}`;
+            let cookie = `${key}=${mix[key]}`;
             this.push(cookie, opts);
         }
 
@@ -53,7 +53,7 @@ class DomainCookies {
             }
             this.arr.push(cookie);
         });
-    }    
+    }
     private static parse (cookies: string): ICookie[] {
         let format = CookiesHelper.detectFormat(cookies);
         if (format === 'key-values') {
@@ -95,7 +95,7 @@ class DomainCookies {
 
         let value = cookie.substring(0, i);
         return {
-            key, 
+            key,
             value,
             rawOptions: cookie.substring(i)
         };
@@ -109,6 +109,9 @@ namespace CookiesHelper {
         if (hasOptions) {
             return 'set-cookie';
         }
+        if (/^[\w_-]+=\{/.test(cookies)) {
+            return 'key-values';
+        }
 
         let commaIndex = cookies.indexOf(',');
         let semicolonIndex = cookies.indexOf(';');
@@ -116,7 +119,7 @@ namespace CookiesHelper {
             // Has comma but not semicolon
             return 'set-cookie';
         }
-            
+
         return 'key-values';
     }
 }

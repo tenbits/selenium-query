@@ -1,10 +1,11 @@
-{	
-	"compilerOptions": {
-		"diagnostics": true,
-		"declaration": true,
-		"target":"ES2015",
-		"module": "commonjs",
-		"sourceMap": false,
-		"experimentalDecorators": true
-	}
+{
+    "exclude": ["node_modules"],
+    "compilerOptions": {
+        "diagnostics": true,
+        "declaration": true,
+        "target":"ES2015",
+        "module": "commonjs",
+        "sourceMap": false,
+        "experimentalDecorators": true
+    }
 }

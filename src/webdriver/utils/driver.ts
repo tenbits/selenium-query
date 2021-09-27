@@ -28,15 +28,17 @@ export function loadUrl (driver: IDriver, url: string, config: ILoadConfig): Pro
 
 export function ensureCookies(driver: IDriver, url: string, cookies: string, config: ILoadConfig): Promise<undefined> {
     return <Promise<undefined>> <any> dfr_run((resolve, reject) => {
-        
+
         if (!cookies) {
             resolve();
             return;
         }
 
         let arr: any[] = cookies.split(';').map(x => x.trim()).map(single => {
-            let parts = single.split('=').map(x => x.trim());
-            return { name: parts[0], value: parts[1] }
+            let i = single.indexOf('=');
+            let name = single.substring(0, i).trim();
+            let value = single.substring(i + 1).trim();
+            return { name, value };
         });;
 
         let origin = config.cookieOrigin;
@@ -53,7 +55,7 @@ export function ensureCookies(driver: IDriver, url: string, cookies: string, con
             })
         })
     });
-} 
+}
 
 export function driver_evalAsync (el: IElement | IDriver | WebdriverQuery | any, mix: string | Function, ...args: any[]): IQuery<IElement> {
     let set = WebdriverQuery.newAsync(void 0, el);
@@ -165,7 +167,7 @@ namespace WaitForPageLoad {
 
         function isStale () {
             return <any> dfr_run((resolve, reject) => {
-                
+
                 el.getTagName().then(x => {
                     resolve(false);
                 }, x => {
@@ -174,7 +176,7 @@ namespace WaitForPageLoad {
                 });
             })
         }
-    }    
+    }
 }
 
 function waitForTrue(check: () => Promise<boolean>, timeout: number) {
@@ -194,7 +196,7 @@ function waitForTrue(check: () => Promise<boolean>, timeout: number) {
             setTimeout(tick, 400);
         }, error => dfr.reject(error))
     }
-    
+
     tick();
     return dfr;
 }

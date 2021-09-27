@@ -310,6 +310,8 @@ declare module 'selenium-query/common/IConfig' {
         httpsProxy?: string;
         ignoreSSLErrors?: boolean;
         doNotThrow?: boolean;
+        /** default: true */
+        includeDefaultHeaders?: boolean;
     }
     export interface ISettings {
         pool?: boolean | number;

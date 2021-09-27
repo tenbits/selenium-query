@@ -1,19 +1,22 @@
-sudo: false
+sudo: required
+
 dist: trusty
+
 addons:
-  apt:
-    packages:
-      - google-chrome-stable
+  chrome: stable
+
+services:
+  - xvfb
 
 before_script:
   - export DISPLAY=:99.0
-  - curl -Lo chromedriver.zip http://chromedriver.storage.googleapis.com/71.0.3578.33/chromedriver_linux64.zip && unzip chromedriver.zip
-  - sh -e /etc/init.d/xvfb start &
+  - curl -Lo chromedriver.zip http://chromedriver.storage.googleapis.com/93.0.4577.63/chromedriver_linux64.zip && unzip chromedriver.zip
   - sleep 3
-  
+
 script:
-  - 'npm test'
+  - npm test
 
 language: node_js
+
 node_js:
-  - "10.13.0"
+  - 16

@@ -1,7 +1,6 @@
-import * as fetch from 'node-fetch'
 import * as https from 'https'
 import * as http from 'http'
-
+import fetch from 'node-fetch'
 import { ILoadConfig } from "../common/IConfig";
 import { cookieContainer, CookieContainer } from '../common/CookieContainer'
 import { cache } from './Cache'
@@ -13,7 +12,7 @@ import { serializeCachableUrl, serializeUrl } from '../utils/url';
 
 const DefaultOptions = {
     headers: {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9,image/webp,image/apng,*/*;q=0.8',
         'Accept-Encoding': 'gzip, deflate',
         'Accept-Language': 'en,ru;q=0.9,de;q=0.8,en-GB;q=0.7,uk;q=0.6,la;q=0.5',
         'Cache-Control': 'no-cache',
@@ -107,7 +106,7 @@ class RequestWorker {
     constructor(private url: string, private config: ILoadConfig = {}) {
         const headers = Object.assign(
             {},
-            DefaultOptions.headers,
+            config?.includeDefaultHeaders !== false ? DefaultOptions.headers : {},
             Headers.get(config.headers)
         );
         this.options = {
@@ -154,12 +153,12 @@ class RequestWorker {
             }
         }
         if (config.httpsProxy) {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             const HttpsProxyAgent = require('https-proxy-agent');
             this.options.agent = new HttpsProxyAgent(config.httpsProxy)
         }
         if (config.ignoreSSLErrors) {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         }
         if (config.body != null && is_rawObject(config.body)) {
             Body.handleAsRawObject(this.options);
@@ -311,7 +310,7 @@ class RequestWorker {
 
 function wait(ms) {
     return new Promise(resolve => {
-        setTimeout(() => resolve(), ms);
+        setTimeout(() => resolve(null), ms);
     })
 }
 

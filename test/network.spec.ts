@@ -27,7 +27,7 @@ const Server = {
             });
             Server.http.on('listening', () => {
                 Server.port = Server.http.address().port;
-                resolve();
+                resolve(null);
             })
             Server.http.on('error', (error) => reject(error));
 
@@ -53,13 +53,13 @@ const Server = {
     stop () {
         return new Promise(resolve => {
             Server.http.destroy(() => {
-                resolve();
+                resolve(null);
             });
         })
     },
     define (data) {
         const scope = 'scope' in data ? data.scope : Math.random() * 10 ** 5 | 0;
-        
+
         for (let key in data.routes) {
             let path = `${scope}/${key}`;
             Server.routes.add(path, data.routes[key]);
