@@ -1,16 +1,22 @@
 sudo: required
 
+build: trusty
 dist: trusty
 
 addons:
   chrome: stable
+  apt:
+    packages:
+      - chromium-chromedriver
 
 services:
   - xvfb
 
 before_script:
   - export DISPLAY=:99.0
-  - curl -Lo chromedriver.zip http://chromedriver.storage.googleapis.com/93.0.4577.63/chromedriver_linux64.zip && unzip chromedriver.zip
+  - ln --symbolic /usr/lib/chromium-browser/chromedriver "${HOME}/bin/chromedriver"
+  #- curl -Lo chromedriver.zip http://chromedriver.storage.googleapis.com/93.0.4577.63/chromedriver_linux64.zip
+  #- unzip chromedriver.zip
   - sleep 3
 
 script:

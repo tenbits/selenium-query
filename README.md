@@ -1,15 +1,15 @@
 # Query and Manipulation Library
 
-[![Build Status](https://travis-ci.org/tenbits/selenium-query.png?branch=master)](https://travis-ci.org/tenbits/selenium-query)
+[![Build Status](https://app.travis-ci.com/tenbits/selenium-query.svg?branch=master)](https://app.travis-ci.com/github/tenbits/selenium-query)
 [![NPM version](https://badge.fury.io/js/selenium-query.svg)](http://badge.fury.io/js/selenium-query)
 [![TypeScript](https://badges.frapsoft.com/typescript/code/typescript.svg?v=101)](https://github.com/ellerbrock/typescript-badges/)
 
 #### jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html), [JSDom](https://github.com/jsdom/jsdom) and [Cheerio](https://github.com/cheeriojs/cheerio)
 
 
-Single API to query web-pages or html blocks with supported providers: `Selenium WebDriver`, `JSDom`, `Cheerio` _(`puppeteer` on roadmap)_. 
+Single API to query web-pages or html blocks with supported providers: `Selenium WebDriver`, `JSDom`, `Cheerio` _(`puppeteer` on roadmap)_.
 
-> Use for tests or crawlers. 
+> Use for tests or crawlers.
 
 ---
 
@@ -43,8 +43,8 @@ $.fn.doBaz = function(){
     });
 };
 $(driver)
-	.find('input')
-	.doBaz();
+    .find('input')
+    .doBaz();
 ```
 
 ## API
@@ -52,66 +52,66 @@ $(driver)
 ##### &#9776;
 - [`constructor`](#constructor)
 - [Collection](#collection)
-	- [`length`](#length)
-	- [`eq`](#eq)
-	- [`slice`](#slice)
-	- [`each`](#each)
-	- [`map`](#map)
-	- [`toArray`](#toArray)
+    - [`length`](#length)
+    - [`eq`](#eq)
+    - [`slice`](#slice)
+    - [`each`](#each)
+    - [`map`](#map)
+    - [`toArray`](#toArray)
 - [Traverse](#traverse)
-	- [`find`](#find)
-	- [`filter`](#filter)
-	- [`children`](#children)
-	- [`parent`](#parent)
-	- [`closest`](#closest)
+    - [`find`](#find)
+    - [`filter`](#filter)
+    - [`children`](#children)
+    - [`parent`](#parent)
+    - [`closest`](#closest)
 - [Attributes](#attributes)
-	- [`attr`](#attr)
-	- [`removeAttr`](#removeAttr)
-	- [`prop`](#prop)
-	- [`removeProp`](#removeProp)
-	- [`val`](#val)
-	- [`css`](#css)
+    - [`attr`](#attr)
+    - [`removeAttr`](#removeAttr)
+    - [`prop`](#prop)
+    - [`removeProp`](#removeProp)
+    - [`val`](#val)
+    - [`css`](#css)
 - [Class](#class)
-	- [`hasClass`](#hasClass)
-	- [`addClass`](#addClass)
-	- [`removeClass`](#removeAttr)
-	- [`toggleClass`](#toggleClass)
+    - [`hasClass`](#hasClass)
+    - [`addClass`](#addClass)
+    - [`removeClass`](#removeAttr)
+    - [`toggleClass`](#toggleClass)
 - [Manipulate](#manipulate)
-	- [`remove`](#remove)
+    - [`remove`](#remove)
 - [Dimension and Position](#dimensions)
-	- [`height`](#height)
-	- [`width`](#width)
-	- [`innerHeight`](#innerHeight)
-	- [`innerWidth`](#innerWidth)
-	- [`offset`](#offset)
-	- [`position`](#position)
-	- [`scrollTop`](#scrollTop)
-	- [`scrollLeft`](#scrollLeft)
+    - [`height`](#height)
+    - [`width`](#width)
+    - [`innerHeight`](#innerHeight)
+    - [`innerWidth`](#innerWidth)
+    - [`offset`](#offset)
+    - [`position`](#position)
+    - [`scrollTop`](#scrollTop)
+    - [`scrollLeft`](#scrollLeft)
 - [Content](#content)
-	- [`html`](#html)
-	- [`text`](#text)
-	- [`append`](#append)
-	- [`prepend`](#prepend)
-	- [`before`](#before)
-	- [`after`](#after)
+    - [`html`](#html)
+    - [`text`](#text)
+    - [`append`](#append)
+    - [`prepend`](#prepend)
+    - [`before`](#before)
+    - [`after`](#after)
 - [Events](#events)
-	- [`trigger`](#trigger)
-	- [`click`](#click)
-	- [`change`](#change)
-	- [`focus`](#focus)
-	- [`blur`](#blur)
-	- :sparkles: [`type`](#type)
-	- :sparkles: [`press`](#press)
-	- :sparkles: [`sendKeys`](#sendKeys)
-	- :sparkles: [`select`](#select)
+    - [`trigger`](#trigger)
+    - [`click`](#click)
+    - [`change`](#change)
+    - [`focus`](#focus)
+    - [`blur`](#blur)
+    - :sparkles: [`type`](#type)
+    - :sparkles: [`press`](#press)
+    - :sparkles: [`sendKeys`](#sendKeys)
+    - :sparkles: [`select`](#select)
 
 - [Misc](#misc)
-	- [`eval`](#eval)
+    - [`eval`](#eval)
 
 - [Document](#document)
-	- [`load`](#load)
-	- [`getDriver`](#getDriver)
-	- [`setDriver`](#setDriver)
+    - [`load`](#load)
+    - [`getDriver`](#getDriver)
+    - [`setDriver`](#setDriver)
 
 - :zap: [JsDom](#jsdom)
     - [`build`](#jsdom-build)
@@ -146,23 +146,18 @@ Count of WebElements in a current set.
 Get the SQuery instance with only one element at the index.
 > :exclamation: Once again, wait until the promise is resolved, or **chain** the manipulations
 ```javascript
-$(driver)
+await $(driver)
     .find('button')
     .eq(0)
     .css('background-color', 'red')
-    .done(() => console.log('The color has been changed.'))
 // instead of an equivalent
-$(driver)
-    .find('button')
-    .done(buttons => {
-        buttons
-            .eq(0)
-            .done(firstButton => {
-                firstButton
-                    .css('background-color', 'red')
-                    .done(() => console.log('The color has been changed.'))
-            })
-    });
+
+let buttons = await $(driver).find('button')
+let firstButton = await buttons.eq(0);
+
+await firstButton.css('background-color', 'red');
+console.log('The color has been changed.'));
+
 ```
 
 ##### `slice([start:number = 0, end:number = .length]):SQuery` <a name='slice'></a>
@@ -287,12 +282,13 @@ Select an option from the `select` element, or if the `input` the selects a text
 Evaluate function in Browser.
 > :exclamation: The first argument is the first element in the set
 ```javascript
-$(driver)
-	.find('button')
-	.eval(function(el){
-		// browser context
-		// do smth. with the Element and return a value
-	});
+let result = await $(driver)
+    .find('button')
+    .eval((el: HTMLButton) => {
+        // browser context
+        // do smth. with the Element and return a value
+      return el.tagName;
+    });
 ```
 
 
@@ -304,17 +300,17 @@ Create or reuse a WebDriver, and load the page.
 #### `WebDriverOptions` defaults
 ```javascript
 {
-	name: 'Chrome',
-	args: ['no-sandbox'],
-	binaryPath: null,
+    name: 'Chrome',
+    args: ['no-sandbox'],
+    binaryPath: null,
 
-	// For better control and to change the behaviour of how the options are created and applied,
-	// you can define next functions
-	applyOptions: function(builder, options) {},
-	setOptions (builder, options) {},
-	setArguments (options) {},
-	setBinaryPath (options) {},
-	setLogging (options) {}
+    // For better control and to change the behaviour of how the options are created and applied,
+    // you can define next functions
+    applyOptions: function(builder, options) {},
+    setOptions (builder, options) {},
+    setArguments (options) {},
+    setBinaryPath (options) {},
+    setLogging (options) {}
 }
 ```
 
@@ -335,17 +331,17 @@ Create SQuery collection with JsDom driver
 ```typescript
 interface IJsdomLoadParams {
     headers?: {[name: string] : string }
-	method?
-	query?: {[name: string] : string }
+    method?
+    query?: {[name: string] : string }
     payload?
-	cookies?: string | string[]
-	cache?: {
-		folder?: string
-		maxAge?: number
+    cookies?: string | string[]
+    cache?: {
+        folder?: string
+        maxAge?: number
     }
-    cacheQueryIgnore?: string[]	
-	/** Webdriver will load this url, or requested url, to set the cookies first */
-	cookieOrigin?: string
+    cacheQueryIgnore?: string[]
+    /** Webdriver will load this url, or requested url, to set the cookies first */
+    cookieOrigin?: string
 }
 ```
 
@@ -366,17 +362,17 @@ Create SQuery collection with Cheerio driver (_Only query and manipulation metho
 ```typescript
 interface ICheerioLoadParams {
     headers?: {[name: string] : string }
-	method?
-	query?: {[name: string] : string }
+    method?
+    query?: {[name: string] : string }
     payload?
-	cookies?: string | string[]
-	cache?: {
-		folder?: string
-		maxAge?: number
+    cookies?: string | string[]
+    cache?: {
+        folder?: string
+        maxAge?: number
     }
-    cacheQueryIgnore?: string[]	
-	/** Webdriver will load this url, or requested url, to set the cookies first */
-	cookieOrigin?: string
+    cacheQueryIgnore?: string[]
+    /** Webdriver will load this url, or requested url, to set the cookies first */
+    cookieOrigin?: string
 }
 ```
 
@@ -394,12 +390,12 @@ interface IHttpParams {
     method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string
     query?: {[name: string] : string }
     body?: string | Buffer
-    
+
     cookies?: {[name: string] : string } | string[] | string
     cookiesDefault?: {[name: string] : string } | string[] | string
-    
+
     cache?: boolean | {
-		folder?: string
+        folder?: string
         maxAge?: number
         compress?: boolean
         //-ensureCacheAllowed? (resp): boolean
@@ -426,9 +422,9 @@ interface IHttpResponse {
 **Example**
 ```javascript
 $
-	.load('http://google.com')
-	.find('input')
-	.css('background-color', 'red');
+    .load('http://google.com')
+    .find('input')
+    .css('background-color', 'red');
 ```
 
 
