@@ -13,11 +13,24 @@
 #### jQuery-alike API for [Selenium WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/index.html), [JSDom](https://github.com/jsdom/jsdom) and [Cheerio](https://github.com/cheeriojs/cheerio)
 
 
-Single API to query web-pages or html blocks with supported providers: `Selenium WebDriver`, `JSDom`, `Cheerio` _(`puppeteer` on roadmap)_.
+Single API to query web-pages or html blocks with supported providers: `Selenium WebDriver`, `JSDom`, `Cheerio`, `Plain-HTTP`.
 
-> Use for tests or crawlers.
+> Use for tests, crawlers and automations.
 
 ---
+
+## Request
+
+> All cookies received from the backend will be reused for a domain.
+
+```
+import SQuery from 'selenium-query';
+let $ = await SQuery.load(url, config?: IConfig)
+
+```
+
+
+## Query and Manipulate
 
 ### Asynchronous nature
 
