@@ -111,7 +111,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
                     isCachedAsync(url: string, config?: ILoadConfig): Promise<boolean>;
                     clearCookies(): void;
                     clearCached(url: string, config?: ILoadConfig): void;
-                    load(url: string, config?: ILoadConfig): Promise<NetworkResponse>;
+                    load<T = any>(url: string, config?: ILoadConfig): Promise<NetworkResponse<T>>;
                     getCookies(url?: string): string;
                     setCookies: {
                             (cookies: string | string[] | {
@@ -238,7 +238,7 @@ declare module 'selenium-query/fetch/NetworkDriver' {
         isCachedAsync(url: string, config?: ILoadConfig): Promise<boolean>;
         clearCookies(): void;
         clearCached(url: string, config?: ILoadConfig): void;
-        load(url: string, config?: ILoadConfig): Promise<NetworkResponse>;
+        load<T = any>(url: string, config?: ILoadConfig): Promise<NetworkResponse<T>>;
         getCookies(url?: string): string;
         setCookies: {
             (cookies: string | string[] | {
@@ -255,14 +255,14 @@ declare module 'selenium-query/fetch/NetworkDriver' {
         };
         tracer: NetworkTracer;
     };
-    export interface NetworkResponse {
+    export interface NetworkResponse<T = any> {
         status: number;
         message?: string;
         headers: {
             [name: string]: string;
         };
         url: string;
-        body: any;
+        body: T;
     }
 }
 

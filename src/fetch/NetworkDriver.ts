@@ -43,7 +43,7 @@ export const NetworkDriver = {
         url = serializeCachableUrl(url, config);
         cache.remove(url, config);
     },
-    load(url: string, config: ILoadConfig = {}): Promise<NetworkResponse> {
+    load<T = any>(url: string, config: ILoadConfig = {}): Promise<NetworkResponse<T>> {
         let worker = new RequestWorker(url, config);
 
         return worker.load();
@@ -58,13 +58,13 @@ export const NetworkDriver = {
 }
 
 
-export interface NetworkResponse {
+export interface NetworkResponse<T = any> {
     status: number
     message?: string
 
     headers: { [name: string]: string }
     url: string
-    body: any
+    body: T
 }
 
 
@@ -172,7 +172,7 @@ class RequestWorker {
     }
 
 
-    async load(): Promise<NetworkResponse> {
+    async load<T = any>(): Promise<NetworkResponse<T>> {
         this.span = tracer.createSpan({
             url: this.location,
             headers: this.options.headers,
@@ -189,9 +189,9 @@ class RequestWorker {
     }
 
 
-    private async _fromCache(): Promise<NetworkResponse> {
+    private async _fromCache<T = any>(): Promise<NetworkResponse<T>> {
         try {
-            let cached: Partial<NetworkResponse> = await <any>cache.get(this.url, this.config);
+            let cached: Partial<NetworkResponse<T>> = await <any>cache.get(this.url, this.config);
             if (cached) {
                 return {
                     status: cached.status,
@@ -278,7 +278,7 @@ class RequestWorker {
                 break;
         }
 
-        let resp: NetworkResponse = {
+        let resp: NetworkResponse<any> = {
             status: res.status,
             headers: readAllHeaders(res.headers),
             url: res.url,
@@ -301,7 +301,7 @@ class RequestWorker {
         return resp;
     }
 
-    private async _fetch(url: string): Promise<NetworkResponse> {
+    private async _fetch<T = any>(url: string): Promise<NetworkResponse<T>> {
         let res = await fetch(url, this.options);
         return this._handleResponse(res);
     }
