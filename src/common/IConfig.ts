@@ -41,11 +41,22 @@ export interface ILoadConfig extends IBuildConfig {
     retryCount?: number
     retryTimeout?: number
     follow?: number
-    httpsProxy?: string
+    httpsProxy?: string | {
+        url: string
+        username?: string
+        password?: string
+    }
     ignoreSSLErrors?: boolean
+
+    /** optional timeout in ms */
+    timeoutMs?: number
+
     doNotThrow?: boolean
     /** default: true */
     includeDefaultHeaders?: boolean
+
+    /** default: true */
+    includeCookies?: boolean
 }
 
 export interface ISettings {

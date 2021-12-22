@@ -2,7 +2,7 @@ import { IDriver, IElement } from "../../common/IDriver";
 import { dfr_run } from "../../utils/dfr";
 import { Deferred } from "../../types/Deferred";
 
-export function node_eval(node: IElement | IDriver, mix: string | Function, ...args: any[]): Deferred<any> {
+export function node_eval(node: IElement | IDriver, mix: string | Function, ...args: any[]): Promise<any> {
     return dfr_run((resolve, reject) => {
 
         var script = node_toScript(mix);
@@ -24,7 +24,7 @@ export function node_eval(node: IElement | IDriver, mix: string | Function, ...a
     });
 };
 
-export function node_evalAsync(node: IElement | IDriver, mix: string | Function, ...args: any[]): Deferred<any> {
+export function node_evalAsync(node: IElement | IDriver, mix: string | Function, ...args: any[]): Promise<any> {
     return dfr_run((resolve, reject) => {
 
         var script = node_toScript(mix);

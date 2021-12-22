@@ -84,10 +84,9 @@ export function waitForElement (query: IQuery<IElement>, selector: string): IQue
         return;
     }
 
-    waitForTrue(() => {
-        return query.find(selector).then(x => {
-            return x.length > 0
-        });
+    waitForTrue(async () => {
+        let $ = await query.find(selector);
+        return $.length > 0;
     }, 10_000).then(
         () => {
             query.find(selector).then(x => set.resolve(x), err => set.reject(err));

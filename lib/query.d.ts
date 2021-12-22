@@ -113,19 +113,11 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
                     clearCached(url: string, config?: ILoadConfig): void;
                     load<T = any>(url: string, config?: ILoadConfig): Promise<NetworkResponse<T>>;
                     getCookies(url?: string): string;
-                    setCookies: {
-                            (cookies: string | string[] | {
-                                    [key: string]: string;
-                            }): any;
-                            (url: string, cookies: string | string[] | {
-                                    [key: string]: string;
-                            }): any;
-                            (url: string, cookies: string | string[] | {
-                                    [key: string]: string;
-                            }, opts: {
-                                    extend: boolean;
-                            }): any;
-                    };
+                    setCookies(url: string, cookies: string | string[] | {
+                            [key: string]: string;
+                    }, opts: {
+                            extend: boolean;
+                    }): void;
                     tracer: NetworkTracer;
             };
             static pseudo: {
@@ -240,19 +232,11 @@ declare module 'selenium-query/fetch/NetworkDriver' {
         clearCached(url: string, config?: ILoadConfig): void;
         load<T = any>(url: string, config?: ILoadConfig): Promise<NetworkResponse<T>>;
         getCookies(url?: string): string;
-        setCookies: {
-            (cookies: string | string[] | {
-                [key: string]: string;
-            }): any;
-            (url: string, cookies: string | string[] | {
-                [key: string]: string;
-            }): any;
-            (url: string, cookies: string | string[] | {
-                [key: string]: string;
-            }, opts: {
-                extend: boolean;
-            }): any;
-        };
+        setCookies(url: string, cookies: string | string[] | {
+            [key: string]: string;
+        }, opts: {
+            extend: boolean;
+        }): void;
         tracer: NetworkTracer;
     };
     export interface NetworkResponse<T = any> {
@@ -307,11 +291,19 @@ declare module 'selenium-query/common/IConfig' {
         retryCount?: number;
         retryTimeout?: number;
         follow?: number;
-        httpsProxy?: string;
+        httpsProxy?: string | {
+            url: string;
+            username?: string;
+            password?: string;
+        };
         ignoreSSLErrors?: boolean;
+        /** optional timeout in ms */
+        timeoutMs?: number;
         doNotThrow?: boolean;
         /** default: true */
         includeDefaultHeaders?: boolean;
+        /** default: true */
+        includeCookies?: boolean;
     }
     export interface ISettings {
         pool?: boolean | number;
@@ -408,7 +400,7 @@ declare module 'selenium-query/common/IQuery' {
         slice(start?: number, end?: number): IQuery<any>;
         each(fn: any): IQuery<any>;
         map(fn: any): IQuery<any>;
-        toArray(): Deferred<unknown>;
+        toArray(): Promise<unknown>;
         text(): PromiseLike<string>;
         text(str: string): IQuery<TElement>;
         protected abstract textGetFn(node: TElement): Deferred<string>;

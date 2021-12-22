@@ -66,8 +66,8 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
 
         this.ctx = new IQueryCtx;
         this.ctx.self = this;
-        this.ctx.thener = this.then;
-        this.ctx.Ctor = <any>this.constructor;
+        this.ctx.thener = <any> this.then;
+        this.ctx.Ctor = <any> this.constructor;
 
         this.ensureSync();
         this.add(mix);

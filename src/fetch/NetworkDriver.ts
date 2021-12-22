@@ -1,10 +1,11 @@
 import * as https from 'https'
 import * as http from 'http'
+import * as Url from 'url';
 import fetch from 'node-fetch'
 import { ILoadConfig } from "../common/IConfig";
 import { cookieContainer, CookieContainer } from '../common/CookieContainer'
 import { cache } from './Cache'
-import { is_rawObject } from 'atma-utils';
+import { class_Dfr, is_rawObject } from 'atma-utils';
 import { Body } from './Body';
 import { NetworkSpan, NetworkTracer } from './NetworkTracer';
 import { serializeCachableUrl, serializeUrl } from '../utils/url';
@@ -17,7 +18,6 @@ const DefaultOptions = {
         'Accept-Language': 'en,ru;q=0.9,de;q=0.8,en-GB;q=0.7,uk;q=0.6,la;q=0.5',
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
-        //'Referer': 'https://www.google.de/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
     }
 }
@@ -51,9 +51,9 @@ export const NetworkDriver = {
     getCookies(url?: string) {
         return cookieContainer.getCookies(url);
     },
-    setCookies: <typeof cookieContainer.addCookies><any>((...args) => {
-        cookieContainer.addCookies.apply(cookieContainer, args);
-    }),
+    setCookies (...args: Parameters<typeof cookieContainer.addCookies>) {
+        cookieContainer.addCookies(...args);
+    },
     tracer: tracer
 }
 
@@ -89,12 +89,15 @@ function readAllHeaders(headers) {
 
 
 class RequestWorker {
+    private promise = new class_Dfr
     private options: FetchOptions;
     private cookieContainer: CookieContainer
     private retryCount: number;
     private retryTimeout: number;
     private redirectCount: number;
     private doNotThrow: boolean;
+    private isCompleted = false;
+    private timer = null;
 
     public redirectIndex = 0;
     public retryIndex = 0;
@@ -136,9 +139,11 @@ class RequestWorker {
             this.cookieContainer.addCookies(url, config.cookiesDefault, { extend: true });
         }
 
-        let cookies = this.cookieContainer.getCookies(url);
-        if (cookies) {
-            this.options.headers['Cookie'] = cookies;
+        if (config.includeCookies !== false) {
+            let cookies = this.cookieContainer.getCookies(url);
+            if (cookies) {
+                this.options.headers['Cookie'] = cookies;
+            }
         }
         url = serializeUrl(url, config);
 
@@ -154,8 +159,32 @@ class RequestWorker {
         }
         if (config.httpsProxy) {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-            const HttpsProxyAgent = require('https-proxy-agent');
-            this.options.agent = new HttpsProxyAgent(config.httpsProxy)
+            let HttpsProxyAgent = require('https-proxy-agent');
+            let headers: any = null;
+            let uri: Url.UrlWithStringQuery = null;
+            let auth: string;
+
+            if (typeof config.httpsProxy === 'string') {
+                uri = Url.parse(config.httpsProxy);
+            } else {
+                uri = Url.parse(config.httpsProxy.url);
+                let { username, password } = config.httpsProxy;
+                if (username && password) {
+                    auth = `${username}:${password}`;
+                }
+            }
+            if (uri.auth) {
+                auth = uri.auth;
+            }
+            if (auth) {
+                headers = {
+                    'Proxy-Authorization': `Basic ${ Buffer.from(auth).toString('base64') }`
+                };
+            }
+            this.options.agent = new HttpsProxyAgent({
+                ...uri,
+                headers,
+            });
         }
         if (config.ignoreSSLErrors) {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -185,7 +214,14 @@ class RequestWorker {
             this.span.complete(cached);
             return cached;
         }
-        return await this._fetch(this.location);
+        if (this.config.timeoutMs) {
+            this.timer = setTimeout(() => {
+                this.doComplete(new Error(`Timeouted in ${this.config.timeoutMs}ms`));
+            }, this.config.timeoutMs);
+        }
+
+        this._fetch(this.location);
+        return this.promise;
     }
 
 
@@ -206,7 +242,7 @@ class RequestWorker {
 
         return null;
     }
-    private async _handleResponse(res) {
+    private async _handleResponse<T>(res): Promise<NetworkResponse<T>> {
         let errored = res.status >= 400;
         if (errored && --this.retryCount > 0) {
             switch (res.status) {
@@ -217,7 +253,8 @@ class RequestWorker {
                 default: {
                     console.log(`Retry ${this.retryCount} for [${this.options.method}] ${this.location} as got ${res.status}`);
                     await wait(this.retryTimeout);
-                    return this._fetch(this.location);
+                    this._fetch(this.location);
+                    return;
                 }
             }
         }
@@ -244,7 +281,8 @@ class RequestWorker {
                     delete this.options.headers['content-length'];
                 }
                 this.location = location;
-                return this._fetch(location);
+                this._fetch(location);
+                return;
             }
         }
         return await this._handleCompletion(res);
@@ -301,9 +339,29 @@ class RequestWorker {
         return resp;
     }
 
-    private async _fetch<T = any>(url: string): Promise<NetworkResponse<T>> {
-        let res = await fetch(url, this.options);
-        return this._handleResponse(res);
+    private async _fetch<T = any>(url: string) {
+        try {
+            let httpRes = await fetch(url, this.options);
+            let res = await this._handleResponse<T>(httpRes);
+            if (res != null) {
+                this.doComplete(null, res);
+            }
+        } catch (error) {
+            this.doComplete(error);
+        }
+    }
+    private doComplete <T> (error: Error, resp?: NetworkResponse<T>) {
+        clearTimeout(this.timer);
+
+        if (this.isCompleted) {
+            return;
+        }
+        this.isCompleted = true;
+        if (error != null) {
+            this.promise.reject(error);
+            return;
+        }
+        this.promise.resolve(resp);
     }
 }
 

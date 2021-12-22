@@ -1,8 +1,8 @@
 import { class_Dfr } from 'atma-utils'
 import { Deferred } from '../types/Deferred';
 
-export function dfr_run <T> (fn: (resolve: (result?: T) => void | any, reject: (error: any) => void | any) => void | any) : Deferred<T> {
-	return class_Dfr.run(fn) as Deferred<T>;
+export function dfr_run <T> (fn: (resolve: (result?: T) => void | any, reject: (error: any) => void | any) => void | any) : Promise<T> {
+	return new Promise(fn)
 };
 
 export function dfr_resolve <T> (x?: T) : Deferred<T> {

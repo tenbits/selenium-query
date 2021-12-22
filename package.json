@@ -1,7 +1,7 @@
 {
     "name": "selenium-query",
     "description": "jQuery API for Selenium WebDriver/JSDom",
-    "version": "0.52.37",
+    "version": "0.52.40",
     "contributors": [],
     "main": "./lib/query.js",
     "types": "./lib/query.d.ts",
@@ -24,7 +24,8 @@
         "atma-io-middleware-importer": "^1.1.30",
         "atma-loader-babel": "^1.0.19",
         "atma-loader-ts": "^1.1.16",
-        "dts-bundle": "^0.7.3"
+        "dts-bundle": "^0.7.3",
+        "proxy": "^1.0.2"
     },
     "scripts": {
         "build": "app-bundler && npm run build:dts",
@@ -115,12 +116,12 @@
     "dependencies": {
         "atma-class": "^1.1.83",
         "atma-io": "^1.2.26",
-        "atma-utils": "^0.1.15",
+        "atma-utils": "^0.2.53",
         "cheerio": "^1.0.0-rc.2",
         "encoding": "^0.1.12",
         "form-data": "^3.0.0",
         "jsdom": "^17.0.0",
         "node-fetch": "^2.6.5",
-        "selenium-webdriver": "^4.0.0-rc-1"
+        "selenium-webdriver": "^4.1.0"
     }
 }

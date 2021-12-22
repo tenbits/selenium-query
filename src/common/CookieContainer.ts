@@ -44,7 +44,7 @@ class DomainCookies {
         arr.forEach(cookie => {
             let i = this.arr.findIndex(x => x.key === cookie.key);
             if (i !== -1) {
-                if (opts && opts.extend) {
+                if (opts?.extend === true) {
                     // Skip existed cookie
                     return;
                 }
@@ -153,7 +153,7 @@ export class CookieContainer {
         let cookies = [];
         let domain = url && this.getDomain(url) || null;
         for (let key in this.domains) {
-            if (key !== 'global' && key !== domain) {
+            if (key !== 'global' && key !== domain && domain.endsWith('.' + key) === false /** Includ root cookies also to subdomains */) {
                 continue;
             }
             cookies.push(this.domains[key].stringify());
@@ -163,9 +163,10 @@ export class CookieContainer {
 
 
     private getDomain(url: string) {
-        let match = /[^/]\/[^/]/.exec(url);
-        let domain = match == null ? url : url.substring(0, match.index + 1);
-        return domain.replace(/https?:\/\//, '').toLowerCase();
+        return url
+            .replace(/https?:\/\//, '')
+            .replace(/\/.*$/, '')
+            .toLowerCase();
     }
 
 }

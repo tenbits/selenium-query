@@ -1,5 +1,7 @@
 import * as http from 'http';
+import * as net from 'net';
 import * as ruta from 'ruta';
+import * as setup from 'proxy'
 import { NetworkDriver } from '../src/fetch/NetworkDriver';
 
 
@@ -11,6 +13,7 @@ const Server = {
     start () {
         return new Promise ((resolve, reject) => {
             Server.http  = http.createServer((req, res: http.ServerResponse) => {
+                console.log('REQ', req.url);
                 let url = req.url;
                 let route = Server.routes.get(url);
                 if (route == null) {
@@ -29,21 +32,25 @@ const Server = {
                 Server.port = Server.http.address().port;
                 resolve(null);
             })
-            Server.http.on('error', (error) => reject(error));
+            Server.http.on('error', (error) => {
+                reject(error)
+            });
 
-            var connections = {}
+            let connections = {}
 
-            Server.http.on('connection', function(conn) {
-                var key = conn.remoteAddress + ':' + conn.remotePort;
+            Server.http.on('connection', function(conn: net.Socket) {
+
+                let key = conn.remoteAddress + ':' + conn.remotePort;
                 connections[key] = conn;
                 conn.on('close', function() {
-                delete connections[key];
+                    console.log('CLOSED');
+                    delete connections[key];
                 });
             });
 
             Server.http.destroy = function(cb) {
                 Server.http.close(cb);
-                for (var key in connections)
+                for (let key in connections)
                     connections[key].destroy();
             };
 
@@ -66,8 +73,33 @@ const Server = {
         }
 
         return {
+            port: Server.port,
+            scope: scope,
             url: `http://localhost:${Server.port}/${scope}`
         };
+    }
+}
+
+
+class Proxy {
+    port =  null
+    http = null
+
+    start (): Promise<Proxy> {
+        return new Promise ((resolve, reject) => {
+            let server = setup(http.createServer());
+            server.listen(0, () => {
+                this.port = server.address().port;
+                resolve(this);
+            });
+        });
+    }
+    stop () {
+        return new Promise(resolve => {
+            this.http.destroy(() => {
+                resolve(null);
+            });
+        })
     }
 }
 
@@ -113,5 +145,27 @@ UTest({
         let resp = await NetworkDriver.load(test.url);
         eq_(resp.body, 'lorem');
         eq_(resp.url, test.url + '/redirected');
+    },
+    async '!should consume proxy' () {
+        let test = Server.define({
+            routes: {
+                '/': {
+                    body: 'foo',
+                    headers: {
+                        "Content-Type": "text/plain"
+                    }
+                },
+            }
+        });
+        let proxy = new Proxy();
+        let { port } = await proxy.start();
+        let resp = await NetworkDriver.load(test.url, {
+            httpsProxy: {
+                url: `http://127.0.0.1:${port}`
+            }
+        });
+
+        eq_(resp.body, 'foo');
+        console.log(resp.body.toString());
     },
 })
