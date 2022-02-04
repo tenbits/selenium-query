@@ -6,10 +6,9 @@ import { IBuildConfig, ISettings, ILoadConfig } from "../common/IConfig";
 import { WebdriverQuery } from "./WebdriverQuery";
 import { IQueryStatics } from "../common/IQueryStatics"
 import { SelectorsEx } from '../common/SelectorsEx';
+import { scripts_fetchAsync } from './scripts/http/fetch';
 
 declare var process: any;
-declare var scripts_fetchAsync: any;
-
 
 export const Webdriver: IQueryStatics = {
     fromHtml (html, config?: ILoadConfig) {
@@ -27,7 +26,7 @@ export const Webdriver: IQueryStatics = {
             url = 'file://' + process.cwd() + url;
         }
         let query = WebdriverQuery.newAsync();
-        
+
         driverPool
             .get(url, config, setts)
             .then(wrapper => {
@@ -43,29 +42,48 @@ export const Webdriver: IQueryStatics = {
         driverPool.unlockDriver(mix);
     },
 
-    fetch <T> (url: string, config: ILoadConfig, setts?: ISettings): Promise<T> {
+    fetch <T = any | WebdriverQuery> (url: string, config: ILoadConfig & { baseUrl?: string }, setts?: ISettings): Promise<{
+        status: number
+        headers: { [lowerCased: string]: string },
+        data: T
+    }> {
         let dfr = new class_Dfr;
         driverPool
-            .getWithDomain(url, config, setts)
+            .getWithDomain(config?.baseUrl ?? url, config, setts)
             .then(wrapper => {
                 wrapper
                     .driver
                     .executeAsyncScript(scripts_fetchAsync, url, setts && setts.opts && JSON.stringify(setts.opts) || null)
-                    .then((result: any) => {
+                    .then((result: {
+                        status: number
+                        headers: { [lowerCased: string]: string },
+                        data: T
+                        name?: 'Error' | null
+                        message?: string
+                    }) => {
+                        if (result == null) {
+                            dfr.reject(new Error(`Response from the script is undefined`));
+                        }
 
-                        let isError = result && result.name === 'Error';
+                        let isError = result.name === 'Error';
                         if (isError) {
                             driverPool.unlockDriver(wrapper);
-                            dfr.reject(new Error(result.message));
-                            return;
-                        }
-                        if ('findElements' in result || (is_ArrayLike(result) && result.length !== 0 && 'findElements' in result[0])) {
-                            // Consumer is responsible to unlock later the driver
-                            dfr.resolve(new WebdriverQuery(result));
+                            dfr.reject(result);
                             return;
                         }
 
-
+                        let data = result.data;
+                        if (data != null && typeof data === 'object') {
+                            if ('findElements' in data || (is_ArrayLike(data) && data.length !== 0 && 'findElements' in data[0])) {
+                                // Consumer is responsible to unlock later the driver
+                                let $ = new WebdriverQuery(data);
+                                dfr.resolve({
+                                    ...result,
+                                    data: $
+                                });
+                                return;
+                            }
+                        }
                         driverPool.unlockDriver(wrapper);
                         dfr.resolve(result);
                     }, error => {
@@ -74,7 +92,7 @@ export const Webdriver: IQueryStatics = {
                 }
             );
 
-        return <Promise<T>> <any> dfr;
+        return dfr as any;
     },
     pseudo: SelectorsEx.pseudoFns
 };

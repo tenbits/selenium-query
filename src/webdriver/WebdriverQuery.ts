@@ -13,16 +13,17 @@ import { waitForPageLoad, waitForElement, driver_evalAsync } from './utils/drive
 import { DefaultConfig } from './SeleniumDriver';
 import { WebdriverEventsPoll } from './WebdriverEventsPoll';
 import { SelectorsEx } from '../common/SelectorsEx'
+import { scripts_nodeCss } from './scripts/css/nodeCss'
+import { scripts_nodeProperty } from './scripts/nodeProperty'
+import { scripts_nodeDataset } from './scripts/nodeDataset'
 
 declare var scripts_nodeClassHas: any;
 declare var scripts_nodeClassAdd: any;
 declare var scripts_nodeClassRemove: any;
 declare var scripts_nodeClassToggle: any;
-declare var scripts_nodeProperty: any;
 declare var scripts_nodeFunctionCall: any;
 
-declare var scripts_nodeCss: any;
-declare var scripts_nodeProperty: any;
+
 declare var scripts_nodeFunctionCall: any;
 
 declare var scripts_nodeTrigger: any;
@@ -32,8 +33,7 @@ declare var scripts_nodeFunctionCall: any;
 
 declare var scripts_nodeRemove: any
 declare var scripts_nodeAttribute: any;
-declare var scripts_nodeProperty: any;
-declare var scripts_nodeDataset: any;
+
 
 declare var scripts_nodeMatchesSelector: any;
 declare var scripts_nodeParent: any;
@@ -330,7 +330,7 @@ export class WebdriverQuery extends IQuery<IElement> {
         return Webdriver.build(config, setts);
     }
     static load(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
-        switch (config.name.toLowerCase()) {
+        switch (config.name?.toLowerCase()) {
             case 'jsdom':
                 return JsdomDriver.load(url, config, setts);
             case 'cheerio':
@@ -339,14 +339,18 @@ export class WebdriverQuery extends IQuery<IElement> {
                 return Webdriver.load(url, config, setts);
         }
     }
-    static fetch(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
-        switch (config.name.toLowerCase()) {
+    static fetch<T = any | WebdriverQuery>(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings): Promise<{
+        status: number
+        headers: { [lowerCased: string]: string },
+        data: T
+    }> {
+        switch (config.name?.toLowerCase()) {
             case 'jsdom':
                 return  JsdomDriver.fetch(url, config, setts);
             case 'cheerio':
                 return  CheerioDriver.fetch(url, config, setts);
             default:
-                return Webdriver.fetch(url, config, setts);
+                return Webdriver.fetch<T>(url, config, setts);
         }
     }
     static setDriver (driver: IDriver ) {

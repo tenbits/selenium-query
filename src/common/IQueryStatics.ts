@@ -1,5 +1,5 @@
+import { WebdriverQuery } from '../webdriver/WebdriverQuery';
 import { IBuildConfig, ISettings, ILoadConfig } from "./IConfig";
-import { IDriver } from "./IDriver";
 import { IQuery } from "./IQuery";
 import { IPseudoSelectorFn, SelectorsEx } from './SelectorsEx';
 
@@ -8,7 +8,11 @@ export interface IQueryStatics {
     build(config: IBuildConfig, setts?: ISettings): any;
 	load(url: string, config: ILoadConfig, setts?: ISettings): IQuery<any>;
 	unlockDriver (mix);
-	fetch <T> (url: string, config: ILoadConfig, setts?: ISettings): Promise<T>;
+	fetch <T = any | WebdriverQuery> (url: string, config: ILoadConfig & { baseUrl?: string}, setts?: ISettings): Promise<{
+        status: number
+        headers: { [lowerCased: string]: string },
+        data: T
+    }>;
 
     pseudo: typeof SelectorsEx.pseudoFns
 	[key: string]: any

@@ -1,4 +1,6 @@
-function scripts_nodeCss(){
+declare let str_toCamelCase;
+
+export function scripts_nodeCss(){
 	// import ../_inlineGetSetKeyValue.js
 	// import ../_str.es6
 

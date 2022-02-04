@@ -1,7 +1,7 @@
 
 export interface IDriver {
-    executeScript<T>(script: string, ...var_args: any[]): Promise<T>;
-    executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
+    executeScript<T>(script: string | Function, ...var_args: any[]): Promise<T>;
+    executeAsyncScript<T>(script: string | Function, ...var_args: any[]): Promise<T>;
 
     get (url: string): Promise<any>
     manage (): IDriverManager
@@ -15,7 +15,7 @@ export interface IDriverManager {
 }
 
 export interface IThenableDriver extends Promise<any>, IDriver {
-    
+
 }
 
 
@@ -26,7 +26,7 @@ export interface IElement {
     sendKeys (str: string)
     click(): Promise<void>
 
-    getCssValue (name: string): Promise<any>    
+    getCssValue (name: string): Promise<any>
     getAttribute (name: string): Promise<any>
 
     findElements({ css: string });

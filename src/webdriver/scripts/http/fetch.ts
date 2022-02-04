@@ -1,27 +1,41 @@
-function scripts_fetchAsync() {
+export function scripts_fetchAsync() {
     var url = arguments[0];
     var opts = null;
     if (arguments.length > 2) {
         opts = arguments[1]
-        if (typeof opts === 'strings') {
+        if (typeof opts === 'string') {
             opts = JSON.parse(opts);
         }
     }
-    
+
     var callback = arguments[arguments.length - 1];
 
-	
+
 	fetch(url, opts).then(response => {
-        if (!response.ok) {
-            callback({
-                name: 'Error',
-                message: url + " has the status code " + response.status
-            });
-            return;
-        }
         var contentType = response.headers.get('content-type');
-        
+        var status = response.status;
+        var headers = Array.from(response.headers.entries()).reduce((aggr, entry) => {
+            aggr[entry[0]] = entry[1];
+            return aggr;
+        }, {});
+
         response.text().then(text => {
+
+            let $resp = {
+                status,
+                headers,
+                data: text,
+                name: null,
+                message: null
+            };
+
+            if (!response.ok) {
+                callback(Object.assign($resp, {
+                    name: 'Error',
+                    message: url + " has the status code " + response.status
+                }));
+                return;
+            }
 
             if (contentType.includes('html')) {
 
@@ -58,23 +72,33 @@ function scripts_fetchAsync() {
                 } else {
                     container.appendChild(respBody);
                 }
+
                 document.body.appendChild(container);
-                callback(respBody);
+                callback(Object.assign($resp, {
+                    data: respBody
+                }));
                 return;
             }
-            if (contentType.includes('html')) {
+            if (contentType.includes('json')) {
                 try {
-                    callback(JSON.parse(text));
+                    var json = JSON.parse(text);
+                    callback(Object.assign($resp, {
+                        data: json
+                    }));
                 }
                 catch (error) {
-                    callback(error)
+                    callback(Object.assign($resp, {
+                        name: 'Error',
+                        message: error.message
+                    }));
                 }
                 return;
             }
-            callback(text);
+
+            callback($resp);
 
         }, callback);
-    
-        
+
+
     }, callback);
 }

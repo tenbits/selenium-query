@@ -51,11 +51,11 @@ export class DriverPool {
 
     async getWithDomain (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {
         let wrapper = await this.get(url, config, setts);
-        let match = /[^/]\/[^/]/.exec(url);
-        let domain = match == null ? url : url.substring(0, match.index + 1);
+        let domain = Domains.fromUrl(url);
 
         let currentUrl = await wrapper.driver.getCurrentUrl();
-        if (!currentUrl || !currentUrl.includes(domain.replace(/https?:\/\//, ''))) {
+        if (Domains.equal(domain, currentUrl) === false) {
+            // Load page in DOMAIN context
             await wrapper.driver.get(domain);
         }
         return wrapper;
@@ -231,5 +231,29 @@ namespace DriverExtractor {
         if (driver) return driver;
 
         return null;
+    }
+}
+
+namespace Domains {
+    export function fromUrl (url: string) {
+        let match = /[^/]\/[^/]/.exec(url);
+
+        // cuts path out (if any)
+        return match == null
+            ? url
+            : url.substring(0, match.index + 1);
+    }
+    export function equal (urlA: string, urlB: string) {
+        if (urlB == null) {
+            return false;
+        }
+
+        let a = fromUrl(urlA);
+        let b = fromUrl(urlB);
+
+        let rgxProtocol = /\w+:[\/]{1, 3}/;
+        a = a.replace(rgxProtocol, '');
+        b = b.replace(rgxProtocol, '');
+        return a.toLowerCase() === b.toLowerCase();
     }
 }

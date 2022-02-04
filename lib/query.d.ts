@@ -99,7 +99,13 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             unlock(): void;
             static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
             static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any>;
-            static fetch(url: string, config?: IBuildConfig, setts?: ISettings): Promise<unknown>;
+            static fetch<T = any | WebdriverQuery>(url: string, config?: IBuildConfig, setts?: ISettings): Promise<{
+                    status: number;
+                    headers: {
+                            [lowerCased: string]: string;
+                    };
+                    data: T;
+            }>;
             static setDriver(driver: IDriver): void;
             static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
             static unlockDriver(mix: any): void;
@@ -313,6 +319,7 @@ declare module 'selenium-query/common/IConfig' {
 }
 
 declare module 'selenium-query/common/IQueryStatics' {
+    import { WebdriverQuery } from 'selenium-query/webdriver/WebdriverQuery';
     import { IBuildConfig, ISettings, ILoadConfig } from "selenium-query/common/IConfig";
     import { IQuery } from "selenium-query/common/IQuery";
     import { SelectorsEx } from 'selenium-query/common/SelectorsEx';
@@ -321,7 +328,15 @@ declare module 'selenium-query/common/IQueryStatics' {
         build(config: IBuildConfig, setts?: ISettings): any;
         load(url: string, config: ILoadConfig, setts?: ISettings): IQuery<any>;
         unlockDriver(mix: any): any;
-        fetch<T>(url: string, config: ILoadConfig, setts?: ISettings): Promise<T>;
+        fetch<T = any | WebdriverQuery>(url: string, config: ILoadConfig & {
+            baseUrl?: string;
+        }, setts?: ISettings): Promise<{
+            status: number;
+            headers: {
+                [lowerCased: string]: string;
+            };
+            data: T;
+        }>;
         pseudo: typeof SelectorsEx.pseudoFns;
         [key: string]: any;
     }
@@ -329,8 +344,8 @@ declare module 'selenium-query/common/IQueryStatics' {
 
 declare module 'selenium-query/common/IDriver' {
     export interface IDriver {
-        executeScript<T>(script: string, ...var_args: any[]): Promise<T>;
-        executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T>;
+        executeScript<T>(script: string | Function, ...var_args: any[]): Promise<T>;
+        executeAsyncScript<T>(script: string | Function, ...var_args: any[]): Promise<T>;
         get(url: string): Promise<any>;
         manage(): IDriverManager;
         getCurrentUrl(): Promise<string>;

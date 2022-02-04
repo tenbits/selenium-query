@@ -1,4 +1,8 @@
-function scripts_nodeDataset () {
+declare let str_toCamelCase;
+declare let str_toDashed;
+declare let scripts_nodeDatasetRemove;
+
+export function scripts_nodeDataset () {
 	// import ./nodeDatasetRemove.es6
 	// import ./_str.es6
 	// import ./_inlineGetSetKeyValue.js
