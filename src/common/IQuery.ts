@@ -39,7 +39,7 @@ export class IQueryCtx {
     newAsync(arr?: any, parent?: IQuery<any>) {
         let query = new this.Ctor(arr);
         query.ctx.owner = parent ?? this.self;
-        query.then = query.ctx.thener;
+        (query as any).then = query.ctx.thener;
 
         IQueryCtx.copyFrom(query.ctx, parent?.ctx);
         return query;
@@ -55,7 +55,11 @@ export class IQueryCtx {
     }
 }
 
-export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<any> {
+export type IQuerySync<TElement> = Omit<IQuery<TElement>, 'then' | 'resolve' | 'reject' | 'done' | 'fail'>;
+export type TSync<T extends PromiseLike<any>> = Omit<T, 'then' | 'resolve' | 'reject' | 'done' | 'fail'>;
+
+export abstract class IQuery<TElement> extends class_Dfr<IQuery<TElement> & { then: never } > implements PromiseLike<IQuery<TElement> & { then: never } > {
+
     [index: number]: TElement;
     length: number = 0
 
@@ -98,7 +102,7 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
         return super.resolve(...args);
     }
 
-    wait (ms) {
+    wait (ms: number) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
@@ -135,12 +139,15 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
         this[this.length++] = mix;
         return this;
     }
-    eq(index) {
+    eq(index: number) {
         return async_next(this, ($, source) => {
             if (index < source.length) {
                 $.add(source[index]);
             }
         });
+    }
+    get(index: number) {
+        return this[index];
     }
     slice(start: number = 0, end?: number) {
         return async_next(this, ($, source) => {
@@ -155,7 +162,7 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
             }
         });
     }
-    each(fn) {
+    each(fn: (node: TElement, i?: number) => void | TElement | any) {
         return async_next(this, ($, source) => {
             return async_waterfall(source, (node, i) => {
                 $.add(node);
@@ -163,7 +170,7 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
             })
         });
     }
-    map(fn) {
+    map(fn: (node: TElement, i?: number) => void | TElement | any) {
         return async_map(this, fn);
     }
     toArray() {
@@ -174,6 +181,31 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
             });
         })
     }
+
+    as<T> (): T {
+        let t: any;
+        t = this;
+        return t as T;
+    }
+    use<TCtor extends new (...args) => IQuery<any>> (Ctor: TCtor) {
+
+        let proto = Ctor.prototype;
+        while (proto != null && proto !== Object.prototype) {
+
+            Object
+                .getOwnPropertyNames(proto)
+                .forEach(key => {
+                    if (key in IQuery.prototype) {
+                        return;
+                    }
+                    IQuery.prototype[key] = Ctor.prototype[key];
+                });
+            proto = Object.getPrototypeOf(proto);
+        }
+
+        return this as InstanceType<TCtor>;
+    }
+
     //#endregion Collection
 
     //#region Content
@@ -188,7 +220,9 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
         return <IQuery<TElement>><any>async_each(this, ($, node) => {
             return this
                 .textSetFn(node, str)
-                .done(() => $.add(node));
+                .then(() => {
+                    $.add(node)
+                });
         });
     }
     protected abstract textGetFn(node: TElement): Deferred<string>;
@@ -205,7 +239,9 @@ export abstract class IQuery<TElement> extends class_Dfr implements PromiseLike<
         return <IQuery<TElement>><any>async_each(this, ($, node) => {
             return this
                 .htmlSetFn(node, str)
-                .done(() => $.add(node));
+                .then(() => {
+                    $.add(node);
+                });
         });
     }
     outerHtml(): PromiseLike<string> {

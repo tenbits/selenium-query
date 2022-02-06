@@ -1,231 +1,180 @@
+import { WebElement } from 'selenium-webdriver';
+import { IQuery } from '../src/common/IQuery';
 import Utils from './utils'
 
 UTest({
     $config: {
         timeout: 50000
     },
-	$before () {
-		Utils.start();
-	},
-	$after () {
-		//Utils.stop();
-	},
-	'should get/set attributes': {
-		'get attr' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('span')
-					.attr('class')
-					.done(val => {
-						eq_(val, 'foo');
-						done();
-					})
-			});
-		},
-		'set attr' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('.foo')
-					.attr('class', 'baz')
-					.done($ => {
-						eq_($.length, 2);
+    $before() {
+        Utils.start();
+    },
+    $after() {
+        //Utils.stop();
+    },
+    'should get/set attributes': {
+        async 'get attr'() {
+            let $ = await Utils.query('/html/foo.html');
+            let val = await $
+                .find('span')
+                .attr('class');
 
-						function check(node, klass, tagName, next) {
-							node.getAttribute('class').then(val => {
-								eq_(val, klass);
+            eq_(val, 'foo');
 
-								node.getTagName().then(val => {
-									eq_(val, tagName);
-									next();
-								});
-							});
-						}
-						check($[0], 'baz', 'span', () => {
-							check($[1], 'baz', 'section', done);
-						});
-					})
-			});
-		}
-	},
-	'should get/set value': {
-		'get value' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('input[type=text]')
-					.val()
-					.done(val => {
-						eq_(val, 'Hello');
-						done();
-					})
-			});
-		},
-		'set value' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('input[type=text]')
-					.val('Ciao')
-					.done($ => {
-						eq_($.length, 1);
+        },
+        async 'set attr'() {
+            let $ = await Utils.query('/html/foo.html');
+            let $foo = await $
+                .find('.foo')
+                .attr('class', 'baz')
 
-						$[0].getTagName().then(name => {
-							eq_(name, 'input');
+            eq_($foo.length, 2);
 
-							new Utils.SQuery($)
-								.val()
-								.done(val => {
-									eq_(val, 'Ciao');
-									done();
-								})
-						});
-					})
-			});
-		}
-	},
-	'should get/set textContent': {
-		'get text' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('.foo')
-					.text()
-					.done(val => {
-						eq_(val, 'Span1Span2');
-						done();
-					})
-			});
-		},
-		'set text' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('.foo')
-					.text('Foo')
-					.done(val => {
-						$
-							.find('.foo')
-							.text()
-							.done(val => {
-								eq_(val, 'FooFoo');
-								done();
-							})
-					})
-			});
-		}
-	},
-	'should get/set data values': {
-		'get data' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('.btn-upload')
-					.data('myBaz')
-					.done(val => {
-						eq_(val, 'foo');
-						done();
-					})
-			});
-		},
-		'set data' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('.btn-upload')
-					.data('myBaz', '')
-					.done(val => {
-						$
-							.find('.btn-upload')
-							.data('myBaz')
-							.done(val => {
-								eq_(val, '');
-								done();
-							})
-					});
-			});
-		}
-	},
-	'should get/set inner html': {
-		'get and set html' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('footer')
-					.done($ => eq_($.length, 1))
-					.html()
-					.done(val => {
-						eq_(val, '<div></div>');
+            async function check(node, klass, tagName) {
+                let klassVal = await node.getAttribute('class');
+                eq_(klassVal, klass);
 
-						$
-							.find('footer')
-							.html('IFoot')
-							.done($ => eq_($.length, 1))
-							.html()
-							.done(val => {
-								eq_(val, 'IFoot');
-								done();
-							});
-					})
+                let tagNameVal = await node.getTagName()
+                eq_(tagNameVal, tagName);
+            }
 
-			});
-		},
-		'get html' (done) {
-			Utils.query('/html/foo.html', $ => {
-				$
-					.find('.foo')
-					.html()
-					.done(val => {
-						eq_(val, 'Span1<span>Span2</span>', 'Should get html of all Elements. Though jQuery returns html of the first Element only');
-						done();
-					});
-			});
-		}
-	},
-	'append' (done) {
-		Utils.query('/html/foo.html', $ => {
-			$
-				.find('section.foo')
-				.append('<br/><em>1</em>')
-				.done($ => {
-					eq_($.length, 1);
+            await check($foo[0], 'baz', 'span');
+            await check($foo[1], 'baz', 'section');
+        },
+        'should get/set value': {
+            async 'get value'() {
+                let $ = await Utils.query('/html/foo.html');
+                let val = await $
+                    .find('input[type=text]')
+                    .val();
 
-					$
-						.html()
-						.done(val => {
-							eq_(val, '<span>Span2</span><br><em>1</em>');
-							done();
-						});
-				});
-		});
-	},
-	'prepend' (done) {
-		Utils.query('/html/foo.html', $ => {
-			$
-				.find('section.foo')
-				.prepend('<div class="one">div</div><section class="one">section</section><span class="one">span</span>')
-				.done($ => {
-					eq_($.length, 1);
+                eq_(val, 'Hello');
+            },
+            async 'set value'() {
+                let $ = await Utils.query('/html/foo.html');
+                let $input = await $
+                    .find('input[type=text]')
+                    .val('Ciao');
 
-					$
-						.children('.one')
-						.done($ => {
-							eq_($.length, 3);
-							done();
-						});
-				});
-		});
-	},
+                eq_($input.length, 1);
 
-	'should remove element' (done) {
-		Utils.query('/html/foo.html', $ => {
-			$
-				.find('.foo')
-				.remove()
-				.done($ => {
-					eq_($.length, 2);
+                let name = await $input[0].getTagName();
+                eq_(name, 'input');
 
-					$
-						.find('.foo')
-						.done($ => {
-							eq_($.length, 0);
-							done();
-						});
-				});
-		});
-	}
+                let val = await $input.val();
+                eq_(val, 'Ciao');
+            }
+        },
+        'should get/set textContent': {
+            async 'get text'() {
+                let $ = await Utils.query('/html/foo.html');
+                let val = await $
+                    .find('.foo')
+                    .text()
 
+                eq_(val, 'Span1Span2');
+
+            },
+            async 'set text'() {
+                let $ = await Utils.query('/html/foo.html');
+                await $
+                    .find('.foo')
+                    .text('Foo')
+
+
+                let val = await $
+                    .find('.foo')
+                    .text()
+
+                eq_(val, 'FooFoo');
+            }
+        },
+        'should get/set data values': {
+            async 'get data'() {
+                let $ = await Utils.query('/html/foo.html');
+                let val = await $
+                    .find('.btn-upload')
+                    .data('myBaz');
+
+                eq_(val, 'foo');
+
+            },
+            async 'set data'() {
+                let $ = await Utils.query('/html/foo.html');
+                await $
+                    .find('.btn-upload')
+                    .data('myBaz', '')
+
+                let val = await $
+                    .find('.btn-upload')
+                    .data('myBaz')
+
+                eq_(val, '');
+            }
+        },
+        'should get/set inner html': {
+            async 'get and set html'() {
+                let $ = await Utils.query('/html/foo.html');
+                let html = await $
+                    .find('footer')
+                    .html();
+
+                eq_(html, '<div></div>');
+
+                let val = await $
+                    .find('footer')
+                    .html('IFoot')
+                    .html()
+
+                eq_(val, 'IFoot');
+            },
+            async 'get html'() {
+                let $ = await Utils.query('/html/foo.html');
+                let val = await $
+                    .find('.foo')
+                    .html()
+
+                eq_(val, 'Span1<span>Span2</span>', 'Should get html of all Elements. Though jQuery returns html of the first Element only');
+            }
+        },
+        async 'append'() {
+            let $ = await Utils.query('/html/foo.html');
+            let $el = await $
+                .find('section.foo')
+                .append('<br/><em>1</em>')
+
+            eq_($el.length, 1);
+
+            let val = await $el.html()
+            eq_(val, '<span>Span2</span><br><em>1</em>');
+        },
+        async 'prepend'() {
+            let $ = await Utils.query('/html/foo.html');
+            let $el = await $
+                .find('section.foo')
+                .prepend('<div class="one">div</div><section class="one">section</section><span class="one">span</span>')
+
+            eq_($el.length, 1);
+
+            let $children = await $el.children('.one');
+
+
+            eq_($children.length, 3);
+        },
+
+        async 'should remove element'() {
+            let $ = await Utils.query('/html/foo.html');
+            let $foo = await $
+                .find('.foo')
+                .remove()
+
+            eq_($foo.length, 2);
+
+            let $foo2 = await $foo
+                .find('.foo')
+
+            eq_($foo2.length, 0);
+        }
+    }
 });
 

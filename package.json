@@ -122,6 +122,7 @@
         }
     },
     "dependencies": {
+        "@types/selenium-webdriver": "^4.0.17",
         "atma-class": "^1.1.83",
         "atma-io": "^1.2.26",
         "atma-utils": "^0.2.53",

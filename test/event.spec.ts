@@ -10,37 +10,32 @@ UTest({
     $after () {
         // Utils.stop();
     },
-    'should click the button' (done) {
-        Utils.query('/html/foo.html', $ => {
-            $
-                .find('.btn-upload')
-                .done($ => eq_($.length, 1))
+    async 'should click the button' () {
+        let $ = await Utils.query('/html/foo.html');
+        let $btn = await $.find('.btn-upload');
+
+        eq_($btn.length, 1);
+
+        let $input = await $btn
                 .click()
                 .parent()
                 .children('input')
-                .done($ => eq_($.length, 1))
-                .val()
-                .done(val => {
-                    eq_(val, 'Gruesse');
-                    done();
-                });
-        });
+        eq_($input.length, 1);
+
+        let val = await $input.val();
+        eq_(val, 'Gruesse');
     },
-    'should trigger custom event' (done) {
-        Utils.query('/html/foo.html', $ => {
-            $
+    async 'should trigger custom event' () {
+        let $ = await Utils.query('/html/foo.html');
+
+        let val = await $
                 .find('.btn-upload')
-                .done($ => eq_($.length, 1))
                 .trigger('MyCustom',{})
                 .parent()
                 .children('input')
-                .done($ => eq_($.length, 1))
-                .val()
-                .done(val => {
-                    eq_(val, 'Guten Tag');
-                    done();
-                });
-        });
+                .val();
+
+                eq_(val, 'Guten Tag');
     },
     'should listen for the event' (done) {
         async function inner () {
@@ -56,7 +51,7 @@ UTest({
 
             let $button = await $.find('button');
 
-            await $button.once('click', fn);
+            await $button.once('click', fn as any);
             await $button.click();
         }
         inner().then(null, error => console.log(error));
@@ -65,12 +60,7 @@ UTest({
         let $ = await Utils.query('/html/button.html');
         await $.waitForResource(`script[src*="foo"]`);
 
-        let x = await $.eval(() => window.foo);
+        let x = await $.eval(() => (window as any).foo);
         eq_(x, 'Foo123');
     }
 });
-
-
-async function wait (ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}

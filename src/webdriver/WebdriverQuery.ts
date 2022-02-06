@@ -1,4 +1,4 @@
-import { node_eval, node_evalAsync, node_getDriver } from './utils/node'
+import { node_eval, node_getDriver } from './utils/node'
 import { refs } from '../global'
 import { IElement, IDriver, IDriverManager } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
@@ -42,6 +42,8 @@ declare var scripts_nodeChildren: any;
 declare var scripts_nodeNext: any;
 
 declare var scripts_waitForResourceCallback: any;
+
+export type WebdriverQuerySync = Omit<WebdriverQuery, 'then' | 'resolve' | 'reject' | 'done' | 'fail'>;
 
 export class WebdriverQuery extends IQuery<IElement> {
 
@@ -323,10 +325,12 @@ export class WebdriverQuery extends IQuery<IElement> {
     unlock () {
         Webdriver.unlockDriver(this);
     }
+    getDriver () {
+        return driverPool.extractDriver(this);
+    }
     //#endregion driver utils
 
-    static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
-
+    static build(config: IBuildConfig, setts?: ISettings): IQuery<any> {
         return Webdriver.build(config, setts);
     }
     static load(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
@@ -366,7 +370,7 @@ export class WebdriverQuery extends IQuery<IElement> {
     static newAsync (mix?, parent?: IQuery<IElement>) {
         let query = new WebdriverQuery(mix);
         query.ctx.owner = parent;
-        query.then = query.ctx.thener;
+        (query as any).then = query.ctx.thener;
         return query;
     }
 

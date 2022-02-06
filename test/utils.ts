@@ -1,3 +1,5 @@
+import { type WebdriverQuerySync } from '../src/webdriver/WebdriverQuery'
+
 let Lib = require('../lib/query.js')
 let SQuery = Lib;
 
@@ -33,14 +35,11 @@ export default {
             return
         }
     },
-    query: function (path, cb?) {
-        return this
-            .driver
-            .get('file://' + __dirname + path)
-            .then(() => {
-                let $ = new SQuery(this.driver);
-                cb?.($);
-                return $;
-            });
+    async query (path: string, cb?: ($: WebdriverQuerySync) => void): Promise<WebdriverQuerySync>  {
+        await this.driver.get('file://' + __dirname + path);
+
+        let $ = new SQuery(this.driver);
+        cb?.($);
+        return $;
     }
 };

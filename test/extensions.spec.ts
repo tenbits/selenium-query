@@ -1,28 +1,30 @@
+import { WebdriverQuery, WebdriverQuerySync } from '../src/webdriver/WebdriverQuery';
 import Utils from './utils'
 UTest({
-	$before () {
-		Utils.start();
-	},
-	$after () {
-		//Utils.stop();
-	},
-	'should create custom typer' (done) {
-		Utils.SQuery.fn.enterFoo = function(){
-			return this
-				.find('input')
-				.select()
-				.type('Foo');
-		};
+    $before() {
+        Utils.start();
+    },
+    $after() {
+        //Utils.stop();
+    },
+    async 'should create custom typer'() {
+        class InputHandler extends WebdriverQuery {
+            enterFoo () {
+                return this
+                    .find('input')
+                    .select()
+                    .type('Foo');
+            };
+        }
 
-		Utils.query('/html/foo.html', $ => {
-			$
-				.enterFoo()
-				.done($ => eq_($.length, 1))
-				.val()
-				.done(val => {
-					eq_(val, 'Foo');
-					done();
-				});
-		});
-	}
+
+        let $ = await Utils.query('/html/foo.html');
+        let val = await $
+            .use(InputHandler)
+            .enterFoo()
+            .val()
+
+        eq_(val, 'Foo');
+
+    }
 });

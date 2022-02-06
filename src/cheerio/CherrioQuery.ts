@@ -8,7 +8,7 @@ import { CheerioUtils } from './CheerioUtils';
 import * as $ from 'cheerio'
 
 export class CherrioQuery extends IQuery<CheerioElement> {
-    
+
     protected _onFn(node: CheerioElement, type: string, cb: Function): Promise<any> {
         throw new Error('Method not implemented.');
     }
@@ -18,7 +18,7 @@ export class CherrioQuery extends IQuery<CheerioElement> {
     protected _offFn(node: CheerioElement, type: string, cb: Function): Promise<any> {
         throw new Error('Method not implemented.');
     }
-   
+
 
     hasClassFn (node: CheerioElement, name: string): Deferred<boolean> {
         return dfr_resolve($(node).hasClass(name));
@@ -38,7 +38,7 @@ export class CherrioQuery extends IQuery<CheerioElement> {
 
     textGetFn (node: CheerioElement): Deferred<string>  {
         // Cheerio returns empty string on `text` for script elements
-        const method = node.tagName === 'script' ? 'html' : 'text';        
+        const method = node.tagName === 'script' ? 'html' : 'text';
         return dfr_resolve($(node)[method]());
     }
     textSetFn (node: CheerioElement, text: string): Deferred<void>  {
@@ -46,7 +46,7 @@ export class CherrioQuery extends IQuery<CheerioElement> {
         return dfr_resolve();
     }
     htmlOuterGetFn (node: CheerioElement): Deferred<string>  {
-        
+
         return dfr_resolve($.html(node));
     }
     htmlGetFn (node: CheerioElement): Deferred<string>  {
@@ -58,19 +58,19 @@ export class CherrioQuery extends IQuery<CheerioElement> {
     }
     appendFn (node: CheerioElement, html: string): Deferred<void> {
         $(node).append(html);
-        return dfr_resolve();        
+        return dfr_resolve();
     }
     prependFn (node: CheerioElement, html: string): Deferred<void> {
         $(node).prepend(html);
-        return dfr_resolve();                
+        return dfr_resolve();
     }
     beforeFn (node: CheerioElement, html: string): Deferred<void> {
-        $(node).insertBefore(html);        
-        return dfr_resolve();                
+        $(node).insertBefore(html);
+        return dfr_resolve();
     }
     afterFn (node: CheerioElement, html: string): Deferred<void> {
         $(node).insertAfter(html);
-        return dfr_resolve();        
+        return dfr_resolve();
     }
     cssGet (node: CheerioElement, prop: string): Promise<any> {
         return dfr_resolve($(node).css(prop));
@@ -101,56 +101,56 @@ export class CherrioQuery extends IQuery<CheerioElement> {
 
     scrollTopGetFn (node: CheerioElement): Promise<number> {
         throw new Error('Cheerio driver does not support dimensions feature');
-    }    
+    }
     scrollTopSetFn (node: CheerioElement, scroll: number): Deferred<void> {
         throw new Error('Cheerio driver does not support dimensions feature');
     }
     scrollLeftGetFn (node: CheerioElement): Promise<number> {
         throw new Error('Cheerio driver does not support dimensions feature');
     }
-    
+
     scrollLeftSetFn (node: CheerioElement, scroll: number): Deferred<void> {
         throw new Error('Cheerio driver does not support dimensions feature');
     }
-    
+
     evalFn(node: CheerioElement, mix: Function | string, ...args): Promise<any> {
         throw new Error('Eval is not supported with Cheerio Driver');
     }
-    
+
     //#region Events
-	clickFn(node: CheerioElement): Promise<void> {
-        throw new Error('Cheerio driver does not support manipulation feature');
-	}
-	triggerFn(node: CheerioElement, type: string, ...args): Promise<void> {
+    clickFn(node: CheerioElement): Promise<void> {
         throw new Error('Cheerio driver does not support manipulation feature');
     }
-    
-	selectFn(node: CheerioElement, ...args): Promise<any> {
+    triggerFn(node: CheerioElement, type: string, ...args): Promise<void> {
         throw new Error('Cheerio driver does not support manipulation feature');
-	}
+    }
 
-	focusFn(node: CheerioElement): Promise<void> {
-		throw new Error('FOCUS is not supported in Cheerio');
-	}
-	blurFn(node: CheerioElement): Promise<void> {
-		throw new Error('BLUR is not supported in Cheerio');
-	}
-	sendKeysFn(node: CheerioElement, mix): Promise<void> {	
+    selectFn(node: CheerioElement, ...args): Promise<any> {
+        throw new Error('Cheerio driver does not support manipulation feature');
+    }
+
+    focusFn(node: CheerioElement): Promise<void> {
+        throw new Error('FOCUS is not supported in Cheerio');
+    }
+    blurFn(node: CheerioElement): Promise<void> {
+        throw new Error('BLUR is not supported in Cheerio');
+    }
+    sendKeysFn(node: CheerioElement, mix): Promise<void> {
         throw new Error('SEND_KEYS is not supported in Cheerio');
     }
-    
-	typeFn(node: CheerioElement, str: string): Promise<void> {
-		throw new Error('TYPE is not supported in Cheerio');
-	}
-	pressFn (node: CheerioElement, str:string): Promise<void> {
-		throw new Error('PRESS is not supported in Cheerio');
-	}
+
+    typeFn(node: CheerioElement, str: string): Promise<void> {
+        throw new Error('TYPE is not supported in Cheerio');
+    }
+    pressFn (node: CheerioElement, str:string): Promise<void> {
+        throw new Error('PRESS is not supported in Cheerio');
+    }
     //#endregion
     //#region Manipulate
-	removeFn (node: CheerioElement): Promise<void> {
+    removeFn (node: CheerioElement): Promise<void> {
         $(node).remove();
         return dfr_resolve();
-	}
+    }
     //#endregion
     //#region Properties
     attrGetFn (node: CheerioElement, prop: string): Promise<any> {
@@ -184,7 +184,7 @@ export class CherrioQuery extends IQuery<CheerioElement> {
     protected propSetFn(node: CheerioElement, data: object): Deferred<void> {
         for (let key in data) {
             $(node).prop(key, data[key]);
-        }        
+        }
         return dfr_resolve();
     }
     //#endregion
@@ -218,11 +218,11 @@ export class CherrioQuery extends IQuery<CheerioElement> {
     protected getField<T>(node: CheerioElement, field: string): Deferred<T> {
         return node[field];
     }
-    
+
     protected setField(node: CheerioElement, obj: any): Deferred<void>;
     protected setField(node: CheerioElement, field: string, val: any): Deferred<void>;
     protected setField(node: CheerioElement, mix, val?): Deferred<void> {
-        if (arguments.length === 2) { 
+        if (arguments.length === 2) {
             for (let key in mix) {
                 node[key] = mix[key];
             }
@@ -237,45 +237,45 @@ export class CherrioQuery extends IQuery<CheerioElement> {
 
     static newAsync (mix?, parent?: IQuery<CheerioElement>) {
         let query = new CherrioQuery(mix);
-        query.ctx.owner = parent;        
-        query.then = query.ctx.thener;
+        query.ctx.owner = parent;
+        (query as any).then = query.ctx.thener;
         return query;
     }
 
-    
-	//#region driver utils
-	unlock () {
-		
-	}
-	//#endregion driver utils
 
-	static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
-		throw new Error('No build for JSDom is required. Use direkt load');
-	}
-	static load(url: string, config: IBuildConfig, setts?: ISettings) {
-        let query = new CherrioQuery();
-        NetworkDriver.load(url, setts.opts).then(content => {
-            let html = content.toString();
+    //#region driver utils
+    unlock () {
+
+    }
+    //#endregion driver utils
+
+    static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
+        throw new Error('No build for JSDom is required. Use direkt load');
+    }
+    static load(url: string, config: IBuildConfig, setts?: ISettings) {
+        let query = CherrioQuery.newAsync();
+        NetworkDriver.load(url, setts?.opts).then(resp => {
+            let html = resp.body.toString();
             let $ = CheerioUtils.fromHtml(html);
             query.ctx.source = html;
             query.add($);
             query.resolve(query);
         })
         return query;
-	}
-	static fetch(url: string, config: IBuildConfig, setts?: ISettings) {
-		return this.load(url, config, setts);
-	}
-	static setDriver (driver: IDriver ) {
-		throw new Error('JSDOM does not support driver');
-	}
-	static getDriver (config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
-		throw new Error('JSDOM does not support driver');
-	}
-	static unlockDriver (mix) {
-		
     }
-    
+    static fetch(url: string, config?: IBuildConfig, setts?: ISettings) {
+        return this.load(url, config, setts);
+    }
+    static setDriver (driver: IDriver ) {
+        throw new Error('JSDOM does not support driver');
+    }
+    static getDriver (config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
+        throw new Error('JSDOM does not support driver');
+    }
+    static unlockDriver (mix) {
+
+    }
+
 }
 
 function toCamelCase(property): string {

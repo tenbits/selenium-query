@@ -8,8 +8,8 @@ import { NetworkDriver } from '../fetch/NetworkDriver'
 
 
 export class JsdomQuery extends IQuery<Element> {
-   
-    
+
+
     protected _onFn(node: Element, type: string, cb: Function): Promise<any> {
         throw new Error('Method not implemented.');
     }
@@ -56,19 +56,19 @@ export class JsdomQuery extends IQuery<Element> {
     }
     appendFn (node: Element, html: string): Deferred<void> {
         node.insertAdjacentHTML('beforeend', html);
-        return dfr_resolve();        
+        return dfr_resolve();
     }
     prependFn (node: Element, html: string): Deferred<void> {
         node.insertAdjacentHTML('afterbegin', html);
-        return dfr_resolve();                
+        return dfr_resolve();
     }
     beforeFn (node: Element, html: string): Deferred<void> {
         node.insertAdjacentHTML('beforebegin', html);
-        return dfr_resolve();                
+        return dfr_resolve();
     }
     afterFn (node: Element, html: string): Deferred<void> {
         node.insertAdjacentHTML('afterend', html);
-        return dfr_resolve();        
+        return dfr_resolve();
     }
     cssGet (node: HTMLElement, prop: string): Promise<any> {
         return dfr_resolve(node.style[toCamelCase(prop)]);
@@ -80,7 +80,7 @@ export class JsdomQuery extends IQuery<Element> {
         return dfr_resolve();
     }
 
-    async heightGetFn (node: HTMLElement): Promise<number> {        
+    async heightGetFn (node: HTMLElement): Promise<number> {
         return (await this.getBoundingClientRect(node)).height;
     }
     async widthGetFn (node: HTMLElement): Promise<number> {
@@ -105,22 +105,22 @@ export class JsdomQuery extends IQuery<Element> {
 
     scrollTopGetFn (node: Element): Promise<number> {
         return this.getField(node, 'scrollTop');
-    }    
+    }
     scrollTopSetFn (node: Element, scroll: number): Deferred<void> {
         return this.setField(node, 'scrollTop', scroll);
     }
     scrollLeftGetFn (node: Element): Promise<number> {
         return this.getField(node, 'scrollLeft');
     }
-    
+
     scrollLeftSetFn (node: Element, scroll: number): Deferred<void> {
         return this.setField(node, 'scrollLeft', scroll);
     }
-    
+
     evalFn(node: Element, mix: Function | string, ...args): Promise<any> {
         throw new Error('Eval is not supported in JSDOM');
     }
-    
+
     //#region Events
 	clickFn(node: HTMLElement): Promise<void> {
         node.click();
@@ -129,7 +129,7 @@ export class JsdomQuery extends IQuery<Element> {
 	triggerFn(node: HTMLElement, type: string, ...args): Promise<void> {
         throw new Error('Trigger is not supported in JSDOM');
     }
-    
+
 	selectFn(node: Element, ...args): Promise<any> {
         throw new Error('Select is not supported in JSDOM');
 	}
@@ -140,10 +140,10 @@ export class JsdomQuery extends IQuery<Element> {
 	blurFn(node: Element): Promise<void> {
 		throw new Error('BLUR is not supported in JSDOM');
 	}
-	sendKeysFn(node: Element, mix): Promise<void> {	
+	sendKeysFn(node: Element, mix): Promise<void> {
         throw new Error('SEND_KEYS is not supported in JSDOM');
     }
-    
+
 	typeFn(node: Element, str: string): Promise<void> {
 		throw new Error('TYPE is not supported in JSDOM');
 	}
@@ -188,7 +188,7 @@ export class JsdomQuery extends IQuery<Element> {
     protected propSetFn(node: Element, data: object): Deferred<void> {
         for (let key in data) {
             node[key] = data[key];
-        }        
+        }
         return dfr_resolve();
     }
     //#endregion
@@ -227,7 +227,7 @@ export class JsdomQuery extends IQuery<Element> {
         if (sel != null) {
             for (; next != null; next = next.nextElementSibling) {
                 if (next.matches(sel)) break;
-            }            
+            }
         }
         return dfr_resolve(next);
     }
@@ -235,11 +235,11 @@ export class JsdomQuery extends IQuery<Element> {
     protected getField<T>(node: Element, field: string): Deferred<T> {
         return node[field];
     }
-    
+
     protected setField(node: Element, obj: any): Deferred<void>;
     protected setField(node: Element, field: string, val: any): Deferred<void>;
     protected setField(node: Element, mix, val?): Deferred<void> {
-        if (arguments.length === 2) { 
+        if (arguments.length === 2) {
             for (let key in mix) {
                 node[key] = mix[key];
             }
@@ -255,14 +255,14 @@ export class JsdomQuery extends IQuery<Element> {
     static newAsync (mix?, parent?: IQuery<Element>) {
         let query = new JsdomQuery(mix);
         query.ctx.owner = parent;
-        query.then = query.ctx.thener;
+        (query as any).then = query.ctx.thener;
         return query;
     }
 
-    
+
 	//#region driver utils
 	unlock () {
-		
+
 	}
 	//#endregion driver utils
 
@@ -270,15 +270,16 @@ export class JsdomQuery extends IQuery<Element> {
 		throw new Error('No build for JSDom is required. Use direkt load');
 	}
 	static load(url: string, config: IBuildConfig, setts?: ISettings) {
-        let query = new JsdomQuery();
-        NetworkDriver.load(url, setts.opts).then(content => {
-            let jsdom = new JSDOM(content.toString());
+        let query = JsdomQuery.newAsync();
+        NetworkDriver.load(url, setts?.opts).then(resp => {
+            let html = resp.body.toString();
+            let jsdom = new JSDOM(html);
             query.add(jsdom.window.document);
             query.resolve(query);
         })
         return query;
 	}
-	static fetch(url: string, config: IBuildConfig, setts?: ISettings) {
+	static fetch(url: string, config?: IBuildConfig, setts?: ISettings) {
 		return this.load(url, config, setts);
 	}
 	static setDriver (driver: IDriver ) {
@@ -288,9 +289,9 @@ export class JsdomQuery extends IQuery<Element> {
 		throw new Error('JSDOM does not support driver');
 	}
 	static unlockDriver (mix) {
-		
+
     }
-    
+
 }
 
 function toCamelCase(property): string {

@@ -8,7 +8,7 @@ export function async_each<TElement>(query: IQuery<TElement>, fn: (ctx: IQuery<T
     const $ = query.ctx.newAsync(null, query);
     query.ensureAsync().done($base => {
 
-        const dfrs = map($base as TElement[], node => {
+        const dfrs = map($base as any as TElement[], node => {
             return fn($, node)
         }).filter(Boolean);
         _when(dfrs, () => {
@@ -123,11 +123,11 @@ export function async_getValueOf<TElement>(index: number, self: IQuery<TElement>
     })
 };
 
-export function async_mutate(self: IQuery<any>, fn) {
+export function async_mutate<TElement>(self: IQuery<TElement>, fn) {
     const $ = self.ctx.newAsync(null, self);
 
     self.ensureAsync().done(ctx => {
-        let dfrs = map(ctx, node => {
+        let dfrs = map(ctx as any as TElement[], node => {
             $.add(node);
             return fn(node);
         });

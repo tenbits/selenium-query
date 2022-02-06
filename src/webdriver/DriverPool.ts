@@ -220,15 +220,18 @@ namespace DriverExtractor {
         if (mix == null) {
             return null;
         }
-
         var driver = fromQuery(mix);
-        if (driver) return driver;
-
+        if (driver) {
+            return driver;
+        }
         var driver = fromOwner(<any> mix);
-        if (driver) return driver;
-
+        if (driver) {
+            return driver;
+        }
         var driver = fromWrapper(mix);
-        if (driver) return driver;
+        if (driver) {
+            return driver;
+        }
 
         return null;
     }

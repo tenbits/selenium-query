@@ -1,13 +1,15 @@
-import Utils from './utils'
-let http = require('http');
+import * as http from 'http';
+import { JsdomDriver } from '../src/jsdom/JsdomDriver';
+import { JsdomQuery } from '../src/jsdom/JsdomQuery';
+
+
 
 UTest({
     $config: {
         timeout: 50000
     },
     async 'build jsdom and test children, text methods' () {
-        let query = await Utils.SQuery
-            .jsdom
+        let query = await JsdomDriver
             .build({
                 html: '<div><span>Foo</span></div>'
             });
@@ -20,11 +22,7 @@ UTest({
         eq_(text, 'Foo');
     },
     async 'fetch' () {
-        let $ = await Utils.SQuery
-            .jsdom
-            .fetch('https://help.github.com/articles/github-terms-of-service/');
-
-
+        let $ = await JsdomQuery.fetch('https://docs.github.com/en/github/site-policy/github-terms-of-service');
         let h1 = await $.find('main h1');
         eq_(h1.length, 1);
 
@@ -39,10 +37,9 @@ UTest({
 
                 response.end('<!DOCTYPE><html><body>Yes FOO</body></html>')
             })
-            .listen(5772, (error) => {
-                if (error) return done(error);
+            .listen(5772, () => {
 
-                Utils.SQuery.jsdom.fetch('http://localhost:5772').then(query => {
+                JsdomQuery.fetch('http://localhost:5772').then(query => {
                     has_(headers['user-agent'], 'Chrome');
                     has_(headers['host'], 'localhost:5772');
                     server.close(() => done());
