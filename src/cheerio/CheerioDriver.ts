@@ -6,6 +6,18 @@ import { NetworkDriver } from '../fetch/NetworkDriver';
 import { IQuery } from '../common/IQuery';
 import { CheerioUtils } from './CheerioUtils';
 import { SelectorsEx } from '../common/SelectorsEx';
+import {
+    FileDetector,
+    Session,
+    Capabilities,
+    Actions,
+    WebElementPromise,
+    Locator,
+    WebElement,
+    Navigation,
+    TargetLocator
+} from 'selenium-webdriver';
+import { Command, Executor } from 'selenium-webdriver/lib/command';
 
 export interface ICheerioBuildConfig extends IBuildConfig {
     html: string
@@ -30,7 +42,7 @@ export const CheerioDriver: IQueryStatics = {
     load(url: string, config: ICheerioBuildConfig): CherrioQuery {
         driver = new CheerioDriverInner(config);
 
-        return driver.get(url) as any as CherrioQuery;
+        return driver.getAsQuery(url) as any as CherrioQuery;
     },
     fetch(url: string, config: IBuildConfig, setts?: ISettings) {
         return this.load(url, config, setts);
@@ -59,47 +71,113 @@ class CheerioDriverInner implements IDriver {
 
     }
 
-    executeScript<T>(script: string, ...var_args: any[]): Promise<T> {
-        throw new Error('Method not implemented.');
-    }
-    executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T> {
-        throw new Error('Method not implemented.');
-    }
-    get(url: string): Promise<CherrioQuery> {
+    async get(url: string): Promise<void> {
         let query = CherrioQuery.newAsync();
 
-        NetworkDriver
-            .load(url, this.config)
-            .then(
-                resp => {
-                    this.url = resp.url;
-                    this.headers = resp.headers;
-                    this.status = resp.status;
+        let resp = await NetworkDriver.load(url, this.config);
+        let html = resp.body.toString();
+        let $el = CheerioUtils.fromHtml(html);
 
-                    let html = resp.body.toString();
-                    let $el = CheerioUtils.fromHtml(html);
+        this.url = resp.url;
+        this.headers = resp.headers;
+        this.status = resp.status;
+        this.html = html;
 
-                    query.ctx.source = html;
-                    query.ctx.url = url;
-                    query.ctx.status = resp.status;
-                    query.ctx.headers = resp.headers;
-                    query.add($el);
-                    query.resolve(query);
-                },
-                error => {
-                    query.reject(error)
-                }
-            );
-
-        return query as any as Promise<CherrioQuery>;
+        query.ctx.source = html;
+        query.ctx.url = url;
+        query.ctx.status = resp.status;
+        query.ctx.headers = resp.headers;
+        query.add($el);
+        query.resolve(query);
     }
-    manage(): IDriverManager {
-        throw new Error('Method not implemented.');
-    }
+
     async getCurrentUrl(): Promise<string> {
         return this.url;
     }
     async getPageSource(): Promise<string> {
         return this.html;
     }
+
+    async getAsQuery(url: string): Promise<CherrioQuery> {
+        await this.get(url);
+        let query = CherrioQuery.newAsync();
+
+        let $el = CheerioUtils.fromHtml(this.html);
+
+        query.ctx.source = this.html;
+        query.ctx.url = url;
+        query.ctx.status = this.status;
+        query.ctx.headers = this.headers;
+        query.add($el);
+        query.resolve(query);
+        return query as any as Promise<CherrioQuery>;
+    }
+
+    // NOT IMPLEMENTED
+    manage() {
+        throw new Error('Method not implemented.');
+        return null;
+    }
+    execute<T>(command: Command, description?: string): Promise<T> {
+        throw new Error('Method not implemented.');
+    }
+    setFileDetector(detector: FileDetector): void {
+        throw new Error('Method not implemented.');
+    }
+    getExecutor(): Executor {
+        throw new Error('Method not implemented.');
+    }
+    getSession(): Promise<Session> {
+        throw new Error('Method not implemented.');
+    }
+    getCapabilities(): Promise<Capabilities> {
+        throw new Error('Method not implemented.');
+    }
+    quit(): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+    actions(options?: { async: boolean; bridge: boolean; } | { async: boolean; } | { bridge: boolean; }): Actions {
+        throw new Error('Method not implemented.');
+    }
+    wait(...args) {
+        throw new Error('Method not implemented.');
+        return null;
+    }
+    sleep(ms: number): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+    getWindowHandle(): Promise<string> {
+        throw new Error('Method not implemented.');
+    }
+    getAllWindowHandles(): Promise<string[]> {
+        throw new Error('Method not implemented.');
+    }
+    close(): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+    getTitle(): Promise<string> {
+        throw new Error('Method not implemented.');
+    }
+    findElement(locator: Locator): WebElementPromise {
+        throw new Error('Method not implemented.');
+    }
+    findElements(locator: Locator): Promise<WebElement[]> {
+        throw new Error('Method not implemented.');
+    }
+    takeScreenshot(): Promise<string> {
+        throw new Error('Method not implemented.');
+    }
+    navigate(): Navigation {
+        throw new Error('Method not implemented.');
+    }
+    switchTo(): TargetLocator {
+        throw new Error('Method not implemented.');
+    }
+    executeScript<T>(script: string, ...var_args: any[]): Promise<T> {
+        throw new Error('Method not implemented.');
+    }
+    executeAsyncScript<T>(script: string, ...var_args: any[]): Promise<T> {
+        throw new Error('Method not implemented.');
+    }
+
 }
