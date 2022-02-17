@@ -13,6 +13,9 @@ export namespace $domains {
         if (urlB == null) {
             return false;
         }
+        if (urlB.startsWith('data:')) {
+            return false;
+        }
 
         let a = fromUrl(urlA);
         let b = fromUrl(urlB);
