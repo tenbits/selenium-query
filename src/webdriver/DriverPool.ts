@@ -3,10 +3,11 @@ import { IBuildConfig, ILoadConfig, ISettings } from "../common/IConfig";
 import { class_Dfr } from "atma-utils";
 import { buildDriver } from "./SeleniumDriver";
 import { ensureCookies } from "./utils/driver";
-import { singleton } from '../utils/deco'
 import { IQuery } from "../common/IQuery";
 import { cookieContainer } from '../common/CookieContainer'
 import { WebdriverQuery } from "./WebdriverQuery";
+import memd = require('memd');
+import { $domains } from '../utils/$domains';
 
 let POOL_DEFAULT = 5;
 let POOL_CUSTOM: number;
@@ -14,11 +15,9 @@ let POOL_CUSTOM: number;
 export class DriverPool {
 
 
-    singleton: DriverWrapper
-    singletonPromise: Promise<DriverWrapper>
-
-    pool: DriverWrapper[] = [];
-    queue: {url: string, config: ILoadConfig, dfr: class_Dfr}[] = []
+    private singleton: DriverWrapper
+    private pool: DriverWrapper[] = [];
+    private queue: {url: string, config: ILoadConfig, dfr: class_Dfr}[] = []
 
     async get (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {
         if (setts) {
@@ -51,10 +50,10 @@ export class DriverPool {
 
     async getWithDomain (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {
         let wrapper = await this.get(url, config, setts);
-        let domain = Domains.fromUrl(url);
+        let domain = $domains.fromUrl(url);
 
         let currentUrl = await wrapper.driver.getCurrentUrl();
-        if (Domains.equal(domain, currentUrl) === false) {
+        if ($domains.equal(domain, currentUrl) === false) {
             // Load page in DOMAIN context
             await wrapper.driver.get(domain);
         }
@@ -84,7 +83,7 @@ export class DriverPool {
         }
     }
 
-    @singleton
+    @memd.deco.memoize()
     private async getGlobal(url: string = null, config: ILoadConfig):Promise<DriverWrapper> {
         this.memCookies(url, config);
 
@@ -234,29 +233,5 @@ namespace DriverExtractor {
         }
 
         return null;
-    }
-}
-
-namespace Domains {
-    export function fromUrl (url: string) {
-        let match = /[^/]\/[^/]/.exec(url);
-
-        // cuts path out (if any)
-        return match == null
-            ? url
-            : url.substring(0, match.index + 1);
-    }
-    export function equal (urlA: string, urlB: string) {
-        if (urlB == null) {
-            return false;
-        }
-
-        let a = fromUrl(urlA);
-        let b = fromUrl(urlB);
-
-        let rgxProtocol = /\w+:[\/]{1, 3}/;
-        a = a.replace(rgxProtocol, '');
-        b = b.replace(rgxProtocol, '');
-        return a.toLowerCase() === b.toLowerCase();
     }
 }
