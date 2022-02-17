@@ -71,14 +71,14 @@ export class Cache {
             return null;
         }
         let withCompression = meta.file.endsWith('.gz');
-        let encoding = withCompression ? 'buffer' : 'utf8';
+        let encoding: BufferEncoding = <any> (withCompression ? 'buffer' : 'utf8');
         let result: any = await new File(`${CACHE_BASE}/${domainKey}/${meta.file}`, { cached: false }).readAsync({ encoding });
         if (withCompression) {
             let str = await Compression.decompress(<Buffer> result);
             result = JSON.parse(str);
         }
         if (result.file != null) {
-            result.body = await new File(`${CACHE_BASE}/${domainKey}/${result.file}`, { cached: false }).readAsync({ encoding: 'buffer' });
+            result.body = await new File(`${CACHE_BASE}/${domainKey}/${result.file}`, { cached: false }).readAsync({ encoding: <any> 'buffer' });
             delete result.file;
         }
         return result;
@@ -172,12 +172,12 @@ export class Cache {
             return;
         }
         this.isFlushDeferred = true;
-        setTimeout(() => {
-            File
-                .writeAsync(`${CACHE_BASE}/${domainKey}/meta.json`, <any> this.meta[domainKey])
-                .always(x => {
-                    this.isFlushDeferred = false;
-                });
+        setTimeout(async () => {
+            try {
+                await File.writeAsync(`${CACHE_BASE}/${domainKey}/meta.json`, <any> this.meta[domainKey])
+            } finally {
+                this.isFlushDeferred = false;
+            };
         }, 1000);
     }
 }

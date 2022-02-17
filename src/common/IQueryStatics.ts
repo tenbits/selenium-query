@@ -3,7 +3,7 @@ import { IBuildConfig, ISettings, ILoadConfig } from "./IConfig";
 import { IQuery } from "./IQuery";
 import { IPseudoSelectorFn, SelectorsEx } from './SelectorsEx';
 
-export interface IQueryStatics<TQuery extends IQuery<any>> {
+export interface IQueryStatics<TQuery extends IQuery<any> = IQuery<any>> {
     fromHtml(html: string): TQuery
     build(config: IBuildConfig, setts?: ISettings): TQuery;
     load(url: string, config: ILoadConfig, setts?: ISettings): TQuery;
