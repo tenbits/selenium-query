@@ -3,7 +3,7 @@ import alot = require('alot');
 export class FormDataBase {
     dict = Object.create(null)
 
-    append (key, value): this {
+    append (key: string, value: string | number | { file: string }): this {
         this.dict[key] = value;
         return this;
     }

@@ -1,7 +1,7 @@
 {
     "name": "selenium-query",
     "description": "jQuery API for Selenium WebDriver/JSDom",
-    "version": "0.52.43",
+    "version": "0.52.44",
     "contributors": [],
     "main": "./lib/query.js",
     "types": "./lib/query.d.ts",
@@ -72,7 +72,7 @@
                 ],
                 "typescript": {
                     "compilerOptions": {
-                        "target": "es2017",
+                        "target": "ES2020",
                         "#if TEST": {
                             "module": "AMD"
                         },
@@ -86,6 +86,16 @@
     },
     "app-bundler": {
         "file": "src/export.es6",
+        "settings": {
+            "atma-loader-ts": {
+                "typescript": {
+                    "compilerOptions": {
+                        "module": "CommonJS",
+                        "target": "ES2020"
+                    }
+                }
+            }
+        },
         "outputMain": "lib/query.js",
         "package": {
             "module": "commonjs",
@@ -128,8 +138,8 @@
         "@types/selenium-webdriver": "^4.0.17",
         "alot": "^0.2.96",
         "atma-class": "^1.1.83",
-        "atma-io": "^1.2.26",
-        "atma-utils": "^0.2.53",
+        "atma-io": "^1.2.52",
+        "atma-utils": "^0.2.58",
         "cheerio": "^1.0.0-rc.2",
         "encoding": "^0.1.12",
         "form-data": "^3.0.0",

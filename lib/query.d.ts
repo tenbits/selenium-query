@@ -575,7 +575,9 @@ declare module 'selenium-query/webdriver/WebdriverFormData' {
 declare module 'selenium-query/common/FormDataBase' {
     export class FormDataBase {
         dict: any;
-        append(key: any, value: any): this;
+        append(key: string, value: string | number | {
+            file: string;
+        }): this;
         entries(): [string, any][];
     }
 }
