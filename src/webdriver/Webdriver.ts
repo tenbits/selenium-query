@@ -10,6 +10,7 @@ import { scripts_fetchAsync } from './scripts/http/fetch';
 import { WebdriverFormData } from './WebdriverFormData';
 import { FormDataBase } from '../common/FormDataBase';
 import alot from 'alot';
+import { $headers } from '../utils/$headers';
 
 
 declare var process: any;
@@ -90,7 +91,7 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
             method: setts?.opts?.method ?? config.method,
         };
         if (typeof fetchOpts.headers === 'string') {
-            fetchOpts.headers = Headers.get(fetchOpts.headers);
+            fetchOpts.headers = $headers.resolve(fetchOpts.headers);
         }
 
         let result: TResult = await wrapper

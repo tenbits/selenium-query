@@ -9,6 +9,7 @@ import { class_Dfr, is_rawObject } from 'atma-utils';
 import { Body } from './Body';
 import { NetworkSpan, NetworkTracer } from './NetworkTracer';
 import { serializeCachableUrl, serializeUrl } from '../utils/url';
+import { $headers } from '../utils/$headers';
 
 
 const DefaultOptions = {
@@ -111,7 +112,7 @@ class RequestWorker {
         const headers = Object.assign(
             {},
             config?.includeDefaultHeaders !== false ? DefaultOptions.headers : {},
-            Headers.get(config.headers)
+            $headers.resolve(config.headers)
         );
         this.options = {
             headers: headers,
@@ -371,31 +372,4 @@ function wait(ms) {
     return new Promise(resolve => {
         setTimeout(() => resolve(null), ms);
     })
-}
-
-namespace Headers {
-
-    export function get(headers: any | string) {
-        if (headers == null) {
-            return {};
-        }
-        if (typeof headers === 'string') {
-            let hash = Object.create(null);
-            headers
-                .split('\n')
-                .map(x => x.trim())
-                .filter(Boolean)
-                .forEach(line => {
-                    let semi = line.indexOf(':');
-                    if (semi === -1) {
-                        throw new Error(`Invalid header delimter. ":" expected. ${line} in ${headers}`);
-                    }
-                    let key = line.substring(0, semi).trim();
-                    let val = line.substring(semi + 1).trim();
-                    hash[key] = val;
-                });
-            return hash;
-        }
-        return headers;
-    }
 }
