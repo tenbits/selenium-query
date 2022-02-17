@@ -24,7 +24,9 @@
         "atma-io-middleware-importer": "^1.1.30",
         "atma-loader-babel": "^1.0.19",
         "atma-loader-ts": "^1.1.16",
+        "atma-server": "^0.5.12",
         "dts-bundle": "^0.7.3",
+        "formidable": "^2.0.1",
         "proxy": "^1.0.2"
     },
     "scripts": {
@@ -92,6 +94,7 @@
             }
         },
         "dynamicDependencies": [
+            "alot",
             "appcfg",
             "atma-utils",
             "atma-io",
@@ -123,6 +126,7 @@
     },
     "dependencies": {
         "@types/selenium-webdriver": "^4.0.17",
+        "alot": "^0.2.96",
         "atma-class": "^1.1.83",
         "atma-io": "^1.2.26",
         "atma-utils": "^0.2.53",
@@ -130,7 +134,8 @@
         "encoding": "^0.1.12",
         "form-data": "^3.0.0",
         "jsdom": "^17.0.0",
+        "memd": "^0.3.10",
         "node-fetch": "^2.6.7",
-        "selenium-webdriver": "^4.1.0"
+        "selenium-webdriver": "^4.1.1"
     }
 }

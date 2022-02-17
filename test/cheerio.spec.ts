@@ -1,4 +1,4 @@
-import Utils from './utils'
+import { TestUtils } from './utils'
 import * as http from 'http'
 import { CheerioDriver } from '../src/cheerio/CheerioDriver';
 import { CherrioQuery } from '../src/cheerio/CherrioQuery';

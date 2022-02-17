@@ -1,4 +1,4 @@
-import Utils from './utils'
+import { TestUtils } from './utils'
 UTest({
 	$before () {
 		Utils.start();
@@ -7,10 +7,10 @@ UTest({
 		//Utils.stop();
 	},
 	'load page and eval' (done) {
-		
-		
-        Utils.query('/html/foo.html', ($, a, b) => {            
-            
+
+
+        Utils.query('/html/foo.html', ($, a, b) => {
+
             $.find('span').text().then(function(str){
                 console.log('>', str);
                 done();

@@ -1,16 +1,17 @@
 import { type WebdriverQuerySync } from '../src/webdriver/WebdriverQuery'
+import { Application } from 'atma-server'
+import memd = require('memd');
 
 let Lib = require('../lib/query.js')
 let SQuery = Lib;
 
 
-export default {
-    SQuery: SQuery,
-    driver: null,
-    start: function () {
-        if (this.driver) {
-            return this.driver;
-        }
+export class TestUtils {
+    static SQuery = SQuery
+    static driver = null
+
+    @memd.deco.memoize()
+    static start () {
 
         var webdriver = require('selenium-webdriver');
         var chrome = require('selenium-webdriver/chrome');
@@ -21,24 +22,54 @@ export default {
         if (process.env.BROWSER_PATH) {
             options.setChromeBinaryPath(process.env.BROWSER_PATH);
         }
-        this.driver = new webdriver.Builder()
+        let driver = new webdriver.Builder()
           .forBrowser('chrome')
           .setChromeOptions(options)
           .build();
 
-        return this.driver;
-    },
-    stop: function () {
-        if (this.driver) {
-            this.driver.quit();
-            this.driver = null;
-            return
-        }
-    },
-    async query (path: string, cb?: ($: WebdriverQuerySync) => void): Promise<WebdriverQuerySync>  {
-        await this.driver.get('file://' + __dirname + path);
+        return driver;
+    }
+    static stop () {
+        let driver = TestUtils.start();
+        memd.fn.clearMemoized(TestUtils.start);
 
-        let $ = new SQuery(this.driver);
+        driver.quit();
+    }
+
+    @memd.deco.memoize()
+    static async startApplication () {
+        let app = await Application.create({ configs: null });
+        app.processor({
+            before: [
+                function (req, res, next) {
+                    res.status = function (code) {
+                        this.statusCode = code;
+                        return this;
+                    };
+                    res.send = function (data) {
+                        this.end(data);
+                        return this;
+                    };
+                    res.set = function (key, val) {
+                        this.setHeader(key, val);
+                    }
+                    next();
+                }
+            ],
+            middleware: [
+                require('body-parser').json(),
+            ]
+        })
+        app.listen(0);
+        return app;
+    }
+
+    static async query (path: string, cb?: ($: WebdriverQuerySync) => void): Promise<WebdriverQuerySync>  {
+        let driver = TestUtils.start();
+
+        await driver.get('file://' + __dirname + path);
+
+        let $ = new SQuery(driver);
         cb?.($);
         return $;
     }

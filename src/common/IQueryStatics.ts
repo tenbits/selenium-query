@@ -3,10 +3,10 @@ import { IBuildConfig, ISettings, ILoadConfig } from "./IConfig";
 import { IQuery } from "./IQuery";
 import { IPseudoSelectorFn, SelectorsEx } from './SelectorsEx';
 
-export interface IQueryStatics {
-    fromHtml(html: string): IQuery<any>
-    build(config: IBuildConfig, setts?: ISettings): IQuery<any>;
-    load(url: string, config: ILoadConfig, setts?: ISettings): IQuery<any>;
+export interface IQueryStatics<TQuery extends IQuery<any>> {
+    fromHtml(html: string): TQuery
+    build(config: IBuildConfig, setts?: ISettings): TQuery;
+    load(url: string, config: ILoadConfig, setts?: ISettings): TQuery;
     unlockDriver (mix);
     fetch <T = any | WebdriverQuery> (url: string, config?: ILoadConfig & { baseUrl?: string}, setts?: ISettings): Promise<{
         status: number

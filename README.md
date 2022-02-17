@@ -447,6 +447,22 @@ $
 ```
 
 
+
+## Known "features"
+
+> This version of ChromeDriver only supports Chrome version XYZ
+
+Means the installed version of the Chromedriver is not compatible with Chrome itself. Usually it doesn't required one-to-one version, means you can use v97 of the chrome driver, with Chrome v98.
+
+All platforms: Download the required Chromedriver from https://chromedriver.chromium.org/downloads
+
+Windows: `choco upgrade chromedriver`
+
+
+> Stale element not found
+
+When creating HTML DOM Elements in Chrome, make sure they are attached to the `DOM` before returning them to the `nodejs` process.
+
 :checkered_flag:
 
 ---

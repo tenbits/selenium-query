@@ -16,6 +16,8 @@ import { SelectorsEx } from '../common/SelectorsEx'
 import { scripts_nodeCss } from './scripts/css/nodeCss'
 import { scripts_nodeProperty } from './scripts/nodeProperty'
 import { scripts_nodeDataset } from './scripts/nodeDataset'
+import { WebdriverFormData } from './WebdriverFormData'
+import { FormDataBase } from '../common/FormDataBase'
 
 declare var scripts_nodeClassHas: any;
 declare var scripts_nodeClassAdd: any;
@@ -45,7 +47,7 @@ declare var scripts_waitForResourceCallback: any;
 
 export type WebdriverQuerySync = Omit<WebdriverQuery, 'then' | 'resolve' | 'reject' | 'done' | 'fail'>;
 
-export class WebdriverQuery extends IQuery<IElement> {
+export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: never}> {
 
 
     protected hasClassFn (node: IElement, name: string): Deferred<boolean> {
@@ -93,6 +95,17 @@ export class WebdriverQuery extends IQuery<IElement> {
             html
         );
     }
+    // protected async appendToFn (selector: string, node: IElement) {
+    //     let $parent = await this.find(selector);
+    //     let parent: IElement = $parent[0];
+    //     if (parent != null) {
+    //         await this.callField(
+    //             parent,
+    //             'appendChild',
+    //             node
+    //         );
+    //     }
+    // }
     protected prependFn (node: IElement, html: string): Deferred<void> {
         return this.callField(
             node,
@@ -328,7 +341,12 @@ export class WebdriverQuery extends IQuery<IElement> {
     getDriver () {
         return driverPool.extractDriver(this);
     }
+    async createFormData (): Promise<WebdriverFormData> {
+        return WebdriverFormData.create(this);
+    }
     //#endregion driver utils
+
+    static FormData = FormDataBase
 
     static build(config: IBuildConfig, setts?: ISettings): IQuery<any> {
         return Webdriver.build(config, setts);
@@ -343,6 +361,10 @@ export class WebdriverQuery extends IQuery<IElement> {
                 return Webdriver.load(url, config, setts);
         }
     }
+    static loadWithWebdriver(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings): WebdriverQuery {
+        return Webdriver.load(url, config, setts);
+    }
+
     static fetch<T = any | WebdriverQuery>(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings): Promise<{
         status: number
         headers: { [lowerCased: string]: string },

@@ -1,4 +1,4 @@
-import Utils from './utils'
+import { TestUtils } from './utils'
 
 UTest({
     $config: {
@@ -9,7 +9,7 @@ UTest({
         console.log(url);
         let q = await Utils.SQuery.load(url);
         let anchor = await q.find('a').click();
-        
+
         let next = await q.waitForPageLoad();
         let heading = await next.find('h1').text();
         eq_(heading, 'Foo');

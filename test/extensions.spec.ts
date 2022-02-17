@@ -1,5 +1,5 @@
 import { WebdriverQuery, WebdriverQuerySync } from '../src/webdriver/WebdriverQuery';
-import Utils from './utils'
+import { TestUtils } from './utils'
 UTest({
     $before() {
         Utils.start();

@@ -1,17 +1,22 @@
 export function scripts_fetchAsync() {
-    var url = arguments[0];
-    var opts = null;
+    var url: string = arguments[0];
+    var opts: RequestInit = null;
     if (arguments.length > 2) {
         opts = arguments[1]
         if (typeof opts === 'string') {
             opts = JSON.parse(opts);
         }
     }
+    opts = opts || {};
 
     var callback = arguments[arguments.length - 1];
 
+    console.log('OPTS', opts, opts.body instanceof HTMLFormElement);
+    if (opts.body instanceof HTMLFormElement) {
+        opts.body = new FormData(opts.body);
+    }
 
-	fetch(url, opts).then(response => {
+    fetch(url, opts).then(response => {
         var contentType = response.headers.get('content-type');
         var status = response.status;
         var headers = Array.from(response.headers.entries()).reduce((aggr, entry) => {

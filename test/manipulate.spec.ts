@@ -1,6 +1,6 @@
 import { WebElement } from 'selenium-webdriver';
 import { IQuery } from '../src/common/IQuery';
-import Utils from './utils'
+import { TestUtils } from './utils'
 
 UTest({
     $config: {

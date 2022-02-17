@@ -1,4 +1,4 @@
-import Utils from './utils'
+import { TestUtils } from './utils'
 
 UTest({
 	$config: {

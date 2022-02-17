@@ -58,7 +58,9 @@ export class IQueryCtx {
 export type IQuerySync<TElement> = Omit<IQuery<TElement>, 'then' | 'resolve' | 'reject' | 'done' | 'fail'>;
 export type TSync<T extends PromiseLike<any>> = Omit<T, 'then' | 'resolve' | 'reject' | 'done' | 'fail'>;
 
-export abstract class IQuery<TElement> extends class_Dfr<IQuery<TElement> & { then: never } > implements PromiseLike<IQuery<TElement> & { then: never } > {
+export abstract class IQuery<TElement = any, TContainer extends IQuery<TElement, any> & { then: never } = any>
+    extends class_Dfr<TContainer>
+    implements PromiseLike<TContainer> {
 
     [index: number]: TElement;
     length: number = 0
@@ -260,6 +262,14 @@ export abstract class IQuery<TElement> extends class_Dfr<IQuery<TElement> & { th
         });
     }
     protected abstract appendFn(node: TElement, html: string): Deferred<void>;
+
+    // not possible to manipulate IElements in node, which are not already attached to the Live DOM.
+    // appendTo(selector: string): IQuery<TElement> {
+    //     return Arr.mutate(this, async node => {
+    //         await this.appendToFn(selector, node);
+    //     });
+    // }
+    // protected abstract appendToFn(selector: string, node: TElement): PromiseLike<void>;
 
     prepend(html: string) {
         return Arr.mutate(this, node => this.prependFn(node, html));
