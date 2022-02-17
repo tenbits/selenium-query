@@ -6,8 +6,8 @@ import { ensureCookies } from "./utils/driver";
 import { IQuery } from "../common/IQuery";
 import { cookieContainer } from '../common/CookieContainer'
 import { WebdriverQuery } from "./WebdriverQuery";
-import memd = require('memd');
 import { $domains } from '../utils/$domains';
+import { singleton } from '../utils/deco';
 
 let POOL_DEFAULT = 5;
 let POOL_CUSTOM: number;
@@ -83,7 +83,7 @@ export class DriverPool {
         }
     }
 
-    @memd.deco.memoize()
+    @singleton
     private async getGlobal(url: string = null, config: ILoadConfig):Promise<DriverWrapper> {
         this.memCookies(url, config);
 
