@@ -9,7 +9,8 @@ import { SelectorsEx } from '../common/SelectorsEx';
 import { scripts_fetchAsync } from './scripts/http/fetch';
 import { WebdriverFormData } from './WebdriverFormData';
 import { FormDataBase } from '../common/FormDataBase';
-import alot = require('alot');
+import alot from 'alot';
+
 
 declare var process: any;
 
@@ -88,6 +89,10 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
             headers: setts?.opts?.headers ?? config.headers,
             method: setts?.opts?.method ?? config.method,
         };
+        if (typeof fetchOpts.headers === 'string') {
+            fetchOpts.headers = Headers.get(fetchOpts.headers);
+        }
+
         let result: TResult = await wrapper
             .driver
             .executeAsyncScript(scripts_fetchAsync, url, fetchOpts);

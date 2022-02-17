@@ -11,7 +11,7 @@ export function scripts_fetchAsync() {
 
     var callback = arguments[arguments.length - 1];
 
-    console.log('OPTS', opts, opts.body instanceof HTMLFormElement);
+
     if (opts.body instanceof HTMLFormElement) {
         opts.body = new FormData(opts.body);
     }
@@ -102,8 +102,14 @@ export function scripts_fetchAsync() {
 
             callback($resp);
 
-        }, callback);
+        }, err => {
+            // text() failed
+            callback(err);
+        });
 
 
-    }, callback);
+    }, err => {
+        // fetch() failed
+        callback(err);
+    });
 }
