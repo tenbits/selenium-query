@@ -331,9 +331,9 @@ class RequestWorker {
                 return resp;
             }
             let error: Error & any = new Error(`Request for ${res.url} failed with ${res.status}`);
-            error.status = res.status;
-            error.body = res.body;
-            error.headers = res.headers;
+            error.status = resp.status;
+            error.body = resp.body;
+            error.headers = resp.headers;
             throw error;
         }
 
