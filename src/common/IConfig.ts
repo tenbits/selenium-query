@@ -63,5 +63,8 @@ export interface ISettings {
     pool?: boolean | number
     query?: IQuery<any>
     // fetch options
-    opts?: any
+    opts?: {
+        deserialize?: boolean
+        [key: string]: any
+    }
 }

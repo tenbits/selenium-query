@@ -325,7 +325,10 @@ declare module 'selenium-query/common/IConfig' {
     export interface ISettings {
         pool?: boolean | number;
         query?: IQuery<any>;
-        opts?: any;
+        opts?: {
+            deserialize?: boolean;
+            [key: string]: any;
+        };
     }
 }
 

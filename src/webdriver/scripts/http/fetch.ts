@@ -1,6 +1,6 @@
 export function scripts_fetchAsync() {
     var url: string = arguments[0];
-    var opts: RequestInit = null;
+    var opts: RequestInit & { deserialize?: boolean }= null;
     if (arguments.length > 2) {
         opts = arguments[1]
         if (typeof opts === 'string') {
@@ -33,6 +33,10 @@ export function scripts_fetchAsync() {
                 name: null,
                 message: null
             };
+            if (opts.deserialize === false) {
+                callback($resp);
+                return;
+            }
 
             if (!response.ok) {
                 callback(Object.assign($resp, {
