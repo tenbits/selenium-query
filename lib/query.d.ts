@@ -101,7 +101,9 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             manage(): IDriverManager;
             waitForPageLoad(): IQuery<any>;
             waitForPageReady(): IQuery<any>;
-            waitForElement(selector: string): IQuery<IElement>;
+            waitForElement(selector: string, opts?: {
+                    visible?: boolean;
+            }): IQuery<IElement>;
             waitForResource(selector: string): IQuery<IElement>;
             unlock(): void;
             getDriver(): WebDriver;
@@ -497,11 +499,11 @@ declare module 'selenium-query/common/IQuery' {
         protected abstract focusFn(node: TElement): Promise<void>;
         blur(): IQuery<TElement>;
         protected abstract blurFn(node: TElement): Promise<void>;
-        sendKeys(mix: any): IQuery<TElement>;
+        sendKeys(mix: string): IQuery<TElement>;
         protected abstract sendKeysFn(node: TElement, mix: any): Promise<void>;
-        type(str: any): IQuery<TElement>;
+        type(str: string): IQuery<TElement>;
         protected abstract typeFn(node: TElement, str: string): Promise<void>;
-        press(str: any): IQuery<TElement>;
+        press(str: string): IQuery<TElement>;
         protected abstract pressFn(node: TElement, str: string): Promise<void>;
         remove(): IQuery<TElement>;
         protected abstract removeFn(node: TElement): Promise<void>;

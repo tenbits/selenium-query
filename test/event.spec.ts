@@ -5,13 +5,13 @@ UTest({
         timeout: 20000
     },
     $before () {
-        Utils.start();
+        TestUtils.start();
     },
     $after () {
-        // Utils.stop();
+        // TestUtils.stop();
     },
     async 'should click the button' () {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let $btn = await $.find('.btn-upload');
 
         eq_($btn.length, 1);
@@ -26,7 +26,7 @@ UTest({
         eq_(val, 'Gruesse');
     },
     async 'should trigger custom event' () {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
 
         let val = await $
                 .find('.btn-upload')
@@ -40,7 +40,7 @@ UTest({
     'should listen for the event' (done) {
         async function inner () {
 
-            let $ = await Utils.query('/html/button.html');
+            let $ = await TestUtils.query('/html/button.html');
             await $.waitForPageReady();
 
             let fn = assert.await(async function (event) {
@@ -57,7 +57,7 @@ UTest({
         inner().then(null, error => console.log(error));
     },
     async 'should list for resource to be loaded' () {
-        let $ = await Utils.query('/html/button.html');
+        let $ = await TestUtils.query('/html/button.html');
         await $.waitForResource(`script[src*="foo"]`);
 
         let x = await $.eval(() => (window as any).foo);

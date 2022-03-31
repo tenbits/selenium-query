@@ -2,13 +2,13 @@ import { TestUtils } from './utils'
 
 UTest({
     $before() {
-        Utils.start();
+        TestUtils.start();
     },
     $after() {
         //Utils.stop();
     },
     async 'should get height'() {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let val = await $
             .find('footer')
             .height();
@@ -16,7 +16,7 @@ UTest({
         eq_(val, 100);
     },
     async 'should get width'() {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let val = await $
             .find('footer')
             .width();
@@ -24,7 +24,7 @@ UTest({
         eq_(val, 300);
     },
     async 'should get position'() {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let val = await $
             .find('footer > div')
             .position();
@@ -32,7 +32,7 @@ UTest({
         deepEq_(val, { left: 10, top: 5 });
     },
     async 'should get offset'() {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let val = await $
             .find('footer > div')
             .offset()

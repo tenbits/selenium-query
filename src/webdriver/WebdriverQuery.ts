@@ -329,8 +329,8 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
     waitForPageReady (): IQuery<any> {
         return waitForPageLoad(this, 'interactive');
     }
-    waitForElement (selector: string): IQuery<IElement> {
-        return waitForElement(this, selector);
+    waitForElement (selector: string, opts?: { visible?: boolean }): IQuery<IElement> {
+        return waitForElement(this, selector, opts);
     }
     waitForResource (selector: string): IQuery<IElement>  {
         return driver_evalAsync(this, scripts_waitForResourceCallback, selector);

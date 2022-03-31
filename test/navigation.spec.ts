@@ -7,7 +7,7 @@ UTest({
     async 'navigate' () {
         let url = 'file://' + __dirname + '/html/a.html';
         console.log(url);
-        let q = await Utils.SQuery.load(url);
+        let q = await TestUtils.SQuery.load(url);
         let anchor = await q.find('a').click();
 
         let next = await q.waitForPageLoad();

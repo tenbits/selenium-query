@@ -5,13 +5,13 @@ UTest({
         timeout: 20000
     },
     $before() {
-        Utils.start();
+        TestUtils.start();
     },
     $after() {
         //Utils.stop();
     },
     async 'should get html content'() {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let html = await $
             .outerHtml();
 

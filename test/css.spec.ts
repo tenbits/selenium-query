@@ -2,13 +2,13 @@ import { TestUtils } from './utils'
 
 UTest({
     $before() {
-        Utils.start();
+        TestUtils.start();
     },
     $after() {
         //Utils.stop();
     },
     async 'should get css value'() {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let val = await $
             .find('form > input')
             .css('display')
@@ -16,7 +16,7 @@ UTest({
         eq_(val, 'inline-block');
     },
     async 'shoudl set css value'() {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let val = await $
             .find('form > input')
             .css('background-color', 'red')
@@ -26,7 +26,7 @@ UTest({
 
     },
     async 'should css object'() {
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         var input = $.find('form > input');
 
         let val = await input

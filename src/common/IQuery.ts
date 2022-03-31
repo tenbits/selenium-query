@@ -399,17 +399,17 @@ export abstract class IQuery<TElement = any, TContainer extends IQuery<TElement,
     }
     protected abstract blurFn(node: TElement): Promise<void>
 
-    sendKeys(mix): IQuery<TElement> {
+    sendKeys(mix: string): IQuery<TElement> {
         return Arr.mutate(this, node => this.sendKeysFn(node, mix));
     }
     protected abstract sendKeysFn(node: TElement, mix): Promise<void>
 
-    type(str): IQuery<TElement> {
+    type(str: string): IQuery<TElement> {
         return Arr.mutate(this, node => this.typeFn(node, str));
     }
     protected abstract typeFn(node: TElement, str: string): Promise<void>
 
-    press(str): IQuery<TElement> {
+    press(str: string): IQuery<TElement> {
         return Arr.mutate(this, node => this.pressFn(node, str));
     }
     protected abstract pressFn(node: TElement, str: string): Promise<void>

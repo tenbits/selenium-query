@@ -1,12 +1,13 @@
 import { IDriver, IElement } from '../../common/IDriver'
 import { ILoadConfig } from '../../common/IConfig'
 import { dfr_run } from '../../utils/dfr'
-import { _when, async_toThenable, async_waterfall, async_waterfallFn, async_all } from '../../utils/async'
+import { _when, async_toThenable, async_waterfallFn, async_all } from '../../utils/async'
 import { IQuery } from '../../common/IQuery'
 import { driverPool } from '../DriverPool'
 import { WebdriverQuery } from '../WebdriverQuery';
 import { class_Dfr } from 'atma-utils';
 import { node_toScript } from './node'
+import { type WebElement } from 'selenium-webdriver'
 
 export function loadUrl (driver: IDriver, url: string, config: ILoadConfig): Promise<IDriver> {
     return driver
@@ -76,7 +77,7 @@ export function driver_evalAsync (el: IElement | IDriver | WebdriverQuery | any,
     return set;
 }
 
-export function waitForElement (query: IQuery<IElement>, selector: string): IQuery<IElement> {
+export function waitForElement (query: IQuery<IElement>, selector: string, opts?: { visible?: boolean }): IQuery<IElement> {
     let driver = driverPool.extractDriver(query as any);
     let set = WebdriverQuery.newAsync(void 0, query);
     if (driver == null) {
@@ -85,8 +86,18 @@ export function waitForElement (query: IQuery<IElement>, selector: string): IQue
     }
 
     waitForTrue(async () => {
-        let $ = await query.find(selector);
-        return $.length > 0;
+        let $: IQuery<WebElement> = await query.find(selector);
+        if ($.length === 0) {
+            return false;
+        }
+        if (opts?.visible === true) {
+            let el = $.get(0);
+            let isVisible = await el.isDisplayed();
+            if (isVisible === false) {
+                return false;
+            }
+        }
+        return true;
     }, 10_000).then(
         () => {
             query.find(selector).then(x => set.resolve(x), err => set.reject(err));

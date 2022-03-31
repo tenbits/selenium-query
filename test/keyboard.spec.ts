@@ -2,13 +2,13 @@ import { TestUtils } from './utils'
 
 UTest({
     $before () {
-        Utils.start();
+        TestUtils.start();
     },
     $after () {
         //Utils.stop();
     },
     async 'should send keys' () {
-        let $ = await Utils.query('/html/foo.html')
+        let $ = await TestUtils.query('/html/foo.html')
         let input = await $.find('form > input[type=text]');
         let val = await input
                 .sendKeys('Bro')
@@ -17,7 +17,7 @@ UTest({
         eq_(val, 'HelloBro');
     },
     async 'should send also meta keys' (done) {
-        let $ = await Utils.query('/html/foo.html')
+        let $ = await TestUtils.query('/html/foo.html')
         let input = $.find('form > input[type=text]');
 
         let val = await input
@@ -27,7 +27,7 @@ UTest({
         eq_(val, 'Helper');
     },
     async 'should press a key combination' () {
-        let $ = await Utils.query('/html/foo.html')
+        let $ = await TestUtils.query('/html/foo.html')
         let input = await $.find('form > input[type=text]');
         let val = await input
                 .press('shift+b')

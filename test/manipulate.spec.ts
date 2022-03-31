@@ -7,14 +7,14 @@ UTest({
         timeout: 50000
     },
     $before() {
-        Utils.start();
+        TestUtils.start();
     },
     $after() {
         //Utils.stop();
     },
     'should get/set attributes': {
         async 'get attr'() {
-            let $ = await Utils.query('/html/foo.html');
+            let $ = await TestUtils.query('/html/foo.html');
             let val = await $
                 .find('span')
                 .attr('class');
@@ -23,7 +23,7 @@ UTest({
 
         },
         async 'set attr'() {
-            let $ = await Utils.query('/html/foo.html');
+            let $ = await TestUtils.query('/html/foo.html');
             let $foo = await $
                 .find('.foo')
                 .attr('class', 'baz')
@@ -43,7 +43,7 @@ UTest({
         },
         'should get/set value': {
             async 'get value'() {
-                let $ = await Utils.query('/html/foo.html');
+                let $ = await TestUtils.query('/html/foo.html');
                 let val = await $
                     .find('input[type=text]')
                     .val();
@@ -51,7 +51,7 @@ UTest({
                 eq_(val, 'Hello');
             },
             async 'set value'() {
-                let $ = await Utils.query('/html/foo.html');
+                let $ = await TestUtils.query('/html/foo.html');
                 let $input = await $
                     .find('input[type=text]')
                     .val('Ciao');
@@ -67,7 +67,7 @@ UTest({
         },
         'should get/set textContent': {
             async 'get text'() {
-                let $ = await Utils.query('/html/foo.html');
+                let $ = await TestUtils.query('/html/foo.html');
                 let val = await $
                     .find('.foo')
                     .text()
@@ -76,7 +76,7 @@ UTest({
 
             },
             async 'set text'() {
-                let $ = await Utils.query('/html/foo.html');
+                let $ = await TestUtils.query('/html/foo.html');
                 await $
                     .find('.foo')
                     .text('Foo')
@@ -91,7 +91,7 @@ UTest({
         },
         'should get/set data values': {
             async 'get data'() {
-                let $ = await Utils.query('/html/foo.html');
+                let $ = await TestUtils.query('/html/foo.html');
                 let val = await $
                     .find('.btn-upload')
                     .data('myBaz');
@@ -100,7 +100,7 @@ UTest({
 
             },
             async 'set data'() {
-                let $ = await Utils.query('/html/foo.html');
+                let $ = await TestUtils.query('/html/foo.html');
                 await $
                     .find('.btn-upload')
                     .data('myBaz', '')
@@ -114,7 +114,7 @@ UTest({
         },
         'should get/set inner html': {
             async 'get and set html'() {
-                let $ = await Utils.query('/html/foo.html');
+                let $ = await TestUtils.query('/html/foo.html');
                 let html = await $
                     .find('footer')
                     .html();
@@ -129,7 +129,7 @@ UTest({
                 eq_(val, 'IFoot');
             },
             async 'get html'() {
-                let $ = await Utils.query('/html/foo.html');
+                let $ = await TestUtils.query('/html/foo.html');
                 let val = await $
                     .find('.foo')
                     .html()
@@ -138,7 +138,7 @@ UTest({
             }
         },
         async 'append'() {
-            let $ = await Utils.query('/html/foo.html');
+            let $ = await TestUtils.query('/html/foo.html');
             let $el = await $
                 .find('section.foo')
                 .append('<br/><em>1</em>')
@@ -149,7 +149,7 @@ UTest({
             eq_(val, '<span>Span2</span><br><em>1</em>');
         },
         async 'prepend'() {
-            let $ = await Utils.query('/html/foo.html');
+            let $ = await TestUtils.query('/html/foo.html');
             let $el = await $
                 .find('section.foo')
                 .prepend('<div class="one">div</div><section class="one">section</section><span class="one">span</span>')
@@ -163,7 +163,7 @@ UTest({
         },
 
         async 'should remove element'() {
-            let $ = await Utils.query('/html/foo.html');
+            let $ = await TestUtils.query('/html/foo.html');
             let $foo = await $
                 .find('.foo')
                 .remove()

@@ -2,7 +2,7 @@ import { WebdriverQuery, WebdriverQuerySync } from '../src/webdriver/WebdriverQu
 import { TestUtils } from './utils'
 UTest({
     $before() {
-        Utils.start();
+        TestUtils.start();
     },
     $after() {
         //Utils.stop();
@@ -18,7 +18,7 @@ UTest({
         }
 
 
-        let $ = await Utils.query('/html/foo.html');
+        let $ = await TestUtils.query('/html/foo.html');
         let val = await $
             .use(InputHandler)
             .enterFoo()

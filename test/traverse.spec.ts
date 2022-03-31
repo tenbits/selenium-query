@@ -5,13 +5,13 @@ UTest({
         timeout: 10000
     },
     $before () {
-        return Utils.start();
+        return TestUtils.start();
     },
     $after () {
         //Utils.stop();
     },
     'find' (done) {
-        Utils.query('/html/foo.html', $ => {
+        TestUtils.query('/html/foo.html', $ => {
             $
                 .find('span')
                 .done($ => {
@@ -21,7 +21,7 @@ UTest({
         });
     },
     'filter' (done) {
-        Utils.query('/html/foo.html', $ => {
+        TestUtils.query('/html/foo.html', $ => {
             $
                 .find('.foo')
                 .done($ => {
@@ -35,7 +35,7 @@ UTest({
         });
     },
     'parent' (done) {
-        Utils.query('/html/foo.html', $ => {
+        TestUtils.query('/html/foo.html', $ => {
             $
                 .find('.foo > span')
                 .parent()
@@ -49,7 +49,7 @@ UTest({
         })
     },
     'closest' (done) {
-        Utils.query('/html/foo.html', $ => {
+        TestUtils.query('/html/foo.html', $ => {
             $
                 .find('.foo > span')
                 .closest('body')
@@ -65,7 +65,7 @@ UTest({
     },
     'children': {
         'should get all children' (done) {
-            Utils.query('/html/foo.html', $ => {
+            TestUtils.query('/html/foo.html', $ => {
                 $
                     .find('body')
                     .children()
@@ -77,7 +77,7 @@ UTest({
             })
         },
         'should filter children' (done) {
-            Utils.query('/html/foo.html', $ => {
+            TestUtils.query('/html/foo.html', $ => {
                 $
                     .find('body')
                     .children('section')
@@ -90,7 +90,7 @@ UTest({
     },
     'next': {
         'should get direct next element' (done) {
-            Utils.query('/html/foo.html', $ => {
+            TestUtils.query('/html/foo.html', $ => {
                 $
                     .find('body > span')
                     .done($ => {
@@ -104,7 +104,7 @@ UTest({
             })
         },
         'should filter children' (done) {
-            Utils.query('/html/foo.html', $ => {
+            TestUtils.query('/html/foo.html', $ => {
                 $
                     .find('body > span')
                     .done($ => eq_($.length, 1))
