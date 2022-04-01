@@ -18,6 +18,7 @@ import { scripts_nodeProperty } from './scripts/nodeProperty'
 import { scripts_nodeDataset } from './scripts/nodeDataset'
 import { WebdriverFormData } from './WebdriverFormData'
 import { FormDataBase } from '../common/FormDataBase'
+import { type WebElement } from 'selenium-webdriver'
 
 declare var scripts_nodeClassHas: any;
 declare var scripts_nodeClassAdd: any;
@@ -329,8 +330,13 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
     waitForPageReady (): IQuery<any> {
         return waitForPageLoad(this, 'interactive');
     }
-    waitForElement (selector: string, opts?: { visible?: boolean }): IQuery<IElement> {
-        return waitForElement(this, selector, opts);
+    waitForElement (selector: string, opts?: { visible?: boolean }): IQuery<IElement>
+    waitForElement (selector: string, check?: TCheckElement): IQuery<IElement>
+    waitForElement (selector: string, mix?: { visible?: boolean, check?: TCheckElement } | TCheckElement): IQuery<IElement> {
+        if (typeof mix === 'function') {
+            mix = { check: mix };
+        }
+        return waitForElement(this, selector, mix);
     }
     waitForResource (selector: string): IQuery<IElement>  {
         return driver_evalAsync(this, scripts_waitForResourceCallback, selector);
@@ -402,6 +408,9 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
 
     static pseudo = SelectorsEx.pseudoFns
 }
+
+
+declare type TCheckElement = ($: IQuery<WebElement>) => Promise<boolean>
 
 
 namespace Events {

@@ -26,6 +26,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
     import { IBuildConfig, ISettings } from 'selenium-query/common/IConfig';
     import { WebdriverFormData } from 'selenium-query/webdriver/WebdriverFormData';
     import { FormDataBase } from 'selenium-query/common/FormDataBase';
+    import { type WebElement } from 'selenium-webdriver';
     export type WebdriverQuerySync = Omit<WebdriverQuery, 'then' | 'resolve' | 'reject' | 'done' | 'fail'>;
     export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & {
             then: never;
@@ -104,6 +105,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             waitForElement(selector: string, opts?: {
                     visible?: boolean;
             }): IQuery<IElement>;
+            waitForElement(selector: string, check?: TCheckElement): IQuery<IElement>;
             waitForResource(selector: string): IQuery<IElement>;
             unlock(): void;
             getDriver(): WebDriver;
@@ -146,6 +148,8 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
                     };
             };
     }
+    type TCheckElement = ($: IQuery<WebElement>) => Promise<boolean>;
+    export {};
 }
 
 declare module 'selenium-query/common/CookieContainer' {

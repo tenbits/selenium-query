@@ -77,7 +77,10 @@ export function driver_evalAsync (el: IElement | IDriver | WebdriverQuery | any,
     return set;
 }
 
-export function waitForElement (query: IQuery<IElement>, selector: string, opts?: { visible?: boolean }): IQuery<IElement> {
+export function waitForElement (query: IQuery<IElement>, selector: string, opts?: {
+    visible?: boolean,
+    check?: ($: IQuery<WebElement>) => Promise<boolean>
+}): IQuery<IElement> {
     let driver = driverPool.extractDriver(query as any);
     let set = WebdriverQuery.newAsync(void 0, query);
     if (driver == null) {
@@ -94,6 +97,12 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
             let el = $.get(0);
             let isVisible = await el.isDisplayed();
             if (isVisible === false) {
+                return false;
+            }
+        }
+        if (opts?.check) {
+            let result = await opts.check($);
+            if (result === false) {
                 return false;
             }
         }
