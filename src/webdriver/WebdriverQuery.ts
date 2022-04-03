@@ -2,7 +2,7 @@ import { node_eval, node_getDriver } from './utils/node'
 import { refs } from '../global'
 import { IElement, IDriver, IDriverManager } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
-import { IQuery } from '../common/IQuery'
+import { IQuery, IQueryConditionFn, IQueryWaitOptions } from '../common/IQuery'
 import { Webdriver } from './Webdriver'
 import { IBuildConfig, ISettings } from '../common/IConfig'
 import { driverPool } from './DriverPool'
@@ -324,15 +324,15 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
         }
         return driver.manage();
     }
-    waitForPageLoad (): IQuery<any> {
-        return waitForPageLoad(this);
+    waitForPageLoad (urlPattern?: string | RegExp): IQuery<any> {
+        return waitForPageLoad(this, void 0, urlPattern);
     }
-    waitForPageReady (): IQuery<any> {
-        return waitForPageLoad(this, 'interactive');
+    waitForPageReady (urlPattern?: string | RegExp): IQuery<any> {
+        return waitForPageLoad(this, 'interactive', urlPattern);
     }
-    waitForElement (selector: string, opts?: { visible?: boolean }): IQuery<IElement>
-    waitForElement (selector: string, check?: TCheckElement): IQuery<IElement>
-    waitForElement (selector: string, mix?: { visible?: boolean, check?: TCheckElement } | TCheckElement): IQuery<IElement> {
+    waitForElement (selector: string, opts?: IQueryWaitOptions<WebElement>): IQuery<IElement>
+    waitForElement (selector: string, check?: IQueryConditionFn<WebElement>): IQuery<IElement>
+    waitForElement (selector: string, mix?: IQueryWaitOptions<WebElement> | IQueryConditionFn<WebElement>): IQuery<IElement> {
         if (typeof mix === 'function') {
             mix = { check: mix };
         }
@@ -409,8 +409,6 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
     static pseudo = SelectorsEx.pseudoFns
 }
 
-
-declare type TCheckElement = ($: IQuery<WebElement>) => Promise<boolean>
 
 
 namespace Events {

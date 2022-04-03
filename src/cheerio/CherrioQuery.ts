@@ -1,13 +1,16 @@
-import { IQuery } from '../common/IQuery'
+import { IQuery, IQueryConditionFn } from '../common/IQuery'
 import { IBuildConfig, ISettings } from '../common/IConfig'
 import { IDriver } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
 import { dfr_resolve } from '../utils/dfr';
 import { NetworkDriver } from '../fetch/NetworkDriver';
 import { CheerioUtils } from './CheerioUtils';
-import * as $ from 'cheerio'
+import cheerio from 'cheerio'
 
 export class CherrioQuery extends IQuery<CheerioElement> {
+    waitForElement(selector: string, mix?: { visible?: boolean; check?: IQueryConditionFn<CheerioElement>; } | IQueryConditionFn<CheerioElement>): IQuery<CheerioElement, any> {
+        throw new Error('Method not implemented.');
+    }
 
     protected _onFn(node: CheerioElement, type: string, cb: Function): Promise<any> {
         throw new Error('Method not implemented.');
@@ -21,62 +24,62 @@ export class CherrioQuery extends IQuery<CheerioElement> {
 
 
     hasClassFn (node: CheerioElement, name: string): Deferred<boolean> {
-        return dfr_resolve($(node).hasClass(name));
+        return dfr_resolve(cheerio(node).hasClass(name));
     }
     addClassFn (node: CheerioElement, name: string): Deferred<void> {
-        $(node).addClass(name);
+        cheerio(node).addClass(name);
         return dfr_resolve();
     }
     removeClassFn(node: CheerioElement, name: string): Deferred<void> {
-        $(node).removeClass(name);
+        cheerio(node).removeClass(name);
         return dfr_resolve();
     }
     toggleClassFn(node: CheerioElement, name: string): Deferred<void> {
-        $(node).toggleClass(name);
+        cheerio(node).toggleClass(name);
         return dfr_resolve();
     }
 
     textGetFn (node: CheerioElement): Deferred<string>  {
         // Cheerio returns empty string on `text` for script elements
         const method = node.tagName === 'script' ? 'html' : 'text';
-        return dfr_resolve($(node)[method]());
+        return dfr_resolve(cheerio(node)[method]());
     }
     textSetFn (node: CheerioElement, text: string): Deferred<void>  {
-        $(node).text(text);
+        cheerio(node).text(text);
         return dfr_resolve();
     }
     htmlOuterGetFn (node: CheerioElement): Deferred<string>  {
 
-        return dfr_resolve($.html(node));
+        return dfr_resolve(cheerio.html(node));
     }
     htmlGetFn (node: CheerioElement): Deferred<string>  {
         return dfr_resolve(CheerioUtils.fromNode(node).html());
     }
     htmlSetFn (node: CheerioElement, text: string): Deferred<void>  {
-        $(node).html(text);
+        cheerio(node).html(text);
         return dfr_resolve();
     }
     appendFn (node: CheerioElement, html: string): Deferred<void> {
-        $(node).append(html);
+        cheerio(node).append(html);
         return dfr_resolve();
     }
     prependFn (node: CheerioElement, html: string): Deferred<void> {
-        $(node).prepend(html);
+        cheerio(node).prepend(html);
         return dfr_resolve();
     }
     beforeFn (node: CheerioElement, html: string): Deferred<void> {
-        $(node).insertBefore(html);
+        cheerio(node).insertBefore(html);
         return dfr_resolve();
     }
     afterFn (node: CheerioElement, html: string): Deferred<void> {
-        $(node).insertAfter(html);
+        cheerio(node).insertAfter(html);
         return dfr_resolve();
     }
     cssGet (node: CheerioElement, prop: string): Promise<any> {
-        return dfr_resolve($(node).css(prop));
+        return dfr_resolve(cheerio(node).css(prop));
     }
     cssSet (node: CheerioElement, css: { [key: string]: any }): Deferred<void> {
-        $(node).css(css);
+        cheerio(node).css(css);
         return dfr_resolve();
     }
 
@@ -148,70 +151,70 @@ export class CherrioQuery extends IQuery<CheerioElement> {
     //#endregion
     //#region Manipulate
     removeFn (node: CheerioElement): Promise<void> {
-        $(node).remove();
+        cheerio(node).remove();
         return dfr_resolve();
     }
     //#endregion
     //#region Properties
     attrGetFn (node: CheerioElement, prop: string): Promise<any> {
-        return dfr_resolve($(node).attr(prop));
+        return dfr_resolve(cheerio(node).attr(prop));
     }
     attrSetFn (node: CheerioElement, attr: { [key: string]: any }): Deferred<void> {
         for (let key in attr) {
-            $(node).attr(key, attr[key]);
+            cheerio(node).attr(key, attr[key]);
         }
         return dfr_resolve();
     }
     valGetFn (node: CheerioElement): Promise<any> {
-        return dfr_resolve($(node).val());
+        return dfr_resolve(cheerio(node).val());
     }
     valSetFn (node: CheerioElement, value: any): Deferred<void> {
-        $(node).val(value);
+        cheerio(node).val(value);
         return dfr_resolve();
     }
     dataGetFn (node: CheerioElement, key: string): Promise<any> {
-        return dfr_resolve($(node).data(key));
+        return dfr_resolve(cheerio(node).data(key));
     }
     dataSetFn (node: CheerioElement, data: object): Deferred<void> {
         for (let key in data) {
-            $(node).data(key, data[key]);
+            cheerio(node).data(key, data[key]);
         }
         return dfr_resolve();
     }
     protected propGetFn(node: CheerioElement, key: string): Promise<any> {
-        return dfr_resolve($(node).prop(key));
+        return dfr_resolve(cheerio(node).prop(key));
     }
     protected propSetFn(node: CheerioElement, data: object): Deferred<void> {
         for (let key in data) {
-            $(node).prop(key, data[key]);
+            cheerio(node).prop(key, data[key]);
         }
         return dfr_resolve();
     }
     //#endregion
 
     findFn (node: CheerioElement, selector: string): Deferred<CheerioElement[]> {
-        let arr = $(node).find(selector).toArray();
+        let arr = cheerio(node).find(selector).toArray();
         return dfr_resolve(arr);
     }
 
     matchesFn (node: CheerioElement, selector: string): Deferred<boolean> {
-        return dfr_resolve($(node).is(selector));
+        return dfr_resolve(cheerio(node).is(selector));
     }
 
     parentFn (node: CheerioElement): Promise<CheerioElement> {
-        let el = $(node).parent().get(0);
+        let el = cheerio(node).parent().get(0);
         return dfr_resolve(el);
     }
     closestFn (node: CheerioElement, sel: string): Promise<CheerioElement> {
-        let el = $(node).closest(sel).get(0);
+        let el = cheerio(node).closest(sel).get(0);
         return dfr_resolve(el);
     }
     childrenFn (node: CheerioElement, sel?: string): Promise<CheerioElement[]> {
-        let arr = $(node).children(sel).toArray();
+        let arr = cheerio(node).children(sel).toArray();
         return dfr_resolve(arr);
     }
     nextFn (node: CheerioElement, sel?: string): Promise<CheerioElement> {
-        let next = $(node).next(sel).get(0);
+        let next = cheerio(node).next(sel).get(0);
         return dfr_resolve(next);
     }
 

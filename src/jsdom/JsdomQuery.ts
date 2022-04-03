@@ -1,4 +1,4 @@
-import { IQuery } from '../common/IQuery'
+import { IQuery, IQueryConditionFn } from '../common/IQuery'
 import { IBuildConfig, ISettings } from '../common/IConfig'
 import { IDriver } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
@@ -8,6 +8,9 @@ import { NetworkDriver } from '../fetch/NetworkDriver'
 
 
 export class JsdomQuery extends IQuery<Element> {
+    waitForElement(selector: string, mix?: { visible?: boolean; check?: IQueryConditionFn<Element>; } | IQueryConditionFn<Element>): IQuery<Element, any> {
+        throw new Error('Method not implemented.');
+    }
 
 
     protected _onFn(node: Element, type: string, cb: Function): Promise<any> {

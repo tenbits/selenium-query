@@ -22,7 +22,7 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
      import { WebDriver } from 'selenium-webdriver'; 
      import { IElement, IDriver, IDriverManager } from 'selenium-query/common/IDriver';
     import { Deferred } from 'selenium-query/types/Deferred';
-    import { IQuery } from 'selenium-query/common/IQuery';
+    import { IQuery, IQueryConditionFn, IQueryWaitOptions } from 'selenium-query/common/IQuery';
     import { IBuildConfig, ISettings } from 'selenium-query/common/IConfig';
     import { WebdriverFormData } from 'selenium-query/webdriver/WebdriverFormData';
     import { FormDataBase } from 'selenium-query/common/FormDataBase';
@@ -100,12 +100,10 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             protected _offFn(node: IElement, type: string, cb?: Function): Promise<any>;
             protected _onOnceFn(node: IElement, type: string, cb: Function): Promise<any>;
             manage(): IDriverManager;
-            waitForPageLoad(): IQuery<any>;
-            waitForPageReady(): IQuery<any>;
-            waitForElement(selector: string, opts?: {
-                    visible?: boolean;
-            }): IQuery<IElement>;
-            waitForElement(selector: string, check?: TCheckElement): IQuery<IElement>;
+            waitForPageLoad(urlPattern?: string | RegExp): IQuery<any>;
+            waitForPageReady(urlPattern?: string | RegExp): IQuery<any>;
+            waitForElement(selector: string, opts?: IQueryWaitOptions<WebElement>): IQuery<IElement>;
+            waitForElement(selector: string, check?: IQueryConditionFn<WebElement>): IQuery<IElement>;
             waitForResource(selector: string): IQuery<IElement>;
             unlock(): void;
             getDriver(): WebDriver;
@@ -148,8 +146,6 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
                     };
             };
     }
-    type TCheckElement = ($: IQuery<WebElement>) => Promise<boolean>;
-    export {};
 }
 
 declare module 'selenium-query/common/CookieContainer' {
@@ -407,6 +403,7 @@ declare module 'selenium-query/common/IQuery' {
         length: number;
         ctx: IQueryCtx;
         constructor(mix?: any);
+        get [Symbol.toStringTag](): string;
         ensureSync(): IQuery<TElement>;
         ensureAsync(): IQuery<TElement>;
         resolve(...args: any[]): this;
@@ -424,8 +421,8 @@ declare module 'selenium-query/common/IQuery' {
         get(index: number): TElement;
         slice(start?: number, end?: number): IQuery<any, any>;
         each(fn: (node: TElement, i?: number) => void | TElement | any): IQuery<any, any>;
-        map(fn: (node: TElement, i?: number) => void | TElement | any): IQuery<any, any>;
-        toArray(): Promise<unknown>;
+        map<TResult>(fn: (node: IQuery<TElement>, i?: number) => TResult): IQuery<TResult extends PromiseLike<any> ? Awaited<TResult> : TResult, any>;
+        toArray(): Promise<TElement[]>;
         as<T>(): T;
         use<TCtor extends new (...args: any[]) => IQuery<any>>(Ctor: TCtor): InstanceType<TCtor>;
         text(): PromiseLike<string>;
@@ -524,7 +521,7 @@ declare module 'selenium-query/common/IQuery' {
         val(val: any): IQuery<TElement>;
         protected abstract valGetFn(node: TElement): Promise<any>;
         protected abstract valSetFn(node: TElement, value: any): Deferred<void>;
-        data(key: string): PromiseLike<any>;
+        data(key: string): PromiseLike<string>;
         data(key: string, val: any): IQuery<TElement>;
         data(dataObj: {
             [key: string]: any;
@@ -561,6 +558,16 @@ declare module 'selenium-query/common/IQuery' {
         protected abstract _onFn(node: TElement, type: string, cb: Function): Promise<any>;
         protected abstract _onOnceFn(node: TElement, type: string, cb: Function): Promise<any>;
         protected abstract _offFn(node: TElement, type: string, cb: Function): Promise<any>;
+        abstract waitForElement(selector: string, mix?: IQueryWaitOptions<TElement> | IQueryConditionFn<TElement>): IQuery<TElement>;
+    }
+    export interface IQueryConditionFn<T> {
+        ($: IQuery<T>): Promise<boolean>;
+    }
+    export interface IQueryWaitOptions<T> {
+        visible?: boolean;
+        check?: IQueryConditionFn<T>;
+        interval?: number;
+        timeout?: number;
     }
 }
 

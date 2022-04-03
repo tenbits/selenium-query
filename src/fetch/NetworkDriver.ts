@@ -47,7 +47,6 @@ export const NetworkDriver = {
     },
     load<T = any>(url: string, config: ILoadConfig = {}): Promise<NetworkResponse<T>> {
         let worker = new RequestWorker(url, config);
-
         return worker.load();
     },
     getCookies(url?: string) {

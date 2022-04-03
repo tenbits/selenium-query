@@ -83,6 +83,10 @@ export abstract class IQuery<TElement = any, TContainer extends IQuery<TElement,
         }
     }
 
+    get [Symbol.toStringTag]() {
+        return 'IQuery';
+    }
+
     ensureSync(): IQuery<TElement> {
         this.then = null;
         return this;
@@ -172,10 +176,10 @@ export abstract class IQuery<TElement = any, TContainer extends IQuery<TElement,
             })
         });
     }
-    map(fn: (node: TElement, i?: number) => void | TElement | any) {
+    map <TResult> (fn: (node: IQuery<TElement>, i?: number) => TResult) {
         return async_map(this, fn);
     }
-    toArray() {
+    toArray(): Promise<TElement[]> {
         return dfr_run(resolve => {
             this.ensureAsync().done($ => {
                 var arr = Array.prototype.slice.call($);
@@ -449,7 +453,7 @@ export abstract class IQuery<TElement = any, TContainer extends IQuery<TElement,
     protected abstract valGetFn(node: TElement): Promise<any>
     protected abstract valSetFn(node: TElement, value: any): Deferred<void>
 
-    data(key: string): PromiseLike<any>;
+    data(key: string): PromiseLike<string>;
     data(key: string, val: any): IQuery<TElement>
     data(dataObj: { [key: string]: any }): IQuery<TElement>
     data(mix, val?) {
@@ -481,10 +485,9 @@ export abstract class IQuery<TElement = any, TContainer extends IQuery<TElement,
     //#endregion
     //#region Traverse
     find(sel: string): IQuery<TElement> {
-        return SelectorsEx.find(this, sel, (el, sel) => {
+        return SelectorsEx.find<TElement>(this, sel, (el, sel) => {
             return async_traverse(el, (node: TElement) => this.findFn(node, sel));
-        }) as any as IQuery<TElement>;
-        //return async_traverse(this, (node: TElement) => this.findFn(node, sel));
+        });
     }
     protected abstract findFn(node: TElement, selector: string): Deferred<TElement[]>
 
@@ -548,6 +551,9 @@ export abstract class IQuery<TElement = any, TContainer extends IQuery<TElement,
     protected abstract _onFn(node: TElement, type: string, cb: Function): Promise<any>
     protected abstract _onOnceFn(node: TElement, type: string, cb: Function): Promise<any>
     protected abstract _offFn(node: TElement, type: string, cb: Function): Promise<any>
+
+
+    abstract waitForElement (selector: string, mix?: IQueryWaitOptions<TElement> | IQueryConditionFn<TElement>): IQuery<TElement>
 }
 
 namespace Arr {
@@ -560,4 +566,15 @@ namespace Arr {
     export function mapFirst<TResult, TElement>(self: IQuery<TElement>, map: (node: TElement) => Promise<TResult>): Promise<TResult> {
         return async_getValueOf(0, self, map);
     }
+}
+
+
+export interface IQueryConditionFn<T> {
+    ($: IQuery<T>): Promise<boolean>
+}
+export interface IQueryWaitOptions<T> {
+    visible?: boolean
+    check?: IQueryConditionFn<T>
+    interval?: number
+    timeout?: number
 }

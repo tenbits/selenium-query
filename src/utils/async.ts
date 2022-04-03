@@ -17,7 +17,7 @@ export function async_each<TElement>(query: IQuery<TElement>, fn: (ctx: IQuery<T
     });
     return $;
 };
-export function async_map<TResult, TElement>(self: IQuery<TElement>, fn: (x: TElement, i: number) => TResult) {
+export function async_map<TResult, TElement>(self: IQuery<TElement>, fn: (x: IQuery<TElement>, i: number) => TResult): IQuery<TResult extends PromiseLike<any> ? Awaited<TResult> : TResult> {
     return async_next(async_toThenable(self), ($, source) => {
         return async_waterfall(source, (node, i) => {
             return dfr_run(resolve => {

@@ -13,7 +13,13 @@ export namespace SelectorsEx {
             isNodeFilter: boolean
             fn: <T = any> ($: IQuery<T>, arg?: string) => (IQuery<T> | Promise<IQuery<T>>)
         }
-    } = {}
+    } = {
+        async 'text' (el: IQuery, txt) {
+            let text = await el.text();
+            let rgx = new RegExp(txt, 'i');
+            return rgx.test(text);
+        }
+    }
 
     export function register (name: string, fn: IPseudoSelectorFn) {
         pseudoFns[name] = fn;

@@ -2,12 +2,13 @@ import { IDriver, IElement } from '../../common/IDriver'
 import { ILoadConfig } from '../../common/IConfig'
 import { dfr_run } from '../../utils/dfr'
 import { _when, async_toThenable, async_waterfallFn, async_all } from '../../utils/async'
-import { IQuery } from '../../common/IQuery'
+import { IQuery, IQueryWaitOptions } from '../../common/IQuery'
 import { driverPool } from '../DriverPool'
 import { WebdriverQuery } from '../WebdriverQuery';
 import { class_Dfr } from 'atma-utils';
 import { node_toScript } from './node'
 import { type WebElement } from 'selenium-webdriver'
+import { $promise } from '../../utils/$promise'
 
 export function loadUrl (driver: IDriver, url: string, config: ILoadConfig): Promise<IDriver> {
     return driver
@@ -77,10 +78,7 @@ export function driver_evalAsync (el: IElement | IDriver | WebdriverQuery | any,
     return set;
 }
 
-export function waitForElement (query: IQuery<IElement>, selector: string, opts?: {
-    visible?: boolean,
-    check?: ($: IQuery<WebElement>) => Promise<boolean>
-}): IQuery<IElement> {
+export function waitForElement (query: IQuery<IElement>, selector: string, opts?: IQueryWaitOptions<WebElement>): IQuery<IElement> {
     let driver = driverPool.extractDriver(query as any);
     let set = WebdriverQuery.newAsync(void 0, query);
     if (driver == null) {
@@ -107,16 +105,25 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
             }
         }
         return true;
-    }, 10_000).then(
+    }, { timeout: opts?.timeout, interval: opts?.interval }).then(
         () => {
-            query.find(selector).then(x => set.resolve(x), err => set.reject(err));
+            query.find(selector).then(
+                x => {
+                    set.resolve(x)
+                },
+                err => {
+                    set.reject(err)
+                },
+            );
         },
-        (err) => set.reject(err)
+        (err) => {
+            set.reject(err);
+        }
     );
     return set;
 }
 
-export function waitForPageLoad (query: IQuery<IElement>, waitForState: 'complete' | 'interactive' = 'complete'): IQuery<IElement> {
+export function waitForPageLoad (query: IQuery<IElement>, waitForState: 'complete' | 'interactive' = 'complete', urlPattern?: string | RegExp): IQuery<IElement> {
     let driver = driverPool.extractDriver(query as any);
     let set = WebdriverQuery.newAsync(null, query);
     if (driver == null) {
@@ -128,14 +135,18 @@ export function waitForPageLoad (query: IQuery<IElement>, waitForState: 'complet
     let q = async_toThenable(query);
 
     async_all([q, delay]).then(([query]) => {
-        let awaiters = [
-            () => WaitForPageLoad.documentState(driver, 5000, waitForState),
-        ];
+        let awaiters = [];
+
+        if (urlPattern != null) {
+            awaiters.push(() => WaitForPageLoad.documentUrl(driver, 10_000, urlPattern));
+        }
+
+        awaiters.push(() => WaitForPageLoad.documentState(driver, 10_000, waitForState));
         if (query.length > 0 && query[0] !== driver) {
             /* If element is passed, listen also for the element to be destroyed on page unload */
             let el = query[0];
             awaiters.unshift(
-                () => WaitForPageLoad.elementLeavesDom(driver, el, 5000)
+                () => WaitForPageLoad.elementLeavesDom(driver, el, 8_000)
             );
         }
         async_waterfallFn(...awaiters).then(() => {
@@ -153,6 +164,26 @@ namespace WaitForPageLoad {
         let dfr = new class_Dfr;
         setTimeout(() => dfr.resolve(), 100);
         return dfr;
+    }
+    export function documentUrl(driver: IDriver, timeout: number, awaitUrl: string | RegExp) {
+        let dfr = new class_Dfr;
+        waitForTrue(isUrl, timeout).then(() => {
+            dfr.resolve();
+        }, error => {
+            dfr.reject(new Error(`${awaitUrl} not seen. timeouted`));
+        });
+        return dfr;
+        function isUrl () {
+            return driver
+                .getCurrentUrl()
+                .then(url => {
+                    if (typeof awaitUrl === 'string') {
+                        return awaitUrl.replace(/[^\w]/g, '') === url.replace(/[^\w]/g, '');
+                    }
+
+                    return awaitUrl.test?.(url) ?? false
+                });
+        }
     }
 
     export function documentState(driver: IDriver, timeout: number, waitForState: 'complete' | 'interactive' = 'complete') {
@@ -198,24 +229,35 @@ namespace WaitForPageLoad {
     }
 }
 
-function waitForTrue(check: () => Promise<boolean>, timeout: number) {
-    let dfr = new class_Dfr;
-    let time = Date.now();
-    function tick () {
-        check().then(function (state) {
-            if (state === true) {
-                dfr.resolve();
-                return;
-            }
+type TWaitForOptions = {
+    timeout?: number
+    interval?: number
+}
 
-            if (Date.now() - time > timeout) {
-                dfr.reject(new Error('Timeout error'));
-                return;
-            }
-            setTimeout(tick, 400);
-        }, error => dfr.reject(error))
+function waitForTrue(check: () => Promise<boolean>, timeout: number)
+function waitForTrue(check: () => Promise<boolean>, opts: TWaitForOptions)
+async function waitForTrue(check: () => Promise<boolean>, mix: number | { timeout?: number, interval?: number }) {
+    let time = Date.now();
+    let interval = 400;
+    let timeout = 10_000;
+    if (typeof mix === 'number') {
+        timeout = mix;
+    } else {
+        timeout = mix?.timeout ?? timeout;
+        interval = mix?.interval ?? interval;
     }
 
-    tick();
-    return dfr;
+    async function tick () {
+        let result = await check();
+        if (result === true) {
+            return;
+        }
+        if (Date.now() - time > timeout) {
+            throw new Error('Timeout error');
+        }
+
+        await $promise.wait(interval);
+        await tick();
+    }
+    await tick();
 }
