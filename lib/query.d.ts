@@ -17,13 +17,12 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
     import { IPseudoSelectorFn } from 'selenium-query/common/SelectorsEx'; 
      import { NetworkTracer } from 'selenium-query/fetch/NetworkTracer'; 
      import { NetworkResponse } from 'selenium-query/fetch/NetworkDriver'; 
-     import { ILoadConfig } from 'selenium-query/common/IConfig'; 
      import { IQueryStatics } from 'selenium-query/common/IQueryStatics'; 
      import { WebDriver } from 'selenium-webdriver'; 
      import { IElement, IDriver, IDriverManager } from 'selenium-query/common/IDriver';
     import { Deferred } from 'selenium-query/types/Deferred';
     import { IQuery, IQueryConditionFn, IQueryWaitOptions } from 'selenium-query/common/IQuery';
-    import { IBuildConfig, ISettings } from 'selenium-query/common/IConfig';
+    import { IBuildConfig, ILoadConfig, ISettings } from 'selenium-query/common/IConfig';
     import { WebdriverFormData } from 'selenium-query/webdriver/WebdriverFormData';
     import { FormDataBase } from 'selenium-query/common/FormDataBase';
     import { type WebElement } from 'selenium-webdriver';
@@ -112,7 +111,9 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             static build(config: IBuildConfig, setts?: ISettings): IQuery<any>;
             static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any, any> | WebdriverQuery;
             static loadWithWebdriver(url: string, config?: IBuildConfig, setts?: ISettings): WebdriverQuery;
-            static fetch<T = any | WebdriverQuery>(url: string, config?: IBuildConfig, setts?: ISettings): Promise<{
+            static fetch<T = any | WebdriverQuery>(url: string, config?: ILoadConfig & {
+                    baseUrl?: string;
+            }, setts?: ISettings): Promise<{
                     status: number;
                     headers: {
                             [lowerCased: string]: string;
@@ -266,71 +267,6 @@ declare module 'selenium-query/fetch/NetworkDriver' {
         };
         url: string;
         body: T;
-    }
-}
-
-declare module 'selenium-query/common/IConfig' {
-    import { IQuery } from "selenium-query/common/IQuery";
-    import { CookieContainer } from 'selenium-query/common/CookieContainer';
-    export interface IBuildConfig {
-        name?: string;
-        args?: string[];
-        binaryPath?: string;
-        applyOptions?(builder: any, options: any): any;
-        setOptions?(builder: any, options: any): any;
-        setArguments?(options: any): any;
-        setBinaryPath?(options: any): any;
-        setLogging?(options: any): any;
-        headers?: {
-            [name: string]: string;
-        } | string;
-        method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string;
-        query?: {
-            [name: string]: string;
-        };
-        body?: string | Buffer | any;
-        cookies?: {
-            [name: string]: string;
-        } | string[] | string;
-        cookiesDefault?: {
-            [name: string]: string;
-        } | string[] | string;
-        cache?: boolean | {
-            folder?: string;
-            maxAge?: number | string;
-            compress?: boolean;
-        };
-        cacheQueryIgnore?: string[];
-        /** Webdriver will load this url, or requested url, to set the cookies first */
-        cookieOrigin?: string;
-        cookieContainer?: CookieContainer;
-        [key: string]: any;
-    }
-    export interface ILoadConfig extends IBuildConfig {
-        retryCount?: number;
-        retryTimeout?: number;
-        follow?: number;
-        httpsProxy?: string | {
-            url: string;
-            username?: string;
-            password?: string;
-        };
-        ignoreSSLErrors?: boolean;
-        /** optional timeout in ms */
-        timeoutMs?: number;
-        doNotThrow?: boolean;
-        /** default: true */
-        includeDefaultHeaders?: boolean;
-        /** default: true */
-        includeCookies?: boolean;
-    }
-    export interface ISettings {
-        pool?: boolean | number;
-        query?: IQuery<any>;
-        opts?: {
-            deserialize?: boolean;
-            [key: string]: any;
-        };
     }
 }
 
@@ -568,6 +504,71 @@ declare module 'selenium-query/common/IQuery' {
         check?: IQueryConditionFn<T>;
         interval?: number;
         timeout?: number;
+    }
+}
+
+declare module 'selenium-query/common/IConfig' {
+    import { IQuery } from "selenium-query/common/IQuery";
+    import { CookieContainer } from 'selenium-query/common/CookieContainer';
+    export interface IBuildConfig {
+        name?: string;
+        args?: string[];
+        binaryPath?: string;
+        applyOptions?(builder: any, options: any): any;
+        setOptions?(builder: any, options: any): any;
+        setArguments?(options: any): any;
+        setBinaryPath?(options: any): any;
+        setLogging?(options: any): any;
+        headers?: {
+            [name: string]: string;
+        } | string;
+        method?: 'post' | 'get' | 'delete' | 'patch' | 'head' | string;
+        query?: {
+            [name: string]: string;
+        };
+        body?: string | Buffer | any;
+        cookies?: {
+            [name: string]: string;
+        } | string[] | string;
+        cookiesDefault?: {
+            [name: string]: string;
+        } | string[] | string;
+        cache?: boolean | {
+            folder?: string;
+            maxAge?: number | string;
+            compress?: boolean;
+        };
+        cacheQueryIgnore?: string[];
+        /** Webdriver will load this url, or requested url, to set the cookies first */
+        cookieOrigin?: string;
+        cookieContainer?: CookieContainer;
+        [key: string]: any;
+    }
+    export interface ILoadConfig extends IBuildConfig {
+        retryCount?: number;
+        retryTimeout?: number;
+        follow?: number;
+        httpsProxy?: string | {
+            url: string;
+            username?: string;
+            password?: string;
+        };
+        ignoreSSLErrors?: boolean;
+        /** optional timeout in ms */
+        timeoutMs?: number;
+        doNotThrow?: boolean;
+        /** default: true */
+        includeDefaultHeaders?: boolean;
+        /** default: true */
+        includeCookies?: boolean;
+    }
+    export interface ISettings {
+        pool?: boolean | number;
+        query?: IQuery<any>;
+        opts?: {
+            deserialize?: boolean;
+            [key: string]: any;
+        };
     }
 }
 

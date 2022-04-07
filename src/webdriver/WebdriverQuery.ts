@@ -4,7 +4,7 @@ import { IElement, IDriver, IDriverManager } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
 import { IQuery, IQueryConditionFn, IQueryWaitOptions } from '../common/IQuery'
 import { Webdriver } from './Webdriver'
-import { IBuildConfig, ISettings } from '../common/IConfig'
+import { IBuildConfig, ILoadConfig, ISettings } from '../common/IConfig'
 import { driverPool } from './DriverPool'
 import { JsdomDriver } from '../jsdom/JsdomDriver'
 import { CheerioDriver } from '../cheerio/CheerioDriver'
@@ -371,7 +371,7 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
         return Webdriver.load(url, config, setts);
     }
 
-    static fetch<T = any | WebdriverQuery>(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings): Promise<{
+    static fetch<T = any | WebdriverQuery>(url: string, config: ILoadConfig & { baseUrl?: string } = DefaultConfig, setts?: ISettings): Promise<{
         status: number
         headers: { [lowerCased: string]: string },
         data: T

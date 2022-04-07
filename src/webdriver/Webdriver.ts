@@ -60,10 +60,11 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
         headers: { [lowerCased: string]: string },
         data: T
     }> {
-        let wrapper = await driverPool.getWithDomain(config?.baseUrl ?? url, config, setts)
+        let wrapper = await driverPool.getWithDomain(config?.baseUrl ?? url, config, setts);
 
-        // let p = new Promise(resolve => setTimeout(resolve, 5000));
-        // await p;
+        if (config?.includeCookies === false) {
+            await wrapper.driver.manage().deleteAllCookies();
+        }
 
         type TResult = {
             status: number
