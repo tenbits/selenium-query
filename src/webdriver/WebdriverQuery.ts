@@ -388,8 +388,9 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
     static setDriver (driver: IDriver ) {
         driverPool.setGlobal(driver);
     }
-    static getDriver (config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
-        return <Promise<IDriver>> <any> driverPool.get('', config, setts);
+    static async getDriver (config: IBuildConfig, setts?: ISettings): Promise<IDriver> {
+        let wrapper = await driverPool.get('', config, setts);
+        return wrapper.driver;
     }
     static unlockDriver (mix) {
         Webdriver.unlockDriver(mix);

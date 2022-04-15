@@ -1,7 +1,6 @@
-import { IDriver } from "../common/IDriver";
 import { loadUrl } from './utils/driver'
 import { driverPool } from './DriverPool'
-import { class_Dfr, is_ArrayLike } from "atma-utils";
+import { is_ArrayLike } from "atma-utils";
 import { IBuildConfig, ISettings, ILoadConfig } from "../common/IConfig";
 import { WebdriverQuery } from "./WebdriverQuery";
 import { IQueryStatics } from "../common/IQueryStatics"
@@ -11,6 +10,7 @@ import { WebdriverFormData } from './WebdriverFormData';
 import { FormDataBase } from '../common/FormDataBase';
 import alot from 'alot';
 import { $headers } from '../utils/$headers';
+import { Capabilities, type WebDriver, type ProxyConfig } from 'selenium-webdriver';
 
 
 declare var process: any;
@@ -59,11 +59,48 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
         status: number
         headers: { [lowerCased: string]: string },
         data: T
+        driver: WebDriver
     }> {
         let wrapper = await driverPool.getWithDomain(config?.baseUrl ?? url, config, setts);
-
         if (config?.includeCookies === false) {
             await wrapper.driver.manage().deleteAllCookies();
+        }
+
+        let httpsProxy = config?.httpsProxy;
+        if (httpsProxy) {
+            // Obsolete: chrome must be launched with PROXY settings
+            let capsDriver = await wrapper.driver.getCapabilities();
+            let capsProxy = new Capabilities();
+            let url = typeof httpsProxy === 'string'
+                ? httpsProxy
+                : httpsProxy.url;
+
+            let proxy = <ProxyConfig> {
+                proxyType: 'manual',
+                httpProxy: url,
+                sslProxy: url,
+
+            };
+
+            let caps = capsProxy.setProxy(proxy)
+            capsDriver.merge(caps);
+
+            if (typeof httpsProxy !== 'string' && httpsProxy.username) {
+                let { username, password } = httpsProxy
+                let pss = `${username}:${password}`;
+                let auth = Buffer.from(pss).toString('base64');
+                let header = 'Proxy-Authorization';
+
+                if (config.headers == null) {
+                    config.headers = {
+                        [header]: auth
+                    };
+                } else if (typeof config.headers === 'string') {
+                    config.headers += `\n${header}: ${auth}`
+                } else {
+                    config.headers[header] = auth;
+                }
+            }
         }
 
         type TResult = {
@@ -72,6 +109,7 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
             data: T
             name?: 'Error' | null
             message?: string
+            driver: WebDriver
         };
 
         if (config.body instanceof FormDataBase) {
@@ -102,6 +140,10 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
         if (result == null) {
             throw new Error(`Response from the script is undefined`);
         }
+        result = {
+            ...result,
+            driver: wrapper.driver
+        };
 
         let isError = result.name === 'Error';
         if (isError) {
