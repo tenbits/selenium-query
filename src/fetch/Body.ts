@@ -45,7 +45,7 @@ export namespace Body {
             }
             let path = prfx ? `${prfx}[${key}]` : key;
 
-            if (typeof val !== 'object') {
+            if (typeof val !== 'object' || Buffer.isBuffer(val)) {
                 out[path] = val;
                 continue;
             }
