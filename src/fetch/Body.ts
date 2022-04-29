@@ -33,6 +33,10 @@ export namespace Body {
                 form.append(key, obj[key]);
             }
             opts.body = <any> form;
+
+            // Delete Content-Type - this will be added by form-data, with Boundary Key
+            delete opts.headers['Content-Type'];
+            delete opts.headers['content-type'];
             return;
         }
     }

@@ -292,10 +292,10 @@ class RequestWorker {
         let errored = res.status >= 400;
         let typeEnum = 'buffer';
         let contentType = res.headers.get('content-type');
-        if (contentType && contentType.includes('json')) {
+        if (/\bjson\b/i.test(contentType)) {
             typeEnum = 'json';
         }
-        if (contentType && contentType.includes('text')) {
+        if (/\btext\b$/i.test(contentType)) {
             typeEnum = 'text';
         }
         let body: any = null;
