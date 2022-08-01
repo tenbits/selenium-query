@@ -197,7 +197,7 @@ class RequestWorker {
         if (config.body != null && is_rawObject(config.body)) {
             Body.handleAsRawObject(this.options);
         }
-        if (this.options.headers['Referer'] == null) {
+        if (this.config.includeDefaultHeaders !== false && this.options.headers['Referer'] == null) {
             this.options.headers['Referer'] = url;
         }
         this.redirectCount = this.options.follow == null ? 10 : this.options.follow;
