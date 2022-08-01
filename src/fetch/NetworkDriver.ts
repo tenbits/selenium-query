@@ -29,23 +29,27 @@ const agents = {
 };
 const tracer = new NetworkTracer();
 
+type INetworkDriverLoadConfig = ILoadConfig & {
+    fetcher?: typeof fetch
+};
+
 export const NetworkDriver = {
-    isCached(url: string, config: ILoadConfig = {}): boolean {
+    isCached(url: string, config: INetworkDriverLoadConfig = {}): boolean {
         url = serializeCachableUrl(url, config);
         return cache.has(url, config);
     },
-    isCachedAsync(url: string, config: ILoadConfig = {}): Promise<boolean> {
+    isCachedAsync(url: string, config: INetworkDriverLoadConfig = {}): Promise<boolean> {
         url = serializeCachableUrl(url, config);
         return cache.hasAsync(url, config);
     },
     clearCookies() {
         cookieContainer.clearCookies()
     },
-    clearCached(url: string, config: ILoadConfig = {}) {
+    clearCached(url: string, config: INetworkDriverLoadConfig = {}) {
         url = serializeCachableUrl(url, config);
         cache.remove(url, config);
     },
-    load<T = any>(url: string, config: ILoadConfig = {}): Promise<NetworkResponse<T>> {
+    load<T = any>(url: string, config: INetworkDriverLoadConfig = {}): Promise<NetworkResponse<T>> {
         let worker = new RequestWorker(url, config);
         return worker.load();
     },
@@ -107,7 +111,7 @@ class RequestWorker {
     private location: string;
     private span: NetworkSpan;
 
-    constructor(private url: string, private config: ILoadConfig = {}) {
+    constructor(private url: string, private config: INetworkDriverLoadConfig = {}) {
         const headers = Object.assign(
             {},
             config?.includeDefaultHeaders !== false ? DefaultOptions.headers : {},
@@ -342,7 +346,8 @@ class RequestWorker {
 
     private async _fetch<T = any>(url: string) {
         try {
-            let httpRes = await fetch(url, this.options);
+            let fetcher = this.config?.fetcher ?? fetch;
+            let httpRes = await fetcher(url, this.options);
             let res = await this._handleResponse<T>(httpRes);
             if (res != null) {
                 this.doComplete(null, res);
@@ -370,5 +375,5 @@ class RequestWorker {
 function wait(ms) {
     return new Promise(resolve => {
         setTimeout(() => resolve(null), ms);
-    })
+    });
 }

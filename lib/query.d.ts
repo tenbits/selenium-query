@@ -2,6 +2,7 @@
 // Dependencies for this module:
 //   ../selenium-webdriver
 //   ../atma-utils
+//   ../node-fetch
 
 declare module 'selenium-query' {
     import { WebdriverQuery } from 'selenium-query/webdriver/WebdriverQuery';
@@ -127,11 +128,19 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             static cheerio: IQueryStatics<IQuery<any, any>>;
             static jsdom: IQueryStatics<IQuery<any, any>>;
             static network: {
-                    isCached(url: string, config?: ILoadConfig): boolean;
-                    isCachedAsync(url: string, config?: ILoadConfig): Promise<boolean>;
+                    isCached(url: string, config?: ILoadConfig & {
+                            fetcher?: any;
+                    }): boolean;
+                    isCachedAsync(url: string, config?: ILoadConfig & {
+                            fetcher?: any;
+                    }): Promise<boolean>;
                     clearCookies(): void;
-                    clearCached(url: string, config?: ILoadConfig): void;
-                    load<T = any>(url: string, config?: ILoadConfig): Promise<NetworkResponse<T>>;
+                    clearCached(url: string, config?: ILoadConfig & {
+                            fetcher?: any;
+                    }): void;
+                    load<T = any>(url: string, config?: ILoadConfig & {
+                            fetcher?: any;
+                    }): Promise<NetworkResponse<T>>;
                     getCookies(url?: string): string;
                     setCookies(url: string, cookies: string | string[] | {
                             [key: string]: string;
@@ -243,14 +252,18 @@ declare module 'selenium-query/fetch/NetworkTracer' {
 }
 
 declare module 'selenium-query/fetch/NetworkDriver' {
+    import fetch from 'node-fetch';
     import { ILoadConfig } from "selenium-query/common/IConfig";
     import { NetworkTracer } from 'selenium-query/fetch/NetworkTracer';
+    type INetworkDriverLoadConfig = ILoadConfig & {
+        fetcher?: typeof fetch;
+    };
     export const NetworkDriver: {
-        isCached(url: string, config?: ILoadConfig): boolean;
-        isCachedAsync(url: string, config?: ILoadConfig): Promise<boolean>;
+        isCached(url: string, config?: INetworkDriverLoadConfig): boolean;
+        isCachedAsync(url: string, config?: INetworkDriverLoadConfig): Promise<boolean>;
         clearCookies(): void;
-        clearCached(url: string, config?: ILoadConfig): void;
-        load<T = any>(url: string, config?: ILoadConfig): Promise<NetworkResponse<T>>;
+        clearCached(url: string, config?: INetworkDriverLoadConfig): void;
+        load<T = any>(url: string, config?: INetworkDriverLoadConfig): Promise<NetworkResponse<T>>;
         getCookies(url?: string): string;
         setCookies(url: string, cookies: string | string[] | {
             [key: string]: string;
@@ -268,6 +281,7 @@ declare module 'selenium-query/fetch/NetworkDriver' {
         url: string;
         body: T;
     }
+    export {};
 }
 
 declare module 'selenium-query/common/IQueryStatics' {
