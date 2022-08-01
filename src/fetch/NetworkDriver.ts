@@ -299,16 +299,16 @@ class RequestWorker {
         if (/\bjson\b/i.test(contentType)) {
             typeEnum = 'json';
         }
-        if (/\btext\b$/i.test(contentType)) {
+        if (/\btext\b/i.test(contentType)) {
             typeEnum = 'text';
         }
         let body: any = null;
         switch (typeEnum) {
             case 'text':
-                body = await res.textConverted();
+                body = await (res.textConverted?.() ?? res.text());
                 break;
             case 'json':
-                let str = await res.textConverted();
+                let str = await (res.textConverted?.() ?? res.text());
                 try {
                     body = JSON.parse(str);
                 } catch (error) {
