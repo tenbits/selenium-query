@@ -97,7 +97,7 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
         }
         if (opts?.visible === true) {
             let el = $.get(0);
-            let isVisible = await el.isDisplayed();
+            let isVisible = await isDisplayed(el);
             if (isVisible === false) {
                 return false;
             }
@@ -106,7 +106,7 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
             // all elements should be hidden
             for (let i = 0; i < $.length; i++) {
                 let el = $.get(i);
-                let isVisible = await el.isDisplayed();
+                let isVisible = await isDisplayed(el);
                 if (isVisible) {
                     return false;
                 }
@@ -278,4 +278,14 @@ async function waitForTrue(check: () => Promise<boolean>, mix: number | { timeou
         await tick();
     }
     await tick();
+}
+
+
+async function isDisplayed (el: WebElement) {
+    try {
+        let visible = await el.isDisplayed();
+        return visible;
+    } catch (error) {
+        return false;
+    }
 }
