@@ -338,6 +338,17 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
         }
         return waitForElement(this, selector, mix);
     }
+    waitForNoElement (selector: string, opts?: IQueryWaitOptions<WebElement>): IQuery<IElement>
+    waitForNoElement (selector: string, check?: IQueryConditionFn<WebElement>): IQuery<IElement>
+    waitForNoElement (selector: string, mix?: IQueryWaitOptions<WebElement> | IQueryConditionFn<WebElement>): IQuery<IElement> {
+        if (typeof mix === 'function') {
+            mix = { check: mix };
+        }
+        return waitForElement(this, selector, {
+            ...(mix ?? {}),
+            hidden: true,
+        });
+    }
     waitForResource (selector: string): IQuery<IElement>  {
         return driver_evalAsync(this, scripts_waitForResourceCallback, selector);
     }

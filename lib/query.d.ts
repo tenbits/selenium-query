@@ -104,6 +104,8 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             waitForPageReady(urlPattern?: string | RegExp): IQuery<any>;
             waitForElement(selector: string, opts?: IQueryWaitOptions<WebElement>): IQuery<IElement>;
             waitForElement(selector: string, check?: IQueryConditionFn<WebElement>): IQuery<IElement>;
+            waitForNoElement(selector: string, opts?: IQueryWaitOptions<WebElement>): IQuery<IElement>;
+            waitForNoElement(selector: string, check?: IQueryConditionFn<WebElement>): IQuery<IElement>;
             waitForResource(selector: string): IQuery<IElement>;
             unlock(): void;
             getDriver(): WebDriver;
@@ -514,6 +516,7 @@ declare module 'selenium-query/common/IQuery' {
         ($: IQuery<T>): Promise<boolean>;
     }
     export interface IQueryWaitOptions<T> {
+        hidden?: boolean;
         visible?: boolean;
         check?: IQueryConditionFn<T>;
         interval?: number;

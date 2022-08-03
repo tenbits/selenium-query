@@ -89,12 +89,19 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
     waitForTrue(async () => {
         let $: IQuery<WebElement> = await query.find(selector);
         if ($.length === 0) {
+            if (opts?.hidden === true) {
+                // waiting for no-element
+                return true;
+            }
             return false;
         }
-        if (opts?.visible === true) {
+        if (opts?.visible === true || opts?.hidden === true) {
             let el = $.get(0);
             let isVisible = await el.isDisplayed();
-            if (isVisible === false) {
+            if (isVisible === false && opts?.visible === true) {
+                return false;
+            }
+            if (isVisible === true && opts?.hidden === true) {
                 return false;
             }
         }

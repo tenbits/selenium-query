@@ -573,6 +573,7 @@ export interface IQueryConditionFn<T> {
     ($: IQuery<T>): Promise<boolean>
 }
 export interface IQueryWaitOptions<T> {
+    hidden?: boolean
     visible?: boolean
     check?: IQueryConditionFn<T>
     interval?: number
