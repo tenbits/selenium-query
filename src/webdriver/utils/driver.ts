@@ -95,14 +95,21 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
             }
             return false;
         }
-        if (opts?.visible === true || opts?.hidden === true) {
+        if (opts?.visible === true) {
             let el = $.get(0);
             let isVisible = await el.isDisplayed();
-            if (isVisible === false && opts?.visible === true) {
+            if (isVisible === false) {
                 return false;
             }
-            if (isVisible === true && opts?.hidden === true) {
-                return false;
+        }
+        if (opts?.hidden === true) {
+            // all elements should be hidden
+            for (let i = 0; i < $.length; i++) {
+                let el = $.get(i);
+                let isVisible = await el.isDisplayed();
+                if (isVisible) {
+                    return false;
+                }
             }
         }
         if (opts?.check) {
