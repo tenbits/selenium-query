@@ -121,6 +121,10 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
         return true;
     }, { timeout: opts?.timeout, interval: opts?.interval }).then(
         () => {
+            if (opts?.hidden === true) {
+                set.resolve([]);
+                return;
+            }
             query.find(selector).then(
                 x => {
                     set.resolve(x)
