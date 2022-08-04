@@ -119,7 +119,7 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
             }
         }
         return true;
-    }, { timeout: opts?.timeout, interval: opts?.interval }).then(
+    }, { timeout: opts?.timeout, interval: opts?.interval, name: selector }).then(
         () => {
             if (opts?.hidden === true) {
                 set.resolve([]);
@@ -185,7 +185,7 @@ namespace WaitForPageLoad {
     }
     export function documentUrl(driver: IDriver, timeout: number, awaitUrl: string | RegExp) {
         let dfr = new class_Dfr;
-        waitForTrue(isUrl, timeout).then(() => {
+        waitForTrue(isUrl, { timeout, name: awaitUrl?.toString() }).then(() => {
             dfr.resolve();
         }, error => {
             dfr.reject(new Error(`${awaitUrl} not seen. timeouted`));
@@ -206,7 +206,7 @@ namespace WaitForPageLoad {
 
     export function documentState(driver: IDriver, timeout: number, waitForState: 'complete' | 'interactive' = 'complete') {
         let dfr = new class_Dfr;
-        waitForTrue(isReady, timeout).then(() => {
+        waitForTrue(isReady, { timeout, name: `Document state ${waitForState}` }).then(() => {
             dfr.resolve();
         }, error => {
             dfr.reject(new Error(`ReadyState timeout`));
@@ -226,7 +226,7 @@ namespace WaitForPageLoad {
     export function elementLeavesDom (driver: IDriver, el, timeout: number) {
 
         let dfr = new class_Dfr;
-        waitForTrue(isStale, timeout).then(x => {
+        waitForTrue(isStale, { timeout, name: 'elementLeavesDom' }).then(x => {
             dfr.resolve();
         }, error => {
             dfr.reject(new Error(`The old element is still in dom after ${timeout}ms. Reload is not triggered`));
@@ -250,19 +250,22 @@ namespace WaitForPageLoad {
 type TWaitForOptions = {
     timeout?: number
     interval?: number
+    name?: string
 }
 
 function waitForTrue(check: () => Promise<boolean>, timeout: number)
 function waitForTrue(check: () => Promise<boolean>, opts: TWaitForOptions)
-async function waitForTrue(check: () => Promise<boolean>, mix: number | { timeout?: number, interval?: number }) {
+async function waitForTrue(check: () => Promise<boolean>, mix: number | TWaitForOptions) {
     let time = Date.now();
     let interval = 400;
     let timeout = 10_000;
+    let name = '';
     if (typeof mix === 'number') {
         timeout = mix;
     } else {
         timeout = mix?.timeout ?? timeout;
         interval = mix?.interval ?? interval;
+        name = mix?.name ?? name;
     }
 
     async function tick () {
@@ -271,7 +274,7 @@ async function waitForTrue(check: () => Promise<boolean>, mix: number | { timeou
             return;
         }
         if (Date.now() - time > timeout) {
-            throw new Error('Timeout error');
+            throw new Error(`Timeout error ${ name}`);
         }
 
         await $promise.wait(interval);
