@@ -66,6 +66,7 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
             await wrapper.driver.manage().deleteAllCookies();
         }
 
+        let hasSQuery = setts?.query != null;
         let httpsProxy = config?.httpsProxy;
         if (httpsProxy) {
             // Obsolete: chrome must be launched with PROXY settings
@@ -147,7 +148,9 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
 
         let isError = result.name === 'Error';
         if (isError) {
-            driverPool.unlockDriver(wrapper);
+            if (hasSQuery === false) {
+                driverPool.unlockDriver(wrapper);
+            }
             throw result;
         }
 
@@ -162,7 +165,10 @@ export const Webdriver: IQueryStatics<WebdriverQuery> = {
                 };
             }
         }
-        driverPool.unlockDriver(wrapper);
+        if (hasSQuery === false) {
+            // unlock only if we requests from pool, if passed externally leave the state as is
+            driverPool.unlockDriver(wrapper);
+        }
         return result;
     },
     pseudo: SelectorsEx.pseudoFns
