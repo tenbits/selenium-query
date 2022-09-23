@@ -15,6 +15,11 @@ import { Capabilities, type WebDriver, type ProxyConfig } from 'selenium-webdriv
 
 declare var process: any;
 
+export interface IWebdriverBuildConfig extends IBuildConfig {
+    name?: 'Chrome' | 'Firefox' | 'Edge' | string
+    driver?: WebDriver
+}
+
 export const Webdriver: IQueryStatics<WebdriverQuery> = {
     fromHtml(html, config?: ILoadConfig) {
         return Webdriver.load(`data:text/html;charset=utf-8,${html}`, config);

@@ -1,7 +1,7 @@
 
 
 export namespace $domains {
-    let rgxDomain = /^(?<protocol>\w+):[\/]{1,3}(?<base>[\w\-\.]+)/;
+    let rgxDomain = /^(?<protocol>\w+):[\/]{1,3}(?<base>[\w\-\.:]+)/;
     export function fromUrl (url: string) {
         let match = rgxDomain.exec(url);
         if (match == null) {

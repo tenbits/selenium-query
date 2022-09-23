@@ -119,7 +119,12 @@ export function waitForElement (query: IQuery<IElement>, selector: string, opts?
             }
         }
         return true;
-    }, { timeout: opts?.timeout, interval: opts?.interval, name: selector }).then(
+    }, {
+        timeout: opts?.timeout,
+        interval: opts?.interval,
+        name: selector,
+        tick: opts?.tick
+    }).then(
         () => {
             if (opts?.hidden === true) {
                 set.resolve([]);
@@ -251,6 +256,7 @@ type TWaitForOptions = {
     timeout?: number
     interval?: number
     name?: string
+    tick?: () => Promise<any>
 }
 
 function waitForTrue(check: () => Promise<boolean>, timeout: number)
@@ -260,12 +266,14 @@ async function waitForTrue(check: () => Promise<boolean>, mix: number | TWaitFor
     let interval = 400;
     let timeout = 10_000;
     let name = '';
+    let externalTick: () => Promise<any>;
     if (typeof mix === 'number') {
         timeout = mix;
     } else {
         timeout = mix?.timeout ?? timeout;
         interval = mix?.interval ?? interval;
         name = mix?.name ?? name;
+        externalTick = mix?.tick;
     }
 
     async function tick () {
@@ -276,8 +284,18 @@ async function waitForTrue(check: () => Promise<boolean>, mix: number | TWaitFor
         if (Date.now() - time > timeout) {
             throw new Error(`Timeout error ${ name}`);
         }
+        let nextTickMs = interval;
+        if (typeof externalTick === 'function') {
+            let start = Date.now();
+            await externalTick();
+            let ms = Date.now() - start;
 
-        await $promise.wait(interval);
+            // move start time forward to prevent timeout error;
+            time += ms;
+            nextTickMs = Math.max(0, nextTickMs - ms);
+        }
+
+        await $promise.wait(nextTickMs);
         await tick();
     }
     await tick();

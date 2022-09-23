@@ -1,12 +1,12 @@
 import { TestUtils } from './utils'
 UTest({
-	$before () {
-		Utils.start();
-	},
-	$after () {
-		//Utils.stop();
-	},
-	'load page and eval' (done) {
+    $before () {
+        TestUtils.start();
+    },
+    $after () {
+        //Utils.stop();
+    },
+    'load page and eval' (done) {
 
 
         TestUtils.query('/html/foo.html', ($, a, b) => {
@@ -15,6 +15,6 @@ UTest({
                 console.log('>', str);
                 done();
             });
-		});
+        });
     },
 });

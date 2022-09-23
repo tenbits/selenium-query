@@ -3,11 +3,11 @@ import { refs } from '../global'
 import { IElement, IDriver, IDriverManager } from '../common/IDriver'
 import { Deferred } from '../types/Deferred'
 import { IQuery, IQueryConditionFn, IQueryWaitOptions } from '../common/IQuery'
-import { Webdriver } from './Webdriver'
+import { IWebdriverBuildConfig, Webdriver } from './Webdriver'
 import { IBuildConfig, ILoadConfig, ISettings } from '../common/IConfig'
 import { driverPool } from './DriverPool'
-import { JsdomDriver } from '../jsdom/JsdomDriver'
-import { CheerioDriver } from '../cheerio/CheerioDriver'
+import { IJsdomBuildConfig, JsdomDriver } from '../jsdom/JsdomDriver'
+import { CheerioDriver, ICheerioBuildConfig } from '../cheerio/CheerioDriver'
 import { NetworkDriver } from '../fetch/NetworkDriver'
 import { waitForPageLoad, waitForElement, driver_evalAsync } from './utils/driver';
 import { DefaultConfig } from './SeleniumDriver';
@@ -19,6 +19,8 @@ import { scripts_nodeDataset } from './scripts/nodeDataset'
 import { WebdriverFormData } from './WebdriverFormData'
 import { FormDataBase } from '../common/FormDataBase'
 import { type WebElement } from 'selenium-webdriver'
+import { JsdomQuery } from '../jsdom/JsdomQuery'
+import { CherrioQuery } from '../cheerio/CherrioQuery'
 
 declare var scripts_nodeClassHas: any;
 declare var scripts_nodeClassAdd: any;
@@ -368,17 +370,16 @@ export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & { then: ne
     static build(config: IBuildConfig, setts?: ISettings): IQuery<any> {
         return Webdriver.build(config, setts);
     }
-    static load(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings) {
-        switch (config.name?.toLowerCase()) {
-            case 'jsdom':
-                return JsdomDriver.load(url, config, setts);
-            case 'cheerio':
-                return CheerioDriver.load(url, config, setts);
-            default:
-                return Webdriver.load(url, config, setts);
+    static load(url: string, config: IJsdomBuildConfig, setts?: ISettings): JsdomQuery
+    static load(url: string, config: ICheerioBuildConfig, setts?: ISettings): CherrioQuery
+    static load(url: string, config?: IWebdriverBuildConfig, setts?: ISettings): WebdriverQuery
+    static load(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings): IQuery<any, any> {
+        if (config.name === 'jsdom') {
+            return JsdomDriver.load(url, config, setts);
         }
-    }
-    static loadWithWebdriver(url: string, config: IBuildConfig = DefaultConfig, setts?: ISettings): WebdriverQuery {
+        if (config.name === 'cheerio') {
+            return CheerioDriver.load(url, config, setts);
+        }
         return Webdriver.load(url, config, setts);
     }
 

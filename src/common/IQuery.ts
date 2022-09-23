@@ -6,7 +6,8 @@ import {
     async_map,
     async_aggr,
     async_traverse,
-    async_filter
+    async_filter,
+    async_toThenable
 } from '../utils/async'
 
 import { class_Dfr, is_ArrayLike } from 'atma-utils';
@@ -25,6 +26,7 @@ export class IQueryCtx {
     url: string
     status: number
     headers: { [key: string]: string}
+    breadcrumbs: string[] = [];
 
     thener: (resolve, reject) => IQuery<any>
     Ctor: new (mix?) => IQuery<any>
@@ -46,10 +48,11 @@ export class IQueryCtx {
     }
     static copyFrom (targetCtx: IQueryCtx, parentCtx: IQueryCtx) {
         if (parentCtx != null) {
-            targetCtx.url = parentCtx?.url;
-            targetCtx.source = parentCtx?.source;
-            targetCtx.status = parentCtx?.status;
-            targetCtx.headers = parentCtx?.headers;
+            targetCtx.url = parentCtx.url;
+            targetCtx.source = parentCtx.source;
+            targetCtx.status = parentCtx.status;
+            targetCtx.headers = parentCtx.headers;
+            targetCtx.breadcrumbs = [ ... (parentCtx?.breadcrumbs ?? []) ];
         }
         return targetCtx;
     }
@@ -109,7 +112,25 @@ export abstract class IQuery<TElement = any, TContainer extends IQuery<TElement,
     }
 
     wait (ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return async_next(this, ($, source) => {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(this);
+                }, ms);
+            });
+        });
+    }
+
+    require (opts?: { count?: number }) {
+        const $ = this.ctx.newAsync(null, this);
+        async_toThenable(this).then((ctx: IQuery) => {
+            let expect = opts?.count ?? 1;
+            if (ctx.length !== expect) {
+                throw new Error(`Elements count missmatch. ${ this.ctx.breadcrumbs.join(', ') }. Expected: ${expect}. Got ${ctx.length}`);
+            }
+            $.resolve(ctx);
+        });
+        return $;
     }
 
     //#region CssClass
@@ -569,7 +590,7 @@ namespace Arr {
 }
 
 
-export interface IQueryConditionFn<T> {
+export interface IQueryConditionFn <T> {
     ($: IQuery<T>): Promise<boolean>
 }
 export interface IQueryWaitOptions<T> {
@@ -578,4 +599,7 @@ export interface IQueryWaitOptions<T> {
     check?: IQueryConditionFn<T>
     interval?: number
     timeout?: number
+
+    /** execute any other code while waiting. */
+    tick?: () => Promise<any>
 }

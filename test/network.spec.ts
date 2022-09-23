@@ -13,7 +13,6 @@ const Server = {
     start () {
         return new Promise ((resolve, reject) => {
             Server.http  = http.createServer((req, res: http.ServerResponse) => {
-                console.log('REQ', req.url);
                 let url = req.url;
                 let route = Server.routes.get(url);
                 if (route == null) {
@@ -43,7 +42,6 @@ const Server = {
                 let key = conn.remoteAddress + ':' + conn.remotePort;
                 connections[key] = conn;
                 conn.on('close', function() {
-                    console.log('CLOSED');
                     delete connections[key];
                 });
             });
@@ -146,7 +144,7 @@ UTest({
         eq_(resp.body, 'lorem');
         eq_(resp.url, test.url + '/redirected');
     },
-    async '!should consume proxy' () {
+    async 'should consume proxy' () {
         let test = Server.define({
             routes: {
                 '/': {
@@ -166,6 +164,5 @@ UTest({
         });
 
         eq_(resp.body, 'foo');
-        console.log(resp.body.toString());
     },
 })

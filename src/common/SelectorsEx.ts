@@ -27,6 +27,8 @@ export namespace SelectorsEx {
 
     export function find <TElement> (el: IQuery<TElement>, selector: string, find: (el: IQuery<TElement> , selector: string) => IQuery<TElement>)  {
         let query = el.ctx.newAsync();
+        query.ctx.breadcrumbs.push(selector);
+
         findInner(el, selector, find).then(
             $ => {
                 query.resolve($);

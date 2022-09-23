@@ -20,6 +20,7 @@ import {
 import { Command, Executor } from 'selenium-webdriver/lib/command';
 
 export interface ICheerioBuildConfig extends IBuildConfig {
+    name: 'cheerio'
     html: string
 }
 

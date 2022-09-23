@@ -20,30 +20,28 @@ export class DriverPool {
     private queue: {url: string, config: ILoadConfig, dfr: class_Dfr}[] = []
 
     async get (url: string = null, config: ILoadConfig, setts: ISettings): Promise<DriverWrapper> {
-        if (setts) {
-            let driver = DriverExtractor.extractDriver(setts.query);
-            if (driver) {
-                if (this.singleton && this.singleton.driver === driver) {
-                    this.singleton.busy = true;
-                    return this.singleton;
-                }
-                let wrapper = this.pool.find(x => x.driver === driver);
-                if (wrapper == null) {
-                    wrapper = new DriverWrapper();
-                    wrapper.driver = driver;
-                    wrapper.busy = true;
-                    wrapper.requestedAt = new Date();
+        let driver = config.driver ?? (setts?.query ? DriverExtractor.extractDriver(setts.query) : null);
+        if (driver) {
+            if (this.singleton && this.singleton.driver === driver) {
+                this.singleton.busy = true;
+                return this.singleton;
+            }
+            let wrapper = this.pool.find(x => x.driver === driver);
+            if (wrapper == null) {
+                wrapper = new DriverWrapper();
+                wrapper.driver = driver;
+                wrapper.busy = true;
+                wrapper.requestedAt = new Date();
 
-                    this.pool.push(wrapper);
-                }
-                return wrapper;
+                this.pool.push(wrapper);
             }
-            if (setts.pool) {
-                if (typeof setts.pool === 'number') {
-                    POOL_CUSTOM = Math.max(setts.pool, this.pool.length);
-                }
-                return await this.requestDriver(url, config);
+            return wrapper;
+        }
+        if (setts?.pool) {
+            if (typeof setts.pool === 'number') {
+                POOL_CUSTOM = Math.max(setts.pool, this.pool.length);
             }
+            return await this.requestDriver(url, config);
         }
         return await this.getGlobal(url, config);
     }

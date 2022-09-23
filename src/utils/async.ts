@@ -69,10 +69,10 @@ export function async_at<T>(self: IQuery<T>, index, fn) {
     return $;
 };
 
-export function async_next(self: IQuery<any>, fn) {
+export function async_next(self: IQuery<any>, fn: (self: IQuery, wrapped?: IQuery) => void | PromiseLike<any>) {
     const $ = self.ctx.newAsync(null, self);
-    async_toThenable(self).done(ctx => {
-        _always(fn($, ctx), () => $.resolve($));
+    async_toThenable(self).then(ctx => {
+        _always(fn($, ctx), (result) => $.resolve(result ?? $));
     });
     return $;
 };

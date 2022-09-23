@@ -1,8 +1,9 @@
+import type { WebDriver } from 'selenium-webdriver';
 import { IQuery } from "../common/IQuery";
 import { CookieContainer } from './CookieContainer';
 
 export interface IBuildConfig {
-    name?: string
+    //name?: 'jsdom' | 'cheerio' | 'webdriver'
     args?: string[]
     binaryPath?: string
 
@@ -13,6 +14,9 @@ export interface IBuildConfig {
     setArguments? (options: any)
     setBinaryPath? (options: any)
     setLogging? (options: any)
+
+    /** Configurate driver before page is loaded. You can set e.g. the chrome dev tools commands: https://chromedevtools.github.io/devtools-protocol/ */
+    setDriverConfiguration? (driver: WebDriver): Promise<any>
 
     /* HTTP, webdriver supports only cookies */
     headers?: {[name: string] : string } | string

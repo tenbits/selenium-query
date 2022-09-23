@@ -340,6 +340,7 @@ declare module 'selenium-query/common/IQuery' {
         headers: {
             [key: string]: string;
         };
+        breadcrumbs: string[];
         thener: (resolve: any, reject: any) => IQuery<any>;
         Ctor: new (mix?: any) => IQuery<any>;
         newSync(arr?: any, parent?: IQuery<any>): IQuery<any, any>;
@@ -359,7 +360,10 @@ declare module 'selenium-query/common/IQuery' {
         ensureSync(): IQuery<TElement>;
         ensureAsync(): IQuery<TElement>;
         resolve(...args: any[]): this;
-        wait(ms: number): Promise<unknown>;
+        wait(ms: number): IQuery<any, any>;
+        require(opts?: {
+            count?: number;
+        }): IQuery<any, any>;
         hasClass(name: string): PromiseLike<boolean>;
         protected abstract hasClassFn(node: TElement, name: string): Deferred<boolean>;
         addClass(name: string): IQuery<any, any>;
@@ -521,10 +525,13 @@ declare module 'selenium-query/common/IQuery' {
         check?: IQueryConditionFn<T>;
         interval?: number;
         timeout?: number;
+        /** execute any other code while waiting. */
+        tick?: () => Promise<any>;
     }
 }
 
 declare module 'selenium-query/common/IConfig' {
+    import type { WebDriver } from 'selenium-webdriver';
     import { IQuery } from "selenium-query/common/IQuery";
     import { CookieContainer } from 'selenium-query/common/CookieContainer';
     export interface IBuildConfig {
@@ -536,6 +543,8 @@ declare module 'selenium-query/common/IConfig' {
         setArguments?(options: any): any;
         setBinaryPath?(options: any): any;
         setLogging?(options: any): any;
+        /** Configurate driver before page is loaded. You can set e.g. the chrome dev tools commands: https://chromedevtools.github.io/devtools-protocol/ */
+        setDriverConfiguration?(driver: WebDriver): Promise<any>;
         headers?: {
             [name: string]: string;
         } | string;

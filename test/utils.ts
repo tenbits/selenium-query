@@ -1,9 +1,7 @@
 import { type WebdriverQuerySync } from '../src/webdriver/WebdriverQuery'
-import { Application } from 'atma-server'
-import memd = require('memd');
-
-let Lib = require('../lib/query.js')
-let SQuery = Lib;
+import { Application, middleware } from 'atma-server'
+import memd from 'memd';
+import * as SQuery from '../lib/query.js'
 
 
 export class TestUtils {
@@ -58,6 +56,9 @@ export class TestUtils {
             ],
             middleware: [
                 require('body-parser').json(),
+            ],
+            after: [
+                middleware.static
             ]
         })
         app.listen(0);

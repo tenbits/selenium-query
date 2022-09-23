@@ -1,9 +1,9 @@
 import { IBuildConfig } from "../common/IConfig";
 import { IThenableDriver } from "../common/IDriver";
 import { obj_extend } from "atma-utils";
-import { Builder } from 'selenium-webdriver'
+import { Builder, type WebDriver } from 'selenium-webdriver'
 
-export function buildDriver (config: IBuildConfig) {
+export async function buildDriver (config: IBuildConfig) {
     config = obj_extend(Object.create(DefaultConfig), config);
 
     let browser = require('selenium-webdriver/' + config.name.toLowerCase());
@@ -16,7 +16,12 @@ export function buildDriver (config: IBuildConfig) {
     let builder = new Builder().forBrowser(config.name.toLowerCase());
     config.setOptions(builder, options);
     config.applyOptions(builder, options);
-    return builder.build();
+    let driver = await builder.build();
+
+    if (config.setDriverConfiguration) {
+        await config.setDriverConfiguration(driver);
+    }
+    return driver;
 }
 
 export const DefaultConfig: IBuildConfig = {

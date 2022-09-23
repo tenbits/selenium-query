@@ -30,13 +30,21 @@ UTest({
             has_(headers['content-type'], 'json');
         }
     },
-    '!post': {
+    'post': {
         async 'send FormData'() {
 
             let app = await TestUtils.startApplication();
 
             @HttpEndpoint.route('/upload')
             class UploadEndpoint extends HttpEndpoint {
+                async '$get /page' () {
+                    return new HttpResponse({
+                        headers: {
+                            'Content-Type': 'text/html'
+                        },
+                        content: '<!DOCTYPE html> <h1> Upload </h1>'
+                    })
+                }
                 async '$post /echo'(req) {
                     const formidable = require('formidable');
                     const form = formidable({ multiples: true });
@@ -85,7 +93,8 @@ UTest({
 
             let port = app.getHttpPort();
 
-            let resp = await WebdriverQuery.fetch(`http://localhost:${port}/upload/echo`, {
+            let resp = await WebdriverQuery.fetch(`http://127.0.0.1:${port}/upload/echo`, {
+                baseUrl: `http://127.0.0.1:${port}/upload/page`,
                 method: 'POST',
                 body: form,
                 headers: {
