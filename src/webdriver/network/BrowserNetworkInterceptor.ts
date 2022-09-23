@@ -66,7 +66,6 @@ export class BrowserNetworkInterceptor {
                 requestId: message.params.requestId
             });
         }
-
     }
 }
 

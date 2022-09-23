@@ -23,10 +23,9 @@ Single API to query web-pages or html blocks with supported providers: `Selenium
 
 > All cookies received from the backend will be reused for a domain.
 
-```
+```typescript
 import SQuery from 'selenium-query';
 let $ = await SQuery.load(url, config?: IConfig)
-
 ```
 
 
@@ -36,8 +35,9 @@ let $ = await SQuery.load(url, config?: IConfig)
 
 As the WebDriver methods are **async**, `Selenium Query` instance implements `Promise` and you can chain the function calls or use `async/await`. A very basic example
 
-```javascript
-let $ = require('selenium-query');
+```typescript
+import $ from 'selenium-query';
+
 $(driver)
     .find('.foo')
     .filter('input')
@@ -54,8 +54,9 @@ console.log(value);
 
 As with jQuery you can define an extension method and call it in your tests
 
-```javascript
-let $ = require('selenium-query');
+```typescript
+import $ from 'selenium-query';
+
 $.fn.doBaz = function(){
     return this.each(el => {
         // do some usefull things with WebElement/JsDomElement/CherioElement
@@ -64,6 +65,43 @@ $.fn.doBaz = function(){
 $(driver)
     .find('input')
     .doBaz();
+```
+
+### WebDriver network monitor
+
+> Allows to get and to listen for events emitted by the browser
+
+```typescript
+import { BrowserNetworkMonitor  } from 'selenium-query';
+
+let monitor = await BrowserNetworkMonitor.start(driver);
+// ... make requests
+let { request, response } = monitor.getRequest(/index.html/);
+console.log(request.headers, response.headers);
+
+// get the response body
+let { base64Encoded, body } = monitor.getResponseBody(mainPageRequest);
+```
+
+### WebDriver network interceptor
+
+> Allows to send custom responses for requests back to the browser
+
+```typescript
+import { BrowserNetworkInterceptor  } from 'selenium-query';
+
+let interceptor = await BrowserNetworkInterceptor.start(driver);
+interceptor.register({
+    match: /index.html/,
+    response: {
+        status: 200,
+        headers: {
+            'Content-Type': 'text/html'
+        },
+        body: '<!DOCTYPE html> <h1>Changed</h1>'
+    }
+});
+// ... load index.html, and the modified content should be loaded
 ```
 
 ## API
@@ -149,7 +187,7 @@ $(driver)
 - [WebDriver](https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebDriver.html)
 - [WebElement](https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_WebElement.html)
 
-```javascript
+```typescript
 let SQuery = require('selenium-query');
 let $document = SQuery(driver);
 let $inputs = $document.find('inputs');
@@ -164,7 +202,7 @@ Count of WebElements in a current set.
 ##### `eq(index:number):SQuery` <a name='eq'></a>
 Get the SQuery instance with only one element at the index.
 > :exclamation: Once again, wait until the promise is resolved, or **chain** the manipulations
-```javascript
+```typescript
 await $(driver)
     .find('button')
     .eq(0)
@@ -300,7 +338,7 @@ Select an option from the `select` element, or if the `input` the selects a text
 ##### `eval(fn:Function, ...args):Promise<any>` <a name='eval'></a>
 Evaluate function in Browser.
 > :exclamation: The first argument is the first element in the set
-```javascript
+```typescript
 let result = await $(driver)
     .find('button')
     .eval((el: HTMLButton) => {
@@ -317,7 +355,7 @@ let result = await $(driver)
 Create or reuse a WebDriver, and load the page.
 
 #### `WebDriverOptions` defaults
-```javascript
+```typescript
 {
     name: 'Chrome',
     args: ['no-sandbox'],
@@ -439,7 +477,7 @@ interface IHttpResponse {
 
 
 **Example**
-```javascript
+```typescript
 $
     .load('http://google.com')
     .find('input')

@@ -2,11 +2,27 @@ import { class_EventEmitter } from 'atma-utils';
 import { WebDriver } from 'selenium-webdriver';
 import { CDPConnection } from './CDPConnection';
 
+
+export interface INetworkMonitorRequest {
+    requestId: string
+    request: {
+        url: string
+        method: string
+        headers: Record<string, string>
+        date: number
+    }
+    response: {
+        status: number
+        headers: Record<string, string>
+        date: number
+    }
+}
 interface IBrowserNetworkMonitorEvents {
     requestWillBeSent (req: INetworkMonitorRequest)
     loadingFinished (req: INetworkMonitorRequest)
     responseReceived (req: INetworkMonitorRequest)
 }
+type TRequestFilter = (req: INetworkMonitorRequest['request']) => boolean;
 
 export class BrowserNetworkMonitor extends class_EventEmitter<IBrowserNetworkMonitorEvents> {
 
@@ -33,9 +49,17 @@ export class BrowserNetworkMonitor extends class_EventEmitter<IBrowserNetworkMon
         });
     }
 
+    getRequest (regexp?: RegExp): INetworkMonitorRequest
+    getRequest (filter?: TRequestFilter): INetworkMonitorRequest
+    getRequest (mix?: RegExp | TRequestFilter): INetworkMonitorRequest
+    getRequest (mix?: RegExp | TRequestFilter): INetworkMonitorRequest {
+        return this.getRequests(mix)[0];
+    }
+
     getRequests (regexp?: RegExp): INetworkMonitorRequest[]
-    getRequests (filter?: (req: INetworkMonitorRequest['request']) => boolean): INetworkMonitorRequest[]
-    getRequests (mix?: RegExp | ((req: INetworkMonitorRequest['request']) => boolean)): INetworkMonitorRequest[] {
+    getRequests (filter?: TRequestFilter): INetworkMonitorRequest[]
+    getRequests (mix?: RegExp | TRequestFilter): INetworkMonitorRequest[]
+    getRequests (mix?: RegExp | TRequestFilter): INetworkMonitorRequest[] {
         if (mix == null) {
             return this.requests;
         }
@@ -106,20 +130,6 @@ export class BrowserNetworkMonitor extends class_EventEmitter<IBrowserNetworkMon
             this.emit('loadingFinished', request);
             return;
         }
-    }
-}
-export interface INetworkMonitorRequest {
-    requestId: string
-    request: {
-        url: string
-        method: string
-        headers: Record<string, string>
-        date: number
-    }
-    response: {
-        status: number
-        headers: Record<string, string>
-        date: number
     }
 }
 
