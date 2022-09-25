@@ -75,7 +75,13 @@ $(driver)
 import { BrowserNetworkMonitor  } from 'selenium-query';
 
 let monitor = await BrowserNetworkMonitor.start(driver);
-// ... make requests
+
+monitor
+    .on('requestWillBeSent', req => console.log(req))
+    .on('responseReceived', req => console.log(req))
+    .on('loadingFinished', req => console.log(req));
+
+// ... e.g. after the a page is loaded
 let { request, response } = monitor.getRequest(/index.html/);
 console.log(request.headers, response.headers);
 
