@@ -11,7 +11,9 @@
 /tools
 /types
 /typings
+/assets
 build.js
 tsconfig-build.json
 .travis.yml
 .npmignore
+.vscode

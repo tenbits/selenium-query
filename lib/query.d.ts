@@ -7,9 +7,13 @@
 declare module 'selenium-query' {
     import { WebdriverQuery } from 'selenium-query/webdriver/WebdriverQuery';
     import { CookieContainer } from 'selenium-query/common/CookieContainer';
+    import { BrowserNetworkInterceptor } from 'selenium-query/webdriver/network/BrowserNetworkInterceptor';
+    import { BrowserNetworkMonitor } from 'selenium-query/webdriver/network/BrowserNetworkMonitor';
     class SQuery extends WebdriverQuery {
         static default: typeof SQuery;
         static CookieContainer: typeof CookieContainer;
+        static BrowserNetworkInterceptor: typeof BrowserNetworkInterceptor;
+        static BrowserNetworkMonitor: typeof BrowserNetworkMonitor;
     }
     export = SQuery;
 }
@@ -23,10 +27,15 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
      import { IElement, IDriver, IDriverManager } from 'selenium-query/common/IDriver';
     import { Deferred } from 'selenium-query/types/Deferred';
     import { IQuery, IQueryConditionFn, IQueryWaitOptions } from 'selenium-query/common/IQuery';
+    import { IWebdriverBuildConfig } from 'selenium-query/webdriver/Webdriver';
     import { IBuildConfig, ILoadConfig, ISettings } from 'selenium-query/common/IConfig';
+    import { IJsdomBuildConfig } from 'selenium-query/jsdom/JsdomDriver';
+    import { ICheerioBuildConfig } from 'selenium-query/cheerio/CheerioDriver';
     import { WebdriverFormData } from 'selenium-query/webdriver/WebdriverFormData';
     import { FormDataBase } from 'selenium-query/common/FormDataBase';
     import { type WebElement } from 'selenium-webdriver';
+    import { JsdomQuery } from 'selenium-query/jsdom/JsdomQuery';
+    import { CherrioQuery } from 'selenium-query/cheerio/CherrioQuery';
     export type WebdriverQuerySync = Omit<WebdriverQuery, 'then' | 'resolve' | 'reject' | 'done' | 'fail'>;
     export class WebdriverQuery extends IQuery<IElement, WebdriverQuery & {
             then: never;
@@ -112,8 +121,9 @@ declare module 'selenium-query/webdriver/WebdriverQuery' {
             createFormData(): Promise<WebdriverFormData>;
             static FormData: typeof FormDataBase;
             static build(config: IBuildConfig, setts?: ISettings): IQuery<any>;
-            static load(url: string, config?: IBuildConfig, setts?: ISettings): IQuery<any, any> | WebdriverQuery;
-            static loadWithWebdriver(url: string, config?: IBuildConfig, setts?: ISettings): WebdriverQuery;
+            static load(url: string, config: IJsdomBuildConfig, setts?: ISettings): JsdomQuery;
+            static load(url: string, config: ICheerioBuildConfig, setts?: ISettings): CherrioQuery;
+            static load(url: string, config?: IWebdriverBuildConfig, setts?: ISettings): WebdriverQuery;
             static fetch<T = any | WebdriverQuery>(url: string, config?: ILoadConfig & {
                     baseUrl?: string;
             }, setts?: ISettings): Promise<{
@@ -196,6 +206,73 @@ declare module 'selenium-query/common/CookieContainer' {
         getCookies(url?: string): string;
     }
     export const cookieContainer: CookieContainer;
+    export {};
+}
+
+declare module 'selenium-query/webdriver/network/BrowserNetworkInterceptor' {
+    export class BrowserNetworkInterceptor {
+        wsConnection: any;
+        devToolsConnection: any;
+        static start(driver: any): Promise<BrowserNetworkInterceptor>;
+        constructor(wsConnection: any, devToolsConnection: any);
+        interceptions: {
+            urlMatch: RegExp;
+            response: {
+                status?: number;
+                headers?: Record<string, string>;
+                body: string | any;
+            };
+        }[];
+        register(params: {
+            match: RegExp;
+            response: BrowserNetworkInterceptor['interceptions'][0]['response'];
+        }): void;
+    }
+}
+
+declare module 'selenium-query/webdriver/network/BrowserNetworkMonitor' {
+    import { class_EventEmitter } from 'atma-utils';
+    import { WebDriver } from 'selenium-webdriver';
+    export interface INetworkMonitorRequest {
+        requestId: string;
+        request: {
+            url: string;
+            method: string;
+            headers: Record<string, string>;
+            date: number;
+        };
+        response: {
+            status: number;
+            headers: Record<string, string>;
+            date: number;
+        };
+    }
+    interface IBrowserNetworkMonitorEvents {
+        requestWillBeSent(req: INetworkMonitorRequest): any;
+        loadingFinished(req: INetworkMonitorRequest): any;
+        responseReceived(req: INetworkMonitorRequest): any;
+    }
+    type TRequestFilter = (req: INetworkMonitorRequest['request']) => boolean;
+    export class BrowserNetworkMonitor extends class_EventEmitter<IBrowserNetworkMonitorEvents> {
+        static start(driver: WebDriver & {
+            createCDPConnection?: any;
+            _wsConnection?: WebSocket;
+        }): Promise<BrowserNetworkMonitor>;
+        constructor(driver: any, wsConnection: any);
+        getRequest(regexp?: RegExp): INetworkMonitorRequest;
+        getRequest(filter?: TRequestFilter): INetworkMonitorRequest;
+        getRequest(mix?: RegExp | TRequestFilter): INetworkMonitorRequest;
+        getRequests(regexp?: RegExp): INetworkMonitorRequest[];
+        getRequests(filter?: TRequestFilter): INetworkMonitorRequest[];
+        getRequests(mix?: RegExp | TRequestFilter): INetworkMonitorRequest[];
+        getResponseBody(req: INetworkMonitorRequest): Promise<{
+            base64Encoded: any;
+            body: any;
+        }>;
+        getRequestBody(req: INetworkMonitorRequest): Promise<{
+            body: any;
+        }>;
+    }
     export {};
 }
 
@@ -530,12 +607,23 @@ declare module 'selenium-query/common/IQuery' {
     }
 }
 
+declare module 'selenium-query/webdriver/Webdriver' {
+    import { IBuildConfig } from "selenium-query/common/IConfig";
+    import { WebdriverQuery } from "selenium-query/webdriver/WebdriverQuery";
+    import { IQueryStatics } from "selenium-query/common/IQueryStatics";
+    import { type WebDriver } from 'selenium-webdriver';
+    export interface IWebdriverBuildConfig extends IBuildConfig {
+        name?: 'Chrome' | 'Firefox' | 'Edge' | string;
+        driver?: WebDriver;
+    }
+    export const Webdriver: IQueryStatics<WebdriverQuery>;
+}
+
 declare module 'selenium-query/common/IConfig' {
     import type { WebDriver } from 'selenium-webdriver';
     import { IQuery } from "selenium-query/common/IQuery";
     import { CookieContainer } from 'selenium-query/common/CookieContainer';
     export interface IBuildConfig {
-        name?: string;
         args?: string[];
         binaryPath?: string;
         applyOptions?(builder: any, options: any): any;
@@ -598,6 +686,27 @@ declare module 'selenium-query/common/IConfig' {
     }
 }
 
+declare module 'selenium-query/jsdom/JsdomDriver' {
+    import { IQueryStatics } from 'selenium-query/common/IQueryStatics';
+    import { IBuildConfig } from "selenium-query/common/IConfig";
+    export interface IJsdomBuildConfig extends IBuildConfig {
+        name: 'jsdom';
+        html?: string;
+        fragment?: boolean;
+    }
+    export const JsdomDriver: IQueryStatics;
+}
+
+declare module 'selenium-query/cheerio/CheerioDriver' {
+    import { IQueryStatics } from 'selenium-query/common/IQueryStatics';
+    import { IBuildConfig } from "selenium-query/common/IConfig";
+    export interface ICheerioBuildConfig extends IBuildConfig {
+        name: 'cheerio';
+        html: string;
+    }
+    export const CheerioDriver: IQueryStatics;
+}
+
 declare module 'selenium-query/webdriver/WebdriverFormData' {
     import { IElement } from 'selenium-query/common/IDriver';
     import { IQuery } from 'selenium-query/common/IQuery';
@@ -622,6 +731,184 @@ declare module 'selenium-query/common/FormDataBase' {
             file: string;
         }): this;
         entries(): [string, any][];
+    }
+}
+
+declare module 'selenium-query/jsdom/JsdomQuery' {
+    import { IQuery, IQueryConditionFn } from 'selenium-query/common/IQuery';
+    import { IBuildConfig, ISettings } from 'selenium-query/common/IConfig';
+    import { IDriver } from 'selenium-query/common/IDriver';
+    import { Deferred } from 'selenium-query/types/Deferred';
+    export class JsdomQuery extends IQuery<Element> {
+        waitForElement(selector: string, mix?: {
+            visible?: boolean;
+            check?: IQueryConditionFn<Element>;
+        } | IQueryConditionFn<Element>): IQuery<Element, any>;
+        protected _onFn(node: Element, type: string, cb: Function): Promise<any>;
+        protected _onOnceFn(node: Element, type: string, cb: Function): Promise<any>;
+        protected _offFn(node: Element, type: string, cb: Function): Promise<any>;
+        hasClassFn(node: Element, name: string): Deferred<boolean>;
+        addClassFn(node: Element, name: string): Deferred<void>;
+        removeClassFn(node: Element, name: string): Deferred<void>;
+        toggleClassFn(node: Element, name: string): Deferred<void>;
+        textGetFn(node: Element): Deferred<string>;
+        textSetFn(node: Element, text: string): Deferred<void>;
+        htmlOuterGetFn(node: Element): Deferred<string>;
+        htmlGetFn(node: Element): Deferred<string>;
+        htmlSetFn(node: Element, text: string): Deferred<void>;
+        appendFn(node: Element, html: string): Deferred<void>;
+        prependFn(node: Element, html: string): Deferred<void>;
+        beforeFn(node: Element, html: string): Deferred<void>;
+        afterFn(node: Element, html: string): Deferred<void>;
+        cssGet(node: HTMLElement, prop: string): Promise<any>;
+        cssSet(node: HTMLElement, css: {
+            [key: string]: any;
+        }): Deferred<void>;
+        heightGetFn(node: HTMLElement): Promise<number>;
+        widthGetFn(node: HTMLElement): Promise<number>;
+        innerHeightFn(node: Element): Promise<number>;
+        innerWidthFn(node: Element): Promise<number>;
+        getBoundingClientRect(node: HTMLElement): Promise<{
+            top: number;
+            left: number;
+            width: number;
+            height: number;
+        }>;
+        getPosition(node: Element): Promise<{
+            top: number;
+            left: number;
+        }>;
+        scrollTopGetFn(node: Element): Promise<number>;
+        scrollTopSetFn(node: Element, scroll: number): Deferred<void>;
+        scrollLeftGetFn(node: Element): Promise<number>;
+        scrollLeftSetFn(node: Element, scroll: number): Deferred<void>;
+        evalFn(node: Element, mix: Function | string, ...args: any[]): Promise<any>;
+        clickFn(node: HTMLElement): Promise<void>;
+        triggerFn(node: HTMLElement, type: string, ...args: any[]): Promise<void>;
+        selectFn(node: Element, ...args: any[]): Promise<any>;
+        focusFn(node: Element): Promise<void>;
+        blurFn(node: Element): Promise<void>;
+        sendKeysFn(node: Element, mix: any): Promise<void>;
+        typeFn(node: Element, str: string): Promise<void>;
+        pressFn(node: Element, str: string): Promise<void>;
+        removeFn(node: HTMLElement): Promise<void>;
+        attrGetFn(node: HTMLElement, prop: string): Promise<any>;
+        attrSetFn(node: Element, attr: {
+            [key: string]: any;
+        }): Deferred<void>;
+        valGetFn(node: Element): Promise<any>;
+        valSetFn(node: Element, value: any): Deferred<void>;
+        dataGetFn(node: HTMLElement, key: string): Promise<any>;
+        dataSetFn(node: HTMLElement, data: object): Deferred<void>;
+        protected propGetFn(node: HTMLElement, key: string): Promise<any>;
+        protected propSetFn(node: Element, data: object): Deferred<void>;
+        findFn(node: Element, selector: string): Deferred<Element[]>;
+        matchesFn(node: Element, selector: string): Deferred<boolean>;
+        parentFn(node: Element): Promise<Element>;
+        closestFn(node: Element, sel: string): Promise<Element>;
+        childrenFn(node: Element, sel?: string): Promise<Element[]>;
+        nextFn(node: Element, sel?: string): Promise<Element>;
+        protected getField<T>(node: Element, field: string): Deferred<T>;
+        protected setField(node: Element, obj: any): Deferred<void>;
+        protected setField(node: Element, field: string, val: any): Deferred<void>;
+        protected callField<T>(node: Element, field: string, ...args: any[]): Deferred<T>;
+        static newAsync(mix?: any, parent?: IQuery<Element>): JsdomQuery;
+        unlock(): void;
+        static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+        static load(url: string, config: IBuildConfig, setts?: ISettings): JsdomQuery;
+        static fetch(url: string, config?: IBuildConfig, setts?: ISettings): JsdomQuery;
+        static setDriver(driver: IDriver): void;
+        static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+        static unlockDriver(mix: any): void;
+    }
+}
+
+declare module 'selenium-query/cheerio/CherrioQuery' {
+    import { IQuery, IQueryConditionFn } from 'selenium-query/common/IQuery';
+    import { IBuildConfig, ISettings } from 'selenium-query/common/IConfig';
+    import { IDriver } from 'selenium-query/common/IDriver';
+    import { Deferred } from 'selenium-query/types/Deferred';
+    export class CherrioQuery extends IQuery<CheerioElement> {
+        waitForElement(selector: string, mix?: {
+            visible?: boolean;
+            check?: IQueryConditionFn<CheerioElement>;
+        } | IQueryConditionFn<CheerioElement>): IQuery<CheerioElement, any>;
+        protected _onFn(node: CheerioElement, type: string, cb: Function): Promise<any>;
+        protected _onOnceFn(node: CheerioElement, type: string, cb: Function): Promise<any>;
+        protected _offFn(node: CheerioElement, type: string, cb: Function): Promise<any>;
+        hasClassFn(node: CheerioElement, name: string): Deferred<boolean>;
+        addClassFn(node: CheerioElement, name: string): Deferred<void>;
+        removeClassFn(node: CheerioElement, name: string): Deferred<void>;
+        toggleClassFn(node: CheerioElement, name: string): Deferred<void>;
+        textGetFn(node: CheerioElement): Deferred<string>;
+        textSetFn(node: CheerioElement, text: string): Deferred<void>;
+        htmlOuterGetFn(node: CheerioElement): Deferred<string>;
+        htmlGetFn(node: CheerioElement): Deferred<string>;
+        htmlSetFn(node: CheerioElement, text: string): Deferred<void>;
+        appendFn(node: CheerioElement, html: string): Deferred<void>;
+        prependFn(node: CheerioElement, html: string): Deferred<void>;
+        beforeFn(node: CheerioElement, html: string): Deferred<void>;
+        afterFn(node: CheerioElement, html: string): Deferred<void>;
+        cssGet(node: CheerioElement, prop: string): Promise<any>;
+        cssSet(node: CheerioElement, css: {
+            [key: string]: any;
+        }): Deferred<void>;
+        heightGetFn(node: CheerioElement): Promise<number>;
+        widthGetFn(node: CheerioElement): Promise<number>;
+        innerHeightFn(node: CheerioElement): Promise<number>;
+        innerWidthFn(node: CheerioElement): Promise<number>;
+        getBoundingClientRect(node: CheerioElement): Promise<{
+            top: number;
+            left: number;
+            width: number;
+            height: number;
+        }>;
+        getPosition(node: CheerioElement): Promise<{
+            top: number;
+            left: number;
+        }>;
+        scrollTopGetFn(node: CheerioElement): Promise<number>;
+        scrollTopSetFn(node: CheerioElement, scroll: number): Deferred<void>;
+        scrollLeftGetFn(node: CheerioElement): Promise<number>;
+        scrollLeftSetFn(node: CheerioElement, scroll: number): Deferred<void>;
+        evalFn(node: CheerioElement, mix: Function | string, ...args: any[]): Promise<any>;
+        clickFn(node: CheerioElement): Promise<void>;
+        triggerFn(node: CheerioElement, type: string, ...args: any[]): Promise<void>;
+        selectFn(node: CheerioElement, ...args: any[]): Promise<any>;
+        focusFn(node: CheerioElement): Promise<void>;
+        blurFn(node: CheerioElement): Promise<void>;
+        sendKeysFn(node: CheerioElement, mix: any): Promise<void>;
+        typeFn(node: CheerioElement, str: string): Promise<void>;
+        pressFn(node: CheerioElement, str: string): Promise<void>;
+        removeFn(node: CheerioElement): Promise<void>;
+        attrGetFn(node: CheerioElement, prop: string): Promise<any>;
+        attrSetFn(node: CheerioElement, attr: {
+            [key: string]: any;
+        }): Deferred<void>;
+        valGetFn(node: CheerioElement): Promise<any>;
+        valSetFn(node: CheerioElement, value: any): Deferred<void>;
+        dataGetFn(node: CheerioElement, key: string): Promise<any>;
+        dataSetFn(node: CheerioElement, data: object): Deferred<void>;
+        protected propGetFn(node: CheerioElement, key: string): Promise<any>;
+        protected propSetFn(node: CheerioElement, data: object): Deferred<void>;
+        findFn(node: CheerioElement, selector: string): Deferred<CheerioElement[]>;
+        matchesFn(node: CheerioElement, selector: string): Deferred<boolean>;
+        parentFn(node: CheerioElement): Promise<CheerioElement>;
+        closestFn(node: CheerioElement, sel: string): Promise<CheerioElement>;
+        childrenFn(node: CheerioElement, sel?: string): Promise<CheerioElement[]>;
+        nextFn(node: CheerioElement, sel?: string): Promise<CheerioElement>;
+        protected getField<T>(node: CheerioElement, field: string): Deferred<T>;
+        protected setField(node: CheerioElement, obj: any): Deferred<void>;
+        protected setField(node: CheerioElement, field: string, val: any): Deferred<void>;
+        protected callField<T>(node: CheerioElement, field: string, ...args: any[]): Deferred<T>;
+        static newAsync(mix?: any, parent?: IQuery<CheerioElement>): CherrioQuery;
+        unlock(): void;
+        static build(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+        static load(url: string, config: IBuildConfig, setts?: ISettings): CherrioQuery;
+        static fetch(url: string, config?: IBuildConfig, setts?: ISettings): CherrioQuery;
+        static setDriver(driver: IDriver): void;
+        static getDriver(config: IBuildConfig, setts?: ISettings): Promise<IDriver>;
+        static unlockDriver(mix: any): void;
     }
 }
 

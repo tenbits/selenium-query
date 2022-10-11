@@ -2,12 +2,12 @@ import SQuery from '../src/SQueryLibrary'
 
 UTest({
     async 'should support custom pseudo fns' () {
-        
+
         SQuery.pseudo.isA = async function (x) {
             return await x.attr('name') === 'A';
         };
 
-        
+
         let $ = SQuery.cheerio.fromHtml(`
             <div>
                 <span><i name='1'></i></span>
@@ -19,7 +19,7 @@ UTest({
 
         let spansAll = await $.find('span');
         eq_(spansAll.length, 4);
-        
+
         let spansA = await $.find('span:isA');
         eq_(spansA.length, 1);
 
@@ -28,10 +28,10 @@ UTest({
 
         let iA = await $.find('span:isA > i');
         eq_(iA.length, 1);
-        
+
         eq_(await iA.attr('name'), '2');
     },
-    async 'should support text finder' () {
+    async 'should support custom text finder' () {
         SQuery.pseudo.has_text = async function (x, txt) {
             return (await x.text()).includes(txt);
         };
@@ -52,5 +52,31 @@ UTest({
 
         eq_(i.length, 1);
         eq_(await i.attr('name'), 'bar');
+    },
+    async 'should support :has and :text pseudo selector' () {
+        SQuery.pseudo.has_text = async function (x, txt) {
+            return (await x.text()).includes(txt);
+        };
+        let $ = SQuery.cheerio.fromHtml(`
+            <div>
+                <span>
+                    <h3>Foo</h3>
+                    <i name='1'></i>
+                </span>
+                <span>
+                    <h3>Bar</h3>
+                    <i name='bar'></i>
+                </span>
+            </div>
+        `);
+
+        let $h3 = await $.find('span > h3');
+        eq_(await $h3.text(), 'FooBar');
+
+        let $h3TextFiltered = await $.find('span:text(Bar) > h3');
+        eq_(await $h3TextFiltered.text(), 'Bar');
+
+        let $h3SelectorFiltered = await $.find('span:has( i[name="1"] ) > h3');
+        eq_(await $h3SelectorFiltered.text(), 'Foo');
     }
 })

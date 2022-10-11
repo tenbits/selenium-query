@@ -110,6 +110,29 @@ interceptor.register({
 // ... load index.html, and the modified content should be loaded
 ```
 
+### Pseudo selectors
+
+##### `:text` and improved `:has` selectors
+
+```typescript
+let html = `
+    <ul>
+        <li name='x'>Foo <span id='foo'></span></li>
+        <li name='y'>Bar <span id='bar'></span></li>
+    </ul>
+`;
+SQuery.pseudo.isBar = async ($el, innerQuery) => {
+    let $children = await $el.find('#bar');
+    return $children.length > 0;
+};
+
+let value1 = await $.find('li:text(Bar)').attr('name');
+let value2 = await $.find('li:has(span#id)').attr('name');
+let value3 = await $.find('li:isBar()').attr('name');
+// value1 === value2 === value3 === 'y'
+
+```
+
 ## API
 
 ##### &#9776;

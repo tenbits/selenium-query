@@ -18,6 +18,10 @@ export namespace SelectorsEx {
             let text = await el.text();
             let rgx = new RegExp(txt, 'i');
             return rgx.test(text);
+        },
+        async 'has' ($: IQuery, selector) {
+            let $children = await $.find(selector);
+            return $children.length > 0;
         }
     }
 

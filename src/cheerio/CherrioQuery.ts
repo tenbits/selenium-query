@@ -5,7 +5,7 @@ import { Deferred } from '../types/Deferred'
 import { dfr_resolve } from '../utils/dfr';
 import { NetworkDriver } from '../fetch/NetworkDriver';
 import { CheerioUtils } from './CheerioUtils';
-import * as cheerio from 'cheerio'
+import cheerio from 'cheerio'
 
 export class CherrioQuery extends IQuery<CheerioElement> {
     waitForElement(selector: string, mix?: { visible?: boolean; check?: IQueryConditionFn<CheerioElement>; } | IQueryConditionFn<CheerioElement>): IQuery<CheerioElement, any> {
