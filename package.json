@@ -135,7 +135,7 @@
         }
     },
     "dependencies": {
-        "@types/selenium-webdriver": "^4.0.17",
+        "@types/selenium-webdriver": "^4.1.28",
         "alot": "^0.2.96",
         "atma-class": "^1.1.83",
         "atma-io": "^1.2.52",
@@ -146,6 +146,6 @@
         "jsdom": "^17.0.0",
         "memd": "^0.3.10",
         "node-fetch": "^2.6.7",
-        "selenium-webdriver": "^4.4.0"
+        "selenium-webdriver": "^4.31.0"
     }
 }

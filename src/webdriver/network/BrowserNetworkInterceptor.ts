@@ -9,10 +9,10 @@ export class BrowserNetworkInterceptor {
             cacheDisabled: true,
         }, null);
 
-        return new BrowserNetworkInterceptor(driver._wsConnection, connection);
+        return new BrowserNetworkInterceptor(connection._wsConnection);
     }
 
-    constructor(public wsConnection, public devToolsConnection) {
+    constructor(public wsConnection) {
         wsConnection.on('message', message => {
             this.onMessage(JSON.parse(message));
         });
@@ -43,7 +43,7 @@ export class BrowserNetworkInterceptor {
             let intercepted = this.interceptions.find(x => x.urlMatch.test(url));
             if (intercepted) {
                 if (intercepted.response) {
-                    this.devToolsConnection.execute('Fetch.fulfillRequest', {
+                    this.wsConnection.execute('Fetch.fulfillRequest', {
                         requestId: requestPausedParams.requestId,
                         responseCode: intercepted.response.status ?? 200,
                         responseHeaders: intercepted.response.headers,
@@ -52,7 +52,7 @@ export class BrowserNetworkInterceptor {
                     return;
                 }
                 throw new Error(`Modify sent data not supported yet`);
-                // this.devToolsConnection.execute('Fetch.continueRequest', {
+                // this.wsConnection.execute('Fetch.continueRequest', {
                 //     requestId: requestPausedParams.requestId,
                 //     url: message.params.request.url,
                 //     method: message.params.request.method,
@@ -62,7 +62,7 @@ export class BrowserNetworkInterceptor {
                 return;
             }
 
-            this.devToolsConnection.execute('Fetch.continueRequest', {
+            this.wsConnection.execute('Fetch.continueRequest', {
                 requestId: message.params.requestId
             });
         }
