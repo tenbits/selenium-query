@@ -9,7 +9,7 @@ export class BrowserNetworkInterceptor {
             cacheDisabled: true,
         }, null);
 
-        return new BrowserNetworkInterceptor(driver._wsConnection, connection);
+        return new BrowserNetworkInterceptor(driver._cdpWsConnection, connection);
     }
 
     constructor(public wsConnection, public devToolsConnection) {
