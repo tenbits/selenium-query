@@ -212,9 +212,8 @@ declare module 'selenium-query/common/CookieContainer' {
 declare module 'selenium-query/webdriver/network/BrowserNetworkInterceptor' {
     export class BrowserNetworkInterceptor {
         wsConnection: any;
-        devToolsConnection: any;
         static start(driver: any): Promise<BrowserNetworkInterceptor>;
-        constructor(wsConnection: any, devToolsConnection: any);
+        constructor(wsConnection: any);
         interceptions: {
             urlMatch: RegExp;
             response: {

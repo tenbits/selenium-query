@@ -34,7 +34,7 @@ export class BrowserNetworkMonitor extends class_EventEmitter<IBrowserNetworkMon
             cacheDisabled: true,
         }, null);
 
-        return new BrowserNetworkMonitor(driver, driver._cdpWsConnection);
+        return new BrowserNetworkMonitor(driver, connection._wsConnection);
     }
 
     private cdp = new CDPConnection(this.wsConnection, this.driver.sessionId);
